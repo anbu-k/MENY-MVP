@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Grayscale to Color Mapping with Slider</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+        }
+        #sliderContainer {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background-color: #f0f0f0;
+            padding: 10px 0;
+        }
+        #visibilitySlider {
+            width: 100%;
+            height: 50px;
+            -webkit-appearance: none;
+        }
+        #visibilitySlider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 30px;
+            height: 50px;
+            background: #4CAF50;
+            cursor: pointer;
+        }
+        #visibilitySlider::-moz-range-thumb {
+            width: 30px;
+            height: 50px;
+            background: #4CAF50;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="colorCanvas" width="500" height="500"></canvas>
+    <div id="sliderContainer">
+        <input type="range" id="visibilitySlider" min="0" max="255" value="255">
+    </div>
+    <script>
+        window.onload = function() {
+            var canvas = document.getElementById('colorCanvas');
+            var ctx = canvas.getContext('2d');
+            var slider = document.getElementById('visibilitySlider');
+            var originalImageData = null;
+
+            // Load the grayscale image
+            var img = new Image();
+            img.onload = function() {
+                canvas.width = img.width;
+                canvas.height = img.height;
+                ctx.drawImage(img, 0, 0);
+                originalImageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                updateCanvas(255); // Initially show all pixels
+            };
+            img.src = './A_grayscale_image_with_a_gradient_from_black_to_white.jpg'; // Replace with the path to your grayscale image
+
+            // Function to map a grayscale value to RGB values
+            function grayscaleToColor(grayscale) {
+                // Example: linear mapping from grayscale to a blue-green color ramp
+                return [
+                    0,                  // Red
+                    grayscale,          // Green
+                    255 - grayscale     // Blue
+                ];
+            }
+
+            // Function to update the canvas based on the slider value
+            function updateCanvas(threshold) {
+                var imageData = new ImageData(new Uint8ClampedArray(originalImageData.data), canvas.width, canvas.height);
+                var data = imageData.data;
+
+                // Map grayscale values to RGB values and apply threshold
+                for (var i = 0; i < data.length; i += 4) {
+                    var grayscale = data[i];
+
+                    if (grayscale <= threshold) {
+                        var rgb = grayscaleToColor(grayscale);
+                        data[i] = rgb[0];     // Red
+                        data[i + 1] = rgb[1]; // Green
+                        data[i + 2] = rgb[2]; // Blue
+                    } else {
+                        data[i + 3] = 0; // Make pixel transparent
+                    }
+                }
+
+                // Put the modified image data back to the canvas
+                ctx.putImageData(imageData, 0, 0);
+            }
+
+            // Update the canvas when the slider value changes
+            slider.oninput = function() {
+                updateCanvas(this.value);
+            };
+        };
+    </script>
+</body>
+</html>

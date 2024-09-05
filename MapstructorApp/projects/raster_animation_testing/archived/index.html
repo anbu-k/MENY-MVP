@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Image Color Filter</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+        }
+        #sliderContainer {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    background-color: #f0f0f0; /* Light gray background for the slider */
+    padding: 10px 0; /* Add padding to make the container thicker */
+}
+
+#colorSlider {
+    width: 100%;
+    height: 50px; /* Increase the height of the slider */
+    -webkit-appearance: none; /* Override default appearance */
+}
+
+/* Style for the slider thumb (the draggable part) */
+#colorSlider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 30px; /* Width of the thumb */
+    height: 50px; /* Height of the thumb */
+    background: #4CAF50; /* Green background */
+    cursor: pointer;
+}
+
+#colorSlider::-moz-range-thumb {
+    width: 30px;
+    height: 50px;
+    background: #4CAF50;
+    cursor: pointer;
+}
+
+    </style>
+</head>
+<body>
+    <canvas id="imageCanvas" width="500" height="500"></canvas>
+    <div id="sliderContainer">
+        <input type="range" id="colorSlider" min="0" max="100" step="1">
+    </div>
+    <script>
+        window.onload = function() {
+            var canvas = document.getElementById('imageCanvas');
+            var ctx = canvas.getContext('2d');
+            var slider = document.getElementById('colorSlider');
+
+            // Load the image
+            var img = new Image();
+            img.onload = function() {
+                canvas.width = img.width;
+                canvas.height = img.height;
+                ctx.drawImage(img, 0, 0);
+            };
+            img.src = './A_raster_image_with_10_squares_of_different_colors.jpg'; // Replace with the path to your image
+
+            // Function to filter colors based on the slider value
+            function filterColors(value) {
+                var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                var data = imageData.data;
+
+                for (var i = 0; i < data.length; i += 4) {
+                    // Example: Show only pixels with a red value greater than the slider value * 2.5
+                    if (data[i] < value * 2.5) {
+                        data[i + 3] = 0; // Set alpha to 0 to make the pixel transparent
+                    } else {
+                        data[i + 3] = 255; // Set alpha to 255 to make the pixel opaque
+                    }
+                }
+
+                ctx.putImageData(imageData, 0, 0);
+            }
+
+            // Add event listener to the slider
+            slider.addEventListener('input', function() {
+                // Redraw the original image
+                ctx.drawImage(img, 0, 0);
+                // Apply the color filter based on the slider value
+                filterColors(slider.value);
+            });
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Grayscale to Color Mapping with Slider</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow-x: hidden; /* Prevent horizontal scrolling */
+        }
+        #sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 250px; /* Adjust as necessary */
+            height: 100%;
+            background-color: #f0f0f0;
+            padding: 10px;
+            box-sizing: border-box;
+            overflow-y: auto;
+        }
+        #sliderContainer {
+            position: fixed;
+            bottom: 0;
+            left: 200px; /* Align with the right edge of the sidebar */
+            right: 0;
+            background-color: #f0f0f0;
+            padding: 10px 0;
+        }
+        #visibilitySlider {
+            width: 100%;
+            height: 50px;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+        #visibilitySlider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 30px;
+            height: 50px;
+            background: #4CAF50;
+            cursor: pointer;
+        }
+        #visibilitySlider::-moz-range-thumb {
+            width: 30px;
+            height: 50px;
+            background: #4CAF50;
+            cursor: pointer;
+        }
+        canvas {
+            margin-left: 210px; /* Ensure canvas does not overlap sidebar */
+        }
+
+        /* Media Query for screen width less than 600px */
+        @media (max-width: 600px) {
+            #sidebar {
+                position: fixed;
+                left: 0;
+                bottom: 50px; /* Height of the slider container */
+                width: 100%; /* Full width */
+                height: calc(100% - 50px); /* Adjust height to exclude slider height */
+                padding: 10px;
+                overflow-y: auto; /* Enable scrolling on small screens */
+                top: auto; /* Reset top property */
+            }
+            #sliderContainer {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0; /* Ensure it spans the full width of the viewport */
+                padding: 10px 0;
+            }
+            canvas {
+                margin-left: 0; /* Remove left margin for canvas on small screens */
+                width: 100%; /* Adjust canvas width to fit screen width */
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <div id="sidebar">
+        <!-- Cumulative Land Values -->
+        <div>
+            <strong>Cumulative Land Values:</strong>
+            <br>
+            <span>Total: <span id="cumValMult28"></span></span>
+            <br>
+            <span>Percent: <span id="cumPctVal"></span></span>
+        </div>
+        <br>
+    
+        <!-- Cumulative Land -->
+        <div>
+            <strong>Cumulative Land:</strong>
+            <br>
+            <span>Total (Acres): <span id="cumLand"></span></span>
+            <br>
+            <span>Percent: <span id="cumPctLand"></span></span>
+        </div>
+        <br>
+    
+        <!-- Detailed Grayscale and Value Information -->
+        <div>
+            <strong>Current Position:</strong>
+            <br>
+            Value per acre:
+            <br>
+            <span><span id="minVal"></span></span>
+             to: <span><span id="maxVal"></span></span>
+            <br>
+            <span>Acres: <span id="sqKm"></span></span>
+            <br>
+            <span>Percent: <span id="pctLand"></span></span>
+        </div>
+            <br>
+            <br>
+        <div style="display: none;">
+            <strong>Increments:</strong>
+            <br>
+            <span>Data Value: <span id="val"></span></span>
+            <br>
+            <span>Incremental Value: <span id="valMult28"></span></span>
+            <br>
+            <span>Percentage Val: <span id="pctVal"></span></span>
+            <br>
+            <span>Num: <span id="num"></span></span>
+            <br>
+            <span>Grayscale: <span id="grayValue">255</span></span>
+            <br>
+        </div>
+        <br>
+    </div>
+    
+    <canvas id="colorCanvas" width="500" height="500"></canvas>
+    <div id="sliderContainer">
+        <input type="range" id="visibilitySlider" min="0" max="254" value="254">
+    </div>    
+    <script>
+// Define the custom values for specific slider positions
+const positionValues = {};
+
+const csvData = `
+0,254,$8,"$2,507",$3.25 billion,$293 billion,$293 billion,0.4%,0.4%,185 million,9.7%,9.7%,185 million
+1,253,"$2,507","$3,270",$3.25 billion,$293 billion,$585 billion,0.4%,0.8%,101 million,5.3%,15.1%,286 million
+2,252,"$3,270","$3,851",$3.25 billion,$293 billion,$878 billion,0.4%,1.2%,82 million,4.3%,19.4%,368 million
+3,251,"$3,851","$4,368",$3.25 billion,$293 billion,$1.2 trillion,0.4%,1.6%,71 million,3.8%,23.2%,440 million
+4,250,"$4,368","$4,842",$3.25 billion,$293 billion,$1.5 trillion,0.4%,2%,64 million,3.4%,26.5%,503 million
+5,249,"$4,842","$5,282",$3.25 billion,$293 billion,$1.8 trillion,0.4%,2.4%,58 million,3.1%,29.6%,561 million
+6,248,"$5,282","$5,677",$3.25 billion,$293 billion,$2.0 trillion,0.4%,2.7%,53 million,2.8%,32.4%,615 million
+7,247,"$5,677","$6,056",$3.25 billion,$293 billion,$2.3 trillion,0.4%,3.1%,50 million,2.6%,35%,665 million
+8,246,"$6,056","$6,445",$3.25 billion,$293 billion,$2.6 trillion,0.4%,3.5%,47 million,2.5%,37.5%,712 million
+9,245,"$6,445","$6,814",$3.25 billion,$293 billion,$2.9 trillion,0.4%,3.9%,44 million,2.3%,39.8%,756 million
+10,244,"$6,814","$7,181",$3.25 billion,$293 billion,$3.2 trillion,0.4%,4.3%,42 million,2.2%,42%,798 million
+11,243,"$7,181","$7,554",$3.25 billion,$293 billion,$3.5 trillion,0.4%,4.7%,40 million,2.1%,44.1%,838 million
+12,242,"$7,554","$7,922",$3.25 billion,$293 billion,$3.8 trillion,0.4%,5.1%,38 million,2%,46.1%,876 million
+13,241,"$7,922","$8,302",$3.25 billion,$293 billion,$4.1 trillion,0.4%,5.5%,36 million,1.9%,48%,912 million
+14,240,"$8,302","$8,666",$3.25 billion,$293 billion,$4.4 trillion,0.4%,5.9%,35 million,1.8%,49.8%,946 million
+15,239,"$8,666","$9,042",$3.25 billion,$293 billion,$4.7 trillion,0.4%,6.3%,33 million,1.7%,51.6%,980 million
+16,238,"$9,042","$9,414",$3.25 billion,$293 billion,$5.0 trillion,0.4%,6.7%,32 million,1.7%,53.3%,1.01 billion
+17,237,"$9,414","$9,794",$3.25 billion,$293 billion,$5.3 trillion,0.4%,7.1%,31 million,1.6%,54.9%,1.04 billion
+18,236,"$9,794","$10,155",$3.25 billion,$293 billion,$5.6 trillion,0.4%,7.5%,29 million,1.55%,56.4%,1.07 billion
+19,235,"$10,155","$10,538",$3.25 billion,$293 billion,$5.9 trillion,0.4%,7.8%,28 million,1.49%,57.9%,1.1 billion
+20,234,"$10,538","$10,931",$3.25 billion,$293 billion,$6.1 trillion,0.4%,8.2%,27 million,1.44%,59.3%,1.13 billion
+21,233,"$10,931","$11,334",$3.25 billion,$293 billion,$6.4 trillion,0.4%,8.6%,26 million,1.39%,60.7%,1.15 billion
+22,232,"$11,334","$11,739",$3.25 billion,$293 billion,$6.7 trillion,0.4%,9%,25.4 million,1.34%,62.1%,1.18 billion
+23,231,"$11,739","$12,146",$3.25 billion,$293 billion,$7. trillion,0.4%,9.4%,24.6 million,1.29%,63.4%,1.2 billion
+24,230,"$12,146","$12,550",$3.25 billion,$293 billion,$7.3 trillion,0.4%,9.8%,23.8 million,1.25%,64.6%,1.23 billion
+25,229,"$12,550","$12,973",$3.25 billion,$293 billion,$7.6 trillion,0.4%,10.2%,23. million,1.21%,65.8%,1.25 billion
+26,228,"$12,973","$13,398",$3.25 billion,$293 billion,$7.9 trillion,0.4%,10.6%,22.2 million,1.17%,67%,1.27 billion
+27,227,"$13,398","$13,843",$3.25 billion,$293 billion,$8.2 trillion,0.4%,11%,21.5 million,1.13%,68.1%,1.29 billion
+28,226,"$13,843","$14,299",$3.25 billion,$293 billion,$8.5 trillion,0.4%,11.4%,20.8 million,1.1%,69.2%,1.31 billion
+29,225,"$14,299","$14,755",$3.25 billion,$293 billion,$8.8 trillion,0.4%,11.8%,20.2 million,1.06%,70.3%,1.33 billion
+30,224,"$14,755","$15,227",$3.25 billion,$293 billion,$9.1 trillion,0.4%,12.2%,19.6 million,1.03%,71.3%,1.35 billion
+31,223,"$15,227","$15,712",$3.25 billion,$293 billion,$9.4 trillion,0.4%,12.5%,19. million,1.0%,72.3%,1.37 billion
+32,222,"$15,712","$16,160",$3.25 billion,$293 billion,$9.7 trillion,0.4%,12.9%,18.4 million,0.97%,73.3%,1.39 billion
+33,221,"$16,160","$16,667",$3.25 billion,$293 billion,$9.9 trillion,0.4%,13.3%,17.9 million,0.94%,74.2%,1.41 billion
+34,220,"$16,667","$17,171",$3.25 billion,$293 billion,$10.2 trillion,0.4%,13.7%,17.3 million,0.91%,75.1%,1.43 billion
+35,219,"$17,171","$17,706",$3.25 billion,$293 billion,$10.5 trillion,0.4%,14.1%,16.8 million,0.89%,76%,1.44 billion
+36,218,"$17,706","$18,219",$3.25 billion,$293 billion,$10.8 trillion,0.4%,14.5%,16.3 million,0.86%,76.9%,1.46 billion
+37,217,"$18,219","$18,792",$3.25 billion,$293 billion,$11.1 trillion,0.4%,14.9%,15.8 million,0.83%,77.7%,1.48 billion
+38,216,"$18,792","$19,368",$3.25 billion,$293 billion,$11.4 trillion,0.4%,15.3%,15.4 million,0.81%,78.5%,1.49 billion
+39,215,"$19,368","$19,992",$3.25 billion,$293 billion,$11.7 trillion,0.4%,15.7%,14.9 million,0.78%,79.3%,1.51 billion
+40,214,"$19,992","$20,645",$3.25 billion,$293 billion,$12.0 trillion,0.4%,16.1%,14.4 million,0.76%,80.1%,1.52 billion
+41,213,"$20,645","$21,304",$3.25 billion,$293 billion,$12.3 trillion,0.4%,16.5%,14. million,0.74%,80.8%,1.53 billion
+42,212,"$21,304","$21,992",$3.25 billion,$293 billion,$12.6 trillion,0.4%,16.9%,13.5 million,0.71%,81.5%,1.55 billion
+43,211,"$21,992","$22,694",$3.25 billion,$293 billion,$12.9 trillion,0.4%,17.3%,13.1 million,0.69%,82.2%,1.56 billion
+44,210,"$22,694","$23,426",$3.25 billion,$293 billion,$13.2 trillion,0.4%,17.6%,12.7 million,0.67%,82.9%,1.57 billion
+45,209,"$23,426","$24,205",$3.25 billion,$293 billion,$13.5 trillion,0.4%,18%,12.3 million,0.65%,83.5%,1.59 billion
+46,208,"$24,205","$25,002",$3.25 billion,$293 billion,$13.7 trillion,0.4%,18.4%,11.9 million,0.63%,84.2%,1.6 billion
+47,207,"$25,002","$25,872",$3.25 billion,$293 billion,$14.0 trillion,0.4%,18.8%,11.5 million,0.61%,84.8%,1.61 billion
+48,206,"$25,872","$26,776",$3.25 billion,$293 billion,$14.3 trillion,0.4%,19.2%,11.1 million,0.59%,85.4%,1.62 billion
+49,205,"$26,776","$27,734",$3.25 billion,$293 billion,$14.6 trillion,0.4%,19.6%,10.8 million,0.57%,85.9%,1.63 billion
+50,204,"$27,734","$28,637",$3.25 billion,$293 billion,$14.9 trillion,0.4%,20%,10.4 million,0.55%,86.5%,1.64 billion
+51,203,"$28,637","$29,688",$3.25 billion,$293 billion,$15.2 trillion,0.4%,20.4%,10.1 million,0.53%,87%,1.65 billion
+52,202,"$29,688","$30,787",$3.25 billion,$293 billion,$15.5 trillion,0.4%,20.8%,9.7 million,0.51%,87.5%,1.66 billion
+53,201,"$30,787","$31,982",$3.25 billion,$293 billion,$15.8 trillion,0.4%,21.2%,9.3 million,0.49%,88%,1.67 billion
+54,200,"$31,982","$33,160",$3.25 billion,$293 billion,$16.1 trillion,0.4%,21.6%,9. million,0.47%,88.5%,1.68 billion
+55,199,"$33,160","$34,523",$3.25 billion,$293 billion,$16.4 trillion,0.4%,22%,8.7 million,0.46%,88.9%,1.69 billion
+56,198,"$34,523","$35,952",$3.25 billion,$293 billion,$16.7 trillion,0.4%,22.4%,8.3 million,0.44%,89.4%,1.697 billion
+57,197,"$35,952","$37,474",$3.25 billion,$293 billion,$17.0 trillion,0.4%,22.7%,8. million,0.42%,89.8%,1.705 billion
+58,196,"$37,474","$39,122",$3.25 billion,$293 billion,$17.3 trillion,0.4%,23.1%,7.7 million,0.4%,90.2%,1.713 billion
+59,195,"$39,122","$40,883",$3.25 billion,$293 billion,$17.6 trillion,0.4%,23.5%,7.3 million,0.39%,90.6%,1.72 billion
+60,194,"$40,883","$42,739",$3.25 billion,$293 billion,$17.8 trillion,0.4%,23.9%,7. million,0.37%,91%,1.727 billion
+61,193,"$42,739","$44,714",$3.25 billion,$293 billion,$18.1 trillion,0.4%,24.3%,6.7 million,0.35%,91.3%,1.734 billion
+62,192,"$44,714","$46,784",$3.25 billion,$293 billion,$18.4 trillion,0.4%,24.7%,6.4 million,0.34%,91.6%,1.741 billion
+63,191,"$46,784","$48,971",$3.25 billion,$293 billion,$18.7 trillion,0.4%,25.1%,6.1 million,0.32%,92%,1.747 billion
+64,190,"$48,971","$51,338",$3.25 billion,$293 billion,$19.0 trillion,0.4%,25.5%,5.8 million,0.31%,92.3%,1.753 billion
+65,189,"$51,338","$53,725",$3.25 billion,$293 billion,$19.3 trillion,0.4%,25.9%,5.6 million,0.29%,92.6%,1.758 billion
+66,188,"$53,725","$56,202",$3.25 billion,$293 billion,$19.6 trillion,0.4%,26.3%,5.3 million,0.28%,92.8%,1.763 billion
+67,187,"$56,202","$58,918",$3.25 billion,$293 billion,$19.9 trillion,0.4%,26.7%,5.1 million,0.27%,93.1%,1.769 billion
+68,186,"$58,918","$61,790",$3.25 billion,$293 billion,$20.2 trillion,0.4%,27.1%,4.9 million,0.26%,93.4%,1.773 billion
+69,185,"$61,790","$64,835",$3.25 billion,$293 billion,$20.5 trillion,0.4%,27.5%,4.6 million,0.24%,93.6%,1.778 billion
+70,184,"$64,835","$68,099",$3.25 billion,$293 billion,$20.8 trillion,0.4%,27.8%,4.4 million,0.23%,93.9%,1.782 billion
+71,183,"$68,099","$71,486",$3.25 billion,$293 billion,$21.1 trillion,0.4%,28.2%,4.2 million,0.22%,94.1%,1.787 billion
+72,182,"$71,486","$75,110",$3.25 billion,$293 billion,$21.4 trillion,0.4%,28.6%,4. million,0.21%,94.3%,1.791 billion
+73,181,"$75,110","$78,864",$3.25 billion,$293 billion,$21.6 trillion,0.4%,29%,3.8 million,0.2%,94.5%,1.794 billion
+74,180,"$78,864","$82,806",$3.25 billion,$293 billion,$21.9 trillion,0.4%,29.4%,3.6 million,0.19%,94.7%,1.798 billion
+75,179,"$82,806","$86,984",$3.25 billion,$293 billion,$22.2 trillion,0.4%,29.8%,3.5 million,0.18%,94.9%,1.802 billion
+76,178,"$86,984","$91,258",$3.25 billion,$293 billion,$22.5 trillion,0.4%,30.2%,3.3 million,0.173%,95%,1.805 billion
+77,177,"$91,258","$95,712",$3.25 billion,$293 billion,$22.8 trillion,0.4%,30.6%,3.1 million,0.165%,95.2%,1.808 billion
+78,176,"$95,712","$100,378",$3.25 billion,$293 billion,$23.1 trillion,0.4%,31%,3. million,0.158%,95.4%,1.811 billion
+79,175,"$100,378","$105,298",$3.25 billion,$293 billion,$23.4 trillion,0.4%,31.4%,2.9 million,0.15%,95.5%,1.814 billion
+80,174,"$105,299","$110,326",$3.25 billion,$293 billion,$23.7 trillion,0.4%,31.8%,2.7 million,0.143%,95.6%,1.817 billion
+81,173,"$110,326","$115,568",$3.25 billion,$293 billion,$24.0 trillion,0.4%,32.2%,2.6 million,0.137%,95.8%,1.819 billion
+82,172,"$115,568","$121,067",$3.25 billion,$293 billion,$24.3 trillion,0.4%,32.5%,2.5 million,0.131%,95.9%,1.822 billion
+83,171,"$121,067","$126,717",$3.25 billion,$293 billion,$24.6 trillion,0.4%,32.9%,2.4 million,0.125%,96%,1.824 billion
+84,170,"$126,717","$132,536",$3.25 billion,$293 billion,$24.9 trillion,0.4%,33.3%,2.3 million,0.119%,96.2%,1.826 billion
+85,169,"$132,536","$138,518",$3.25 billion,$293 billion,$25.2 trillion,0.4%,33.7%,2.2 million,0.114%,96.3%,1.828 billion
+86,168,"$138,518","$144,701",$3.25 billion,$293 billion,$25.4 trillion,0.4%,34.1%,2.1 million,0.109%,96.4%,1.83 billion
+87,167,"$144,701","$151,066",$3.25 billion,$293 billion,$25.7 trillion,0.4%,34.5%,2. million,0.104%,96.5%,1.832 billion
+88,166,"$151,067","$157,566",$3.25 billion,$293 billion,$26.0 trillion,0.4%,34.9%,1.9 million,0.1%,96.6%,1.834 billion
+89,165,"$157,566","$164,261",$3.25 billion,$293 billion,$26.3 trillion,0.4%,35.3%,1.8 million,0.096%,96.7%,1.836 billion
+90,164,"$164,261","$171,186",$3.25 billion,$293 billion,$26.6 trillion,0.4%,35.7%,1.75 million,0.092%,96.8%,1.838 billion
+91,163,"$171,186","$178,243",$3.25 billion,$293 billion,$26.9 trillion,0.4%,36.1%,1.68 million,0.088%,96.86%,1.84 billion
+92,162,"$178,243","$185,509",$3.25 billion,$293 billion,$27.2 trillion,0.4%,36.5%,1.61 million,0.085%,96.94%,1.841 billion
+93,161,"$185,509","$192,912",$3.25 billion,$293 billion,$27.5 trillion,0.4%,36.9%,1.55 million,0.082%,97.02%,1.843 billion
+94,160,"$192,914","$200,467",$3.25 billion,$293 billion,$27.8 trillion,0.4%,37.3%,1.49 million,0.079%,97.1%,1.844 billion
+95,159,"$200,467","$208,174",$3.25 billion,$293 billion,$28.1 trillion,0.4%,37.6%,1.44 million,0.076%,97.18%,1.846 billion
+96,158,"$208,174","$215,958",$3.25 billion,$293 billion,$28.4 trillion,0.4%,38%,1.38 million,0.073%,97.25%,1.847 billion
+97,157,"$215,958","$224,042",$3.25 billion,$293 billion,$28.7 trillion,0.4%,38.4%,1.33 million,0.07%,97.32%,1.848 billion
+98,156,"$224,042","$232,237",$3.25 billion,$293 billion,$29.0 trillion,0.4%,38.8%,1.29 million,0.068%,97.39%,1.85 billion
+99,155,"$232,237","$240,690",$3.25 billion,$293 billion,$29.3 trillion,0.4%,39.2%,1.24 million,0.065%,97.45%,1.851 billion
+100,154,"$240,690","$249,152",$3.25 billion,$293 billion,$29.5 trillion,0.4%,39.6%,1.2 million,0.063%,97.52%,1.852 billion
+101,153,"$249,152","$257,990",$3.25 billion,$293 billion,$29.8 trillion,0.4%,40%,1.16 million,0.061%,97.58%,1.853 billion
+102,152,"$257,990","$266,838",$3.25 billion,$293 billion,$30.1 trillion,0.4%,40.4%,1.12 million,0.059%,97.64%,1.854 billion
+103,151,"$266,840","$275,955",$3.25 billion,$293 billion,$30.4 trillion,0.4%,40.8%,1.08 million,0.057%,97.69%,1.856 billion
+104,150,"$275,955","$285,299",$3.25 billion,$293 billion,$30.7 trillion,0.4%,41.2%,1.05 million,0.055%,97.75%,1.857 billion
+105,149,"$285,299","$294,571",$3.25 billion,$293 billion,$31.0 trillion,0.4%,41.6%,1.01 million,0.053%,97.8%,1.858 billion
+106,148,"$294,573","$304,016",$3.25 billion,$293 billion,$31.3 trillion,0.4%,42%,980 thousand,0.052%,97.85%,1.859 billion
+107,147,"$304,016","$313,784",$3.25 billion,$293 billion,$31.6 trillion,0.4%,42.4%,950 thousand,0.05%,97.9%,1.8595 billion
+108,146,"$313,786","$323,587",$3.25 billion,$293 billion,$31.9 trillion,0.4%,42.7%,920 thousand,0.048%,97.95%,1.8604 billion
+109,145,"$323,589","$333,610",$3.25 billion,$293 billion,$32.2 trillion,0.4%,43.1%,893 thousand,0.047%,98%,1.8613 billion
+110,144,"$333,610","$343,637",$3.25 billion,$293 billion,$32.5 trillion,0.4%,43.5%,866 thousand,0.046%,98.04%,1.8622 billion
+111,143,"$343,637","$353,893",$3.25 billion,$293 billion,$32.8 trillion,0.4%,43.9%,841 thousand,0.044%,98.09%,1.863 billion
+112,142,"$353,893","$364,467",$3.25 billion,$293 billion,$33.1 trillion,0.4%,44.3%,817 thousand,0.043%,98.13%,1.86385 billion
+113,141,"$364,469","$375,022",$3.25 billion,$293 billion,$33.3 trillion,0.4%,44.7%,793 thousand,0.042%,98.17%,1.86464 billion
+114,140,"$375,024","$385,605",$3.25 billion,$293 billion,$33.6 trillion,0.4%,45.1%,771 thousand,0.041%,98.21%,1.86541 billion
+115,139,"$385,605","$396,315",$3.25 billion,$293 billion,$33.9 trillion,0.4%,45.5%,750 thousand,0.04%,98.25%,1.86616 billion
+116,138,"$396,318","$407,238",$3.25 billion,$293 billion,$34.2 trillion,0.4%,45.9%,730 thousand,0.038%,98.29%,1.86689 billion
+117,137,"$407,240","$418,152",$3.25 billion,$293 billion,$34.5 trillion,0.4%,46.3%,711 thousand,0.037%,98.33%,1.8676 billion
+118,136,"$418,152","$429,218",$3.25 billion,$293 billion,$34.8 trillion,0.4%,46.7%,692 thousand,0.0364%,98.36%,1.8683 billion
+119,135,"$429,218","$440,666",$3.25 billion,$293 billion,$35.1 trillion,0.4%,47.1%,674 thousand,0.0355%,98.4%,1.86897 billion
+120,134,"$440,667","$452,338",$3.25 billion,$293 billion,$35.4 trillion,0.4%,47.5%,657 thousand,0.0346%,98.43%,1.86963 billion
+121,133,"$452,338","$464,013",$3.25 billion,$293 billion,$35.7 trillion,0.4%,47.8%,640 thousand,0.0337%,98.47%,1.87027 billion
+122,132,"$464,014","$475,701",$3.25 billion,$293 billion,$36.0 trillion,0.4%,48.2%,624 thousand,0.0329%,98.5%,1.87089 billion
+123,131,"$475,702","$487,448",$3.25 billion,$293 billion,$36.3 trillion,0.4%,48.6%,609 thousand,0.0321%,98.53%,1.8715 billion
+124,130,"$487,450","$499,274",$3.25 billion,$293 billion,$36.6 trillion,0.4%,49%,595 thousand,0.0313%,98.56%,1.87209 billion
+125,129,"$499,274","$511,326",$3.25 billion,$293 billion,$36.9 trillion,0.4%,49.4%,580 thousand,0.0306%,98.6%,1.87268 billion
+126,128,"$511,328","$523,706",$3.25 billion,$293 billion,$37.1 trillion,0.4%,49.8%,567 thousand,0.0298%,98.63%,1.87324 billion
+127,127,"$523,707","$536,067",$3.25 billion,$293 billion,$37.4 trillion,0.4%,50.2%,553 thousand,0.0291%,98.65%,1.8738 billion
+128,126,"$536,069","$548,507",$3.25 billion,$293 billion,$37.7 trillion,0.4%,50.6%,541 thousand,0.0285%,98.68%,1.87434 billion
+129,125,"$548,509","$561,125",$3.25 billion,$293 billion,$38.0 trillion,0.4%,51%,529 thousand,0.0278%,98.71%,1.87487 billion
+130,124,"$561,126","$573,870",$3.25 billion,$293 billion,$38.3 trillion,0.4%,51.4%,517 thousand,0.0272%,98.74%,1.87538 billion
+131,123,"$573,872","$586,917",$3.25 billion,$293 billion,$38.6 trillion,0.4%,51.8%,506 thousand,0.0266%,98.76%,1.87589 billion
+132,122,"$586,918","$600,123",$3.25 billion,$293 billion,$38.9 trillion,0.4%,52.2%,494 thousand,0.026%,98.79%,1.87638 billion
+133,121,"$600,123","$612,874",$3.25 billion,$293 billion,$39.2 trillion,0.4%,52.5%,484 thousand,0.0255%,98.82%,1.87687 billion
+134,120,"$612,875","$626,571",$3.25 billion,$293 billion,$39.5 trillion,0.4%,52.9%,473 thousand,0.0249%,98.84%,1.87734 billion
+135,119,"$626,571","$640,275",$3.25 billion,$293 billion,$39.8 trillion,0.4%,53.3%,463 thousand,0.0244%,98.87%,1.8778 billion
+136,118,"$640,275","$654,189",$3.25 billion,$293 billion,$40.1 trillion,0.4%,53.7%,453 thousand,0.0239%,98.89%,1.87826 billion
+137,117,"$654,190","$668,272",$3.25 billion,$293 billion,$40.4 trillion,0.4%,54.1%,444 thousand,0.0234%,98.91%,1.8787 billion
+138,116,"$668,274","$682,405",$3.25 billion,$293 billion,$40.7 trillion,0.4%,54.5%,434 thousand,0.0229%,98.94%,1.87913 billion
+139,115,"$682,406","$696,702",$3.25 billion,$293 billion,$41.0 trillion,0.4%,54.9%,425 thousand,0.0224%,98.96%,1.87956 billion
+140,114,"$696,702","$710,963",$3.25 billion,$293 billion,$41.2 trillion,0.4%,55.3%,417 thousand,0.0219%,98.98%,1.87998 billion
+141,113,"$710,965","$725,667",$3.25 billion,$293 billion,$41.5 trillion,0.4%,55.7%,408 thousand,0.0215%,99%,1.88038 billion
+142,112,"$725,667","$740,326",$3.25 billion,$293 billion,$41.8 trillion,0.4%,56.1%,400 thousand,0.0211%,99.02%,1.88078 billion
+143,111,"$740,331","$755,344",$3.25 billion,$293 billion,$42.1 trillion,0.4%,56.5%,392 thousand,0.0206%,99.04%,1.88118 billion
+144,110,"$755,346","$770,531",$3.25 billion,$293 billion,$42.4 trillion,0.4%,56.9%,385 thousand,0.0202%,99.06%,1.88156 billion
+145,109,"$770,534","$786,107",$3.25 billion,$293 billion,$42.7 trillion,0.4%,57.3%,377 thousand,0.0198%,99.08%,1.88194 billion
+146,108,"$786,107","$801,779",$3.25 billion,$293 billion,$43.0 trillion,0.4%,57.6%,369 thousand,0.0194%,99.1%,1.88231 billion
+147,107,"$801,781","$817,226",$3.25 billion,$293 billion,$43.3 trillion,0.4%,58%,362 thousand,0.0191%,99.12%,1.88267 billion
+148,106,"$817,227","$833,048",$3.25 billion,$293 billion,$43.6 trillion,0.4%,58.4%,355 thousand,0.0187%,99.14%,1.88302 billion
+149,105,"$833,048","$849,149",$3.25 billion,$293 billion,$43.9 trillion,0.4%,58.8%,349 thousand,0.0184%,99.16%,1.88337 billion
+150,104,"$849,150","$865,386",$3.25 billion,$293 billion,$44.2 trillion,0.4%,59.2%,342 thousand,0.018%,99.18%,1.88372 billion
+151,103,"$865,389","$882,365",$3.25 billion,$293 billion,$44.5 trillion,0.4%,59.6%,336 thousand,0.0177%,99.19%,1.88405 billion
+152,102,"$882,368","$899,941",$3.25 billion,$293 billion,$44.8 trillion,0.4%,60%,329 thousand,0.0173%,99.21%,1.88438 billion
+153,101,"$899,944","$916,755",$3.25 billion,$293 billion,$45.0 trillion,0.4%,60.4%,323 thousand,0.017%,99.23%,1.8847 billion
+154,100,"$916,757","$933,763",$3.25 billion,$293 billion,$45.3 trillion,0.4%,60.8%,317 thousand,0.0167%,99.25%,1.88502 billion
+155,99,"$933,765","$951,131",$3.25 billion,$293 billion,$45.6 trillion,0.4%,61.2%,311 thousand,0.0164%,99.26%,1.88533 billion
+156,98,"$951,133","$968,706",$3.25 billion,$293 billion,$45.9 trillion,0.4%,61.6%,306 thousand,0.0161%,99.28%,1.88564 billion
+157,97,"$968,717","$986,664",$3.25 billion,$293 billion,$46.2 trillion,0.4%,62%,300 thousand,0.0158%,99.29%,1.88594 billion
+158,96,"$986,667","$1,004,499",$3.25 billion,$293 billion,$46.5 trillion,0.4%,62.4%,295 thousand,0.0155%,99.31%,1.88623 billion
+159,95,"$1,004,501","$1,022,261",$3.25 billion,$293 billion,$46.8 trillion,0.4%,62.7%,289 thousand,0.0152%,99.32%,1.88652 billion
+160,94,"$1,022,261","$1,040,730",$3.25 billion,$293 billion,$47.1 trillion,0.4%,63.1%,284 thousand,0.015%,99.34%,1.88681 billion
+161,93,"$1,040,731","$1,059,114",$3.25 billion,$293 billion,$47.4 trillion,0.4%,63.5%,279 thousand,0.0147%,99.35%,1.88708 billion
+162,92,"$1,059,118","$1,077,747",$3.25 billion,$293 billion,$47.7 trillion,0.4%,63.9%,275 thousand,0.0145%,99.37%,1.88736 billion
+163,91,"$1,077,747","$1,096,998",$3.25 billion,$293 billion,$48.0 trillion,0.4%,64.3%,270 thousand,0.0142%,99.38%,1.88763 billion
+164,90,"$1,097,000","$1,116,037",$3.25 billion,$293 billion,$48.3 trillion,0.4%,64.7%,265 thousand,0.014%,99.4%,1.88789 billion
+165,89,"$1,116,038","$1,134,947",$3.25 billion,$293 billion,$48.6 trillion,0.4%,65.1%,261 thousand,0.0137%,99.41%,1.88816 billion
+166,88,"$1,134,950","$1,154,440",$3.25 billion,$293 billion,$48.8 trillion,0.4%,65.5%,256 thousand,0.0135%,99.42%,1.88841 billion
+167,87,"$1,154,443","$1,174,472",$3.25 billion,$293 billion,$49.1 trillion,0.4%,65.9%,252 thousand,0.0133%,99.44%,1.88866 billion
+168,86,"$1,174,482","$1,194,203",$3.25 billion,$293 billion,$49.4 trillion,0.4%,66.3%,248 thousand,0.013%,99.45%,1.88891 billion
+169,85,"$1,194,210","$1,215,691",$3.25 billion,$293 billion,$49.7 trillion,0.4%,66.7%,244 thousand,0.0128%,99.46%,1.88915 billion
+170,84,"$1,215,696","$1,236,355",$3.25 billion,$293 billion,$50.0 trillion,0.4%,67.1%,239 thousand,0.0126%,99.48%,1.88939 billion
+171,83,"$1,236,357","$1,258,022",$3.25 billion,$293 billion,$50.3 trillion,0.4%,67.5%,235 thousand,0.0124%,99.49%,1.88963 billion
+172,82,"$1,258,032","$1,279,867",$3.25 billion,$293 billion,$50.6 trillion,0.4%,67.8%,231 thousand,0.0122%,99.5%,1.88986 billion
+173,81,"$1,279,869","$1,300,848",$3.25 billion,$293 billion,$50.9 trillion,0.4%,68.2%,227 thousand,0.012%,99.51%,1.89009 billion
+174,80,"$1,300,862","$1,322,688",$3.25 billion,$293 billion,$51.2 trillion,0.4%,68.6%,224 thousand,0.0118%,99.52%,1.89031 billion
+175,79,"$1,322,690","$1,344,680",$3.25 billion,$293 billion,$51.5 trillion,0.4%,69%,220 thousand,0.0116%,99.54%,1.89053 billion
+176,78,"$1,344,693","$1,367,350",$3.25 billion,$293 billion,$51.8 trillion,0.4%,69.4%,216 thousand,0.0114%,99.55%,1.89075 billion
+177,77,"$1,367,350","$1,390,218",$3.25 billion,$293 billion,$52.1 trillion,0.4%,69.8%,213 thousand,0.0112%,99.56%,1.89096 billion
+178,76,"$1,390,221","$1,413,976",$3.25 billion,$293 billion,$52.4 trillion,0.4%,70.2%,209 thousand,0.011%,99.57%,1.89117 billion
+179,75,"$1,413,981","$1,438,198",$3.25 billion,$293 billion,$52.7 trillion,0.4%,70.6%,206 thousand,0.0108%,99.58%,1.89137 billion
+180,74,"$1,438,216","$1,462,686",$3.25 billion,$293 billion,$52.9 trillion,0.4%,71%,202 thousand,0.0106%,99.59%,1.89158 billion
+181,73,"$1,462,688","$1,487,493",$3.25 billion,$293 billion,$53.2 trillion,0.4%,71.4%,199 thousand,0.0105%,99.6%,1.89178 billion
+182,72,"$1,487,496","$1,512,750",$3.25 billion,$293 billion,$53.5 trillion,0.4%,71.8%,196 thousand,0.0103%,99.61%,1.89197 billion
+183,71,"$1,512,755","$1,537,987",$3.25 billion,$293 billion,$53.8 trillion,0.4%,72.2%,192 thousand,0.0101%,99.62%,1.89216 billion
+184,70,"$1,538,006","$1,564,597",$3.25 billion,$293 billion,$54.1 trillion,0.4%,72.6%,189 thousand,0.01%,99.63%,1.89235 billion
+185,69,"$1,564,598","$1,591,118",$3.25 billion,$293 billion,$54.4 trillion,0.4%,72.9%,186 thousand,0.0098%,99.64%,1.89254 billion
+186,68,"$1,591,130","$1,618,541",$3.25 billion,$293 billion,$54.7 trillion,0.4%,73.3%,183 thousand,0.0096%,99.65%,1.89272 billion
+187,67,"$1,618,555","$1,646,434",$3.25 billion,$293 billion,$55.0 trillion,0.4%,73.7%,180 thousand,0.0095%,99.66%,1.8929 billion
+188,66,"$1,646,443","$1,675,205",$3.25 billion,$293 billion,$55.3 trillion,0.4%,74.1%,177 thousand,0.0093%,99.67%,1.89308 billion
+189,65,"$1,675,221","$1,705,771",$3.25 billion,$293 billion,$55.6 trillion,0.4%,74.5%,174 thousand,0.0091%,99.68%,1.89325 billion
+190,64,"$1,705,784","$1,735,934",$3.25 billion,$293 billion,$55.9 trillion,0.4%,74.9%,170 thousand,0.009%,99.69%,1.89342 billion
+191,63,"$1,735,966","$1,766,643",$3.25 billion,$293 billion,$56.2 trillion,0.4%,75.3%,167 thousand,0.0088%,99.7%,1.89359 billion
+192,62,"$1,766,651","$1,798,621",$3.25 billion,$293 billion,$56.5 trillion,0.4%,75.7%,165 thousand,0.0087%,99.71%,1.89375 billion
+193,61,"$1,798,632","$1,830,435",$3.25 billion,$293 billion,$56.7 trillion,0.4%,76.1%,162 thousand,0.0085%,99.71%,1.89392 billion
+194,60,"$1,830,454","$1,863,986",$3.25 billion,$293 billion,$57.0 trillion,0.4%,76.5%,159 thousand,0.0084%,99.72%,1.89407 billion
+195,59,"$1,863,995","$1,897,339",$3.25 billion,$293 billion,$57.3 trillion,0.4%,76.9%,156 thousand,0.0082%,99.73%,1.89423 billion
+196,58,"$1,897,350","$1,931,054",$3.25 billion,$293 billion,$57.6 trillion,0.4%,77.3%,153 thousand,0.0081%,99.74%,1.89438 billion
+197,57,"$1,931,104","$1,967,470",$3.25 billion,$293 billion,$57.9 trillion,0.4%,77.7%,151 thousand,0.0079%,99.75%,1.89453 billion
+198,56,"$1,967,478","$2,004,094",$3.25 billion,$293 billion,$58.2 trillion,0.4%,78%,148 thousand,0.0078%,99.75%,1.89468 billion
+199,55,"$2,004,107","$2,041,245",$3.25 billion,$293 billion,$58.5 trillion,0.4%,78.4%,145 thousand,0.0076%,99.76%,1.89483 billion
+200,54,"$2,041,254","$2,079,293",$3.25 billion,$293 billion,$58.8 trillion,0.4%,78.8%,142 thousand,0.0075%,99.77%,1.89497 billion
+201,53,"$2,079,315","$2,117,834",$3.25 billion,$293 billion,$59.1 trillion,0.4%,79.2%,140 thousand,0.0074%,99.78%,1.89511 billion
+202,52,"$2,117,856","$2,156,699",$3.25 billion,$293 billion,$59.4 trillion,0.4%,79.6%,137 thousand,0.0072%,99.78%,1.89525 billion
+203,51,"$2,156,702","$2,196,618",$3.25 billion,$293 billion,$59.7 trillion,0.4%,80%,135 thousand,0.0071%,99.79%,1.89538 billion
+204,50,"$2,196,619","$2,239,325",$3.25 billion,$293 billion,$60.0 trillion,0.4%,80.4%,132 thousand,0.007%,99.8%,1.89551 billion
+205,49,"$2,239,341","$2,282,714",$3.25 billion,$293 billion,$60.3 trillion,0.4%,80.8%,130 thousand,0.0068%,99.805%,1.89564 billion
+206,48,"$2,282,718","$2,325,104",$3.25 billion,$293 billion,$60.6 trillion,0.4%,81.2%,127 thousand,0.0067%,99.811%,1.89577 billion
+207,47,"$2,325,126","$2,368,165",$3.25 billion,$293 billion,$60.8 trillion,0.4%,81.6%,125 thousand,0.0066%,99.818%,1.8959 billion
+208,46,"$2,368,227","$2,413,754",$3.25 billion,$293 billion,$61.1 trillion,0.4%,82%,123 thousand,0.0065%,99.824%,1.89602 billion
+209,45,"$2,413,757","$2,461,610",$3.25 billion,$293 billion,$61.4 trillion,0.4%,82.4%,120 thousand,0.0063%,99.831%,1.89614 billion
+210,44,"$2,461,632","$2,511,008",$3.25 billion,$293 billion,$61.7 trillion,0.4%,82.8%,118 thousand,0.0062%,99.837%,1.89626 billion
+211,43,"$2,511,064","$2,559,541",$3.25 billion,$293 billion,$62.0 trillion,0.4%,83.1%,116 thousand,0.0061%,99.843%,1.89637 billion
+212,42,"$2,559,546","$2,609,680",$3.25 billion,$293 billion,$62.3 trillion,0.4%,83.5%,114 thousand,0.006%,99.849%,1.89649 billion
+213,41,"$2,609,704","$2,663,414",$3.25 billion,$293 billion,$62.6 trillion,0.4%,83.9%,111 thousand,0.0059%,99.855%,1.8966 billion
+214,40,"$2,663,443","$2,715,981",$3.25 billion,$293 billion,$62.9 trillion,0.4%,84.3%,109 thousand,0.0057%,99.861%,1.89671 billion
+215,39,"$2,716,008","$2,770,600",$3.25 billion,$293 billion,$63.2 trillion,0.4%,84.7%,107 thousand,0.0056%,99.866%,1.89681 billion
+216,38,"$2,770,645","$2,827,821",$3.25 billion,$293 billion,$63.5 trillion,0.4%,85.1%,105 thousand,0.0055%,99.872%,1.89692 billion
+217,37,"$2,827,854","$2,885,480",$3.25 billion,$293 billion,$63.8 trillion,0.4%,85.5%,103 thousand,0.0054%,99.877%,1.89702 billion
+218,36,"$2,885,491","$2,943,894",$3.25 billion,$293 billion,$64.1 trillion,0.4%,85.9%,101 thousand,0.0053%,99.882%,1.89712 billion
+219,35,"$2,943,909","$3,007,122",$3.25 billion,$293 billion,$64.4 trillion,0.4%,86.3%,99 thousand,0.0052%,99.888%,1.89722 billion
+220,34,"$3,007,139","$3,070,594",$3.25 billion,$293 billion,$64.6 trillion,0.4%,86.7%,96 thousand,0.0051%,99.893%,1.89732 billion
+221,33,"$3,070,634","$3,134,861",$3.25 billion,$293 billion,$64.9 trillion,0.4%,87.1%,94 thousand,0.005%,99.898%,1.89741 billion
+222,32,"$3,134,899","$3,202,478",$3.25 billion,$293 billion,$65.2 trillion,0.4%,87.5%,93 thousand,0.0049%,99.903%,1.8975 billion
+223,31,"$3,202,493","$3,271,024",$3.25 billion,$293 billion,$65.5 trillion,0.4%,87.8%,91 thousand,0.0048%,99.907%,1.89759 billion
+224,30,"$3,271,056","$3,338,534",$3.25 billion,$293 billion,$65.8 trillion,0.4%,88.2%,89 thousand,0.0047%,99.912%,1.89768 billion
+225,29,"$3,338,563","$3,413,099",$3.25 billion,$293 billion,$66.1 trillion,0.4%,88.6%,87 thousand,0.0046%,99.917%,1.89777 billion
+226,28,"$3,413,126","$3,489,011",$3.25 billion,$293 billion,$66.4 trillion,0.4%,89%,85 thousand,0.0045%,99.921%,1.89786 billion
+227,27,"$3,489,104","$3,569,861",$3.25 billion,$293 billion,$66.7 trillion,0.4%,89.4%,83 thousand,0.0044%,99.925%,1.89794 billion
+228,26,"$3,570,030","$3,653,490",$3.25 billion,$293 billion,$67.0 trillion,0.4%,89.8%,81 thousand,0.0043%,99.93%,1.89802 billion
+229,25,"$3,653,562","$3,746,098",$3.25 billion,$293 billion,$67.3 trillion,0.4%,90.2%,79 thousand,0.0042%,99.934%,1.8981 billion
+230,24,"$3,746,106","$3,836,382",$3.25 billion,$293 billion,$67.6 trillion,0.4%,90.6%,77 thousand,0.0041%,99.938%,1.89818 billion
+231,23,"$3,836,456","$3,929,034",$3.25 billion,$293 billion,$67.9 trillion,0.4%,91%,76 thousand,0.004%,99.942%,1.89825 billion
+232,22,"$3,929,210","$4,027,925",$3.25 billion,$293 billion,$68.2 trillion,0.4%,91.4%,74 thousand,0.0039%,99.946%,1.89833 billion
+233,21,"$4,028,051","$4,136,058",$3.25 billion,$293 billion,$68.5 trillion,0.4%,91.8%,72 thousand,0.0038%,99.95%,1.8984 billion
+234,20,"$4,136,176","$4,252,352",$3.25 billion,$293 billion,$68.7 trillion,0.4%,92.2%,70 thousand,0.0037%,99.953%,1.89847 billion
+235,19,"$4,252,494","$4,371,678",$3.25 billion,$293 billion,$69.0 trillion,0.4%,92.6%,68 thousand,0.0036%,99.957%,1.89854 billion
+236,18,"$4,371,746","$4,506,826",$3.25 billion,$293 billion,$69.3 trillion,0.4%,92.9%,66 thousand,0.0035%,99.96%,1.8986 billion
+237,17,"$4,506,834","$4,650,784",$3.25 billion,$293 billion,$69.6 trillion,0.4%,93.3%,64 thousand,0.0034%,99.964%,1.89867 billion
+238,16,"$4,651,222","$4,809,557",$3.25 billion,$293 billion,$69.9 trillion,0.4%,93.7%,62 thousand,0.0033%,99.967%,1.89873 billion
+239,15,"$4,809,704","$4,981,475",$3.25 billion,$293 billion,$70.2 trillion,0.4%,94.1%,60 thousand,0.0032%,99.97%,1.89879 billion
+240,14,"$4,981,480","$5,170,685",$3.25 billion,$293 billion,$70.5 trillion,0.4%,94.5%,58 thousand,0.003%,99.973%,1.89885 billion
+241,13,"$5,170,739","$5,394,541",$3.25 billion,$293 billion,$70.8 trillion,0.4%,94.9%,56 thousand,0.0029%,99.976%,1.8989 billion
+242,12,"$5,394,690","$5,637,901",$3.25 billion,$293 billion,$71.1 trillion,0.4%,95.3%,53 thousand,0.0028%,99.979%,1.89895 billion
+243,11,"$5,638,026","$5,913,989",$3.25 billion,$293 billion,$71.4 trillion,0.4%,95.7%,51 thousand,0.0027%,99.982%,1.89901 billion
+244,10,"$5,914,768","$6,225,021",$3.25 billion,$293 billion,$71.7 trillion,0.4%,96.1%,48 thousand,0.0026%,99.984%,1.89905 billion
+245,9,"$6,225,982","$6,583,270",$3.25 billion,$293 billion,$72.0 trillion,0.4%,96.5%,46 thousand,0.0024%,99.987%,1.8991 billion
+246,8,"$6,583,510","$7,019,501",$3.25 billion,$293 billion,$72.3 trillion,0.4%,96.9%,43 thousand,0.0023%,99.989%,1.89914 billion
+247,7,"$7,020,109","$7,569,606",$3.25 billion,$293 billion,$72.5 trillion,0.4%,97.3%,40 thousand,0.0021%,99.991%,1.89918 billion
+248,6,"$7,569,642","$8,254,525",$3.25 billion,$293 billion,$72.8 trillion,0.4%,97.7%,37 thousand,0.002%,99.993%,1.89922 billion
+249,5,"$8,255,760","$9,203,722",$3.25 billion,$293 billion,$73.1 trillion,0.4%,98%,34 thousand,0.0018%,99.995%,1.89925 billion
+250,4,"$9,206,621","$10,503,024",$3.25 billion,$293 billion,$73.4 trillion,0.4%,98.4%,30 thousand,0.0016%,99.996%,1.89928 billion
+251,3,"$10,504,958","$12,339,702",$3.25 billion,$293 billion,$73.7 trillion,0.4%,98.8%,26 thousand,0.0014%,99.998%,1.89931 billion
+252,2,"$12,357,050","$15,461,771",$3.25 billion,$293 billion,$74.0 trillion,0.4%,99.2%,22 thousand,0.0011%,99.9987%,1.89933 billion
+253,1,"$15,472,598","$23,852,523",$3.25 billion,$293 billion,$74.3 trillion,0.4%,99.6%,16 thousand,0.0008%,99.9996%,1.89935 billion
+254,0,"$23,862,216","$84,980,730",$3.25 billion,$293 billion,$74.6 trillion,0.4%,100%,8 thousand,0.0004%,100%,1.89936 billion
+`;
+
+csvData.split('\n').forEach(line => {
+    const values = line.split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/); // Split by comma not inside double quotes
+    const position = values.shift(); // Remove the first value and use it as the key
+    positionValues[position] = values.map(val => val.trim().replace(/"/g, '')); // Remove surrounding double quotes and trim
+});
+
+console.log(positionValues);
+
+
+
+window.onload = function() {
+    var canvas = document.getElementById('colorCanvas');
+    var ctx = canvas.getContext('2d');
+    var slider = document.getElementById('visibilitySlider');
+    var grayValue = document.getElementById('grayValue');
+    var num = document.getElementById('num');
+    var minVal = document.getElementById('minVal');
+    var maxVal = document.getElementById('maxVal');
+    var val = document.getElementById('val');
+    var valMult28 = document.getElementById('valMult28');
+    var cumValMult28 = document.getElementById('cumValMult28');
+    var pctVal = document.getElementById('pctVal');
+    var cumPctVal = document.getElementById('cumPctVal');
+    var sqKm = document.getElementById('sqKm');
+    var pctLand = document.getElementById('pctLand');
+    var cumPctLand = document.getElementById('cumPctLand');
+    var originalImageData = null;
+
+    // Load the grayscale image
+    var img = new Image();
+    img.onload = function() {
+        canvas.width = img.width;
+        canvas.height = img.height;
+        ctx.drawImage(img, 0, 0);
+        originalImageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        updateCanvas(255); // Initially show all pixels
+    };
+    //    img.src = './land_value_gray2.jpg'; // Replace with the path to your grayscale image
+    img.src = './lv_map_png.png'; // Replace with the path to your grayscale image
+
+
+    // Define the color key points
+    const colorRamp = [
+        { value: 0, color: [43, 131, 186] },
+        { value: 63.75, color: [171, 221, 164] },
+        { value: 127.5, color: [255, 255, 191] },
+        { value: 191.25, color: [253, 174, 97] },
+        { value: 254, color: [215, 25, 28] }
+    ];
+
+/*
+    // Define the color key points
+    const colorRamp = [
+        { value: 0, color: [43, 131, 186] },
+        { value: 63.75, color: [171, 221, 164] },
+        { value: 127.5, color: [255, 255, 191] },
+        { value: 191.25, color: [253, 174, 97] },
+        { value: 255, color: [215, 25, 28] }
+    ];
+*/
+
+    // Function to interpolate a color based on a grayscale value
+    function grayscaleToColor(grayscale) {
+        // Find the two key points the grayscale value falls between
+        let startIndex = 0;
+        for (let i = 1; i < colorRamp.length; i++) {
+            if (grayscale < colorRamp[i].value) {
+                startIndex = i - 1;
+                break;
+            }
+        }
+
+        const startValue = colorRamp[startIndex].value;
+        const endValue = colorRamp[startIndex + 1].value;
+        const position = (grayscale - startValue) / (endValue - startValue);
+
+        const startColor = colorRamp[startIndex].color;
+        const endColor = colorRamp[startIndex + 1].color;
+
+        const r = startColor[0] + (endColor[0] - startColor[0]) * position;
+        const g = startColor[1] + (endColor[1] - startColor[1]) * position;
+        const b = startColor[2] + (endColor[2] - startColor[2]) * position;
+
+        return [Math.round(r), Math.round(g), Math.round(b)];
+    }
+
+        // Function to update the canvas based on the slider value
+        function updateCanvas(threshold) {
+            var imageData = new ImageData(new Uint8ClampedArray(originalImageData.data), canvas.width, canvas.height);
+            var data = imageData.data;
+
+            // Map grayscale values to RGB values and apply threshold
+            for (var i = 0; i < data.length; i += 4) {
+                var grayscale = data[i];
+
+                if (grayscale <= threshold) {
+                    var rgb = grayscaleToColor(grayscale);
+                    data[i] = rgb[0];     // Red
+                    data[i + 1] = rgb[1]; // Green
+                    data[i + 2] = rgb[2]; // Blue
+                } else {
+                    data[i + 3] = 0; // Make pixel transparent
+                }
+            }
+
+            // Put the modified image data back to the canvas
+            ctx.putImageData(imageData, 0, 0);
+        }
+
+        // Update the canvas and the slider value display when the slider value changes
+        slider.oninput = function() {
+            updateCanvas(this.value);
+            grayValue.textContent = this.value;
+            const values = positionValues[this.value] || [];
+            num.textContent = values[0] || '';
+            minVal.textContent = values[1] || '';
+            maxVal.textContent = values[2] || '';
+            val.textContent = values[3] || '';
+            valMult28.textContent = values[4] || '';
+            cumValMult28.textContent = values[5] || '';
+            pctVal.textContent = values[6] || '';
+            cumPctVal.textContent = values[7] || '';
+            sqKm.textContent = values[8] || '';
+            pctLand.textContent = values[9] || '';
+            cumPctLand.textContent = values[10] || '';
+            cumLand.textContent = values[11] || ''; // New line for the cumulative land area
+        };
+
+
+    };
+    </script>
+</body>
+</html>
