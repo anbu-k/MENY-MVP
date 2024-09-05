@@ -277,7 +277,7 @@ function renderGenericLayerRow(layerData, fallbackData) {
       <div class="layer-buttons-list">
         <i
           class="fa fa-crosshairs zoom-to-layer"
-          onclick="zoomtocenter('${layerData.zoomTo || fallbackData.zoomTo}')"
+          onclick="zoomtocenter('${layerData.zoomTo || "N/A"}')"
           title="Zoom to Layer"
         ></i>
         <i
@@ -315,7 +315,6 @@ function renderCirclePointLayerRow(layerData) {
   name: "circle_point",
   label: "1643-75 | Lot Events",
   iconColor: "#097911",
-  zoomTo: "NA",
   infoId: "demo-taxlot-info-layer",
   }
 
@@ -342,12 +341,11 @@ function renderCirclePointLayerRow(layerData) {
  */
 function renderGrantLotsLayerRow(layerData) {
   const fallbackData = {
-  id: "grant_lots",
-  name: "grant_lots",
-  label: "1643-67 | Demo Grant Divisions: C7",
-  iconColor: "#008888",
-  zoomTo: "NA",
-  infoId: "demo-grant-info-layer",
+    id: "grant_lots",
+    name: "grant_lots",
+    label: "1643-67 | Demo Grant Divisions: C7",
+    iconColor: "#008888",
+    infoId: "demo-grant-info-layer",
   }
 
   const html = renderGenericLayerRow(layerData, fallbackData);
@@ -408,12 +406,12 @@ function renderCastelloPointsLayerRow(layerData) {
 
 
 try{
-$("#long-island-section-layers").html(renderLongIslandLayers(longIslandLayerSections))
-$("#manahatta-section-layers").html(
-  renderManhattanLayers(manhattanLayerSections)
-);
-$("#info-section-layers").html(renderLongIslandLayers(informationOfInterest))
+  $("#long-island-section-layers").html(renderLongIslandLayers(longIslandLayerSections))
+  $("#manahatta-section-layers").html(
+    renderManhattanLayers(manhattanLayerSections)
+  );
+  $("#info-section-layers").html(renderLongIslandLayers(informationOfInterest))
+  console.log("generateLayer script ran successfully :)");
 }catch(error){
   console.log(error)
 }
-console.log("generateLayer script ran successfully :)");
