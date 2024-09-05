@@ -1,0 +1,203 @@
+
+<!DOCTYPE HTML>
+<html lang="en">
+    <head>
+        <!--=============== basic  ===============-->
+        <meta charset="UTF-8">
+        <title>MapStructor </title>
+        <meta name="robots" content="index, follow"/>
+        <meta name="keywords" content=""/>
+        <meta name="description" content=""/>
+        <!--=============== css  ===============-->	
+        <link type="text/css" rel="stylesheet" href="css/plugins.css">
+        <link type="text/css" rel="stylesheet" href="css/style.css">
+        <link type="text/css" rel="stylesheet" href="css/dashboard-style.css">
+        <link type="text/css" rel="stylesheet" href="css/color.css">
+        <link type="text/css" rel="stylesheet" href="css/custom.css">      
+        <!--=============== favicons ===============-->
+        <link rel="shortcut icon" href="images/favicon.ico">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/cleave.js/1.0.2/cleave-angular.js" integrity="sha512-VzbkVLRV0EcQdbnZAX5hsFmJkF8kuVW34gwtOiP80vmhu8Qz0EQldqvkItuqhUvJ6EeedFZvcTKaWFoUpSieIQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    </head>
+    <body>
+        <!--loader-->
+        <div class="loader-wrap">
+            <div class="loader-inner">
+                <svg>
+                    <defs>
+                        <filter id="goo">
+                            <fegaussianblur in="SourceGraphic" stdDeviation="2" result="blur" />
+                            <fecolormatrix in="blur"   values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 5 -2" result="gooey" />
+                            <fecomposite in="SourceGraphic" in2="gooey" operator="atop"/>
+                        </filter>
+                    </defs>
+                </svg>
+            </div>
+        </div>
+        <!--loader end-->
+        <!-- main -->
+        <div id="main">
+            <!-- header -->
+            
+            <!-- header end  -->	
+            <!-- wrapper  -->	
+            <div id="wrapper">
+                <!-- dashbard-menu-wrap -->
+                <div class="dashbard-menu-overlay"></div>
+               
+                <!-- dashbard-menu-wrap end  -->		
+                <!-- content -->	
+                <div class="dashboard-content">
+                    <div class="container dasboard-container">
+                        <!-- dashboard-title -->	
+                        
+                        <!-- dashboard-title end -->		
+                        <div class="dasboard-wrapper fl-wrap no-pag">
+                            
+                            <!-- dasboard-widget-title -->
+                            <div class="dasboard-widget-title fl-wrap" id="sec1">
+                                <h5><i class="fas fa-info"></i>Add Layer</h5>
+                            </div>
+                            <!-- dasboard-widget-title end -->
+                            <!-- dasboard-widget-box  -->
+                            <div class="dasboard-widget-box fl-wrap">
+                                <div class="custom-form">
+                                    <div class="row">
+                                        <div class="col-sm-4">		 
+                                            <label>Name </label>
+                                            <input type="text" placeholder="Name" id="name"  class="passname" value=""/>
+                                        </div>
+                                        <div class="col-sm-4">
+                                            <label>Data Type</label>
+                                            <div class="listsearch-input-item">
+                                                <select data-placeholder="Data type" class="chosen-select no-search-select" id="type" >
+                                                    <option>Point</option>
+                                                    <option>Line</option>
+                                                    <option>Polygon</option>
+                                                    <option>Multi-Line</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-4">		 
+                                            <label>Source name  <span class="dec-icon"><i class="far fa-cauldron"></i></span></label>
+                                            <input type="text" placeholder="Source name" id="source_name" value=""/>
+                                        </div>
+                                        <div class="col-sm-4">		 
+                                            <label>Identification <span class="dec-icon"><i class="far fa-fingerprint"></i></span></label>
+                                            <input type="text" placeholder="Identification" id="ident" value=""/>
+                                        </div>
+                                        <div class="col-sm-4">
+                                            <label>Database</label>
+                                            <div class="listsearch-input-item">
+                                                <select data-placeholder="Select Database" class="chosen-select no-search-select" id="database" >
+                                                    <option>Select Database</option>
+                                                    <option>Dutch Grant</option>
+                                                    <option>New York</option>
+                                                    <option>Netherlands</option>
+                                                    <option>Prototype</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-4">
+                                            <label>Group</label>
+                                            <div class="listsearch-input-item">
+                                                <select data-placeholder="Select Database" class="chosen-select no-search-select" id="group" >
+                                                    <option>Editors</option>
+                                                    <option>Developers</option>
+                                                    <option>Client / Customers</option>
+                                                    <option>Admin</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                       
+                                        <div class="col-sm-12">
+                                            <div class=" add-list-tags fl-wrap" style="margin-top: 10px;">
+                                                <!-- Checkboxes -->
+                                                <ul class="fl-wrap filter-tags no-list-style ds-tg">
+                                                    <li>
+                                                        <input id="check-aaa5" type="checkbox" name="check">
+                                                        <label for="check-aaa5"> Hover</label>
+                                                    </li>
+                                                    <li>
+                                                        <input id="check-bb5" type="checkbox" name="check">
+                                                        <label for="check-bb5">Click</label>
+                                                    </li>
+                                                    <li>
+                                                        <input id="check-dd5" type="checkbox" name="check">
+                                                        <label for="check-dd5"> Sidebar</label>
+                                                    </li>
+                                                    <li>
+                                                        <input id="check-cc5" type="checkbox" name="check">
+                                                        <label for="check-cc5"> Slider</label>
+                                                    </li>
+                                                      <li>
+                                                        <input id="check-eee5" type="checkbox" name="check">
+                                                        <label for="check-eee5"> Database</label>
+                                                    </li>
+                                                   
+                                                </ul>
+                                                <!-- Checkboxes end -->												
+                                            </div>
+            
+            
+                                        </div>
+
+                                        <div class="col-sm-6">
+                                            <label>Edit Details</label>
+                                            <div class="listsearch-input-item">
+                                                <textarea cols="40" rows="3" style="height: 175px;margin-bottom: 10px" placeholder="Edit area" spellcheck="true" id="textarea" contenteditable="true"></textarea>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-sm-6">
+                                            <label>File Upload</label>
+                                            <div class="listsearch-input-item fl-wrap">
+                                                <form class="fuzone" onclick="button()">
+                                                    <div class="fu-text">
+                                                        <span><i class="far fa-cloud-upload-alt"></i> Click here or drop files to upload</span>
+                                                        <div class="photoUpload-files fl-wrap"></div>
+                                                    </div>
+                                                    <input type="file" class="upload" multiple="">
+                                                </form>
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+                                    <a href="#" class="btn  color-bg float-btn" onclick="save_func()"> Add Entry </a>
+
+                                    <a href="#" class="btn  color-bg float-btn" onclick="save_func()"> Save Edit </a>
+                                
+                                    <a href="#" class="btn  color-bg float-btn" onclick=""> Rename </a>
+                                
+                                </div>
+                            </div>								
+                        </div> 
+                    </div>
+                    </div>
+                    <div class="limit-box fl-wrap"></div> -->
+                   			
+                </div>
+                <!-- content end -->	
+                <div class="dashbard-bg gray-bg"></div>
+            </div>
+            <!-- wrapper end -->
+        </div>
+        <!-- Main end -->
+        <script> 
+            new Cleave ('.passname',{
+                    prefix : 'hello',
+                    delimiter: '_',
+                    blocks: [6,6],
+                    lowercase: true
+                });
+        </script>
+        <!--=============== scripts  ===============-->
+        <script src="js/jquery.min.js"></script>
+        <script src="js/plugins.js"></script>
+        <script src="js/scripts.js"></script>
+        <script src="form.js"></script>
+        <script src="js/map-add.js"></script>
+        <script src="js/dashboard.js"></script>
+    </body>
+</html>

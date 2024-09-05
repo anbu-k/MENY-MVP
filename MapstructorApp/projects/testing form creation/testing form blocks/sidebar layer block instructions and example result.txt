@@ -1,0 +1,89 @@
+<!-- AN EXAMPLE CODE BLOCK RESULT-->
+
+
+
+
+<!-- CODE BLOCK TEMPLATE -->
+
+
+<!-- Layer -->
+<!-- FROM_GROUP_NAME -->
+<div class="layer-list-row FROM_LAYER_NAME_layer_item" >
+&nbsp; &nbsp; &nbsp; <input type="checkbox" id="FROM_LAYER_NAME_layer" class="FROM_LAYER_NAME_layer" name="FROM_LAYER_NAME_layer">
+<label for="FROM_LAYER_NAME_layer"> <i class="fa fa-square" style="color: #e3ed58;" ></i> Information</label>
+</div>
+
+
+
+
+<!--
+
+
+Each time a form is filled, a text block will 
+be added between two sets of lines, with:
+
+
+"FROM_LAYER_NAME" in the template replaced using the 'Name' field.
+"FROM_GROUP_NAME" replaced from the 'Group' field.
+
+For both of these, any uppercase should be made lowercase, and 
+for the 'Name' field, any space should be an underscore '_'
+for the 'Group' field, the word "Group" is added at the end.
+
+
+Examples:
+
+1.  Name: 'Hello World' > hello_world
+    Group: 'Hello World' > Hello World Group
+
+2.  Name: 'Hello' > hello
+    Group: 'Hello' > Hello Group
+
+3.  Name: 'World' > world
+    Group: 'World' > World Group
+
+
+-->
+
+
+
+
+-------------------------------------
+EVERYTHING WILL BE BELOW HERE
+-------------------------------------
+
+
+
+<!-- Layer -->
+<!-- Hello World Group -->
+<div class="layer-list-row hello_world_layer_item" >
+&nbsp; &nbsp; &nbsp; <input type="checkbox" id="hello_world_layer" class="hello_world_layer" name="hello_world_layer">
+<label for="hello_world_layer"> <i class="fa fa-square" style="color: #e3ed58;" ></i> Information</label>
+</div>
+
+
+<!-- Layer -->
+<!-- Hello Group -->
+<div class="layer-list-row hello_layer_item" >
+&nbsp; &nbsp; &nbsp; <input type="checkbox" id="hello_layer" class="hello_layer" name="hello_layer">
+<label for="hello_layer"> <i class="fa fa-square" style="color: #e3ed58;" ></i> Information</label>
+</div>
+
+
+<!-- Layer -->
+<!-- World Group -->
+<div class="layer-list-row world_layer_item" >
+&nbsp; &nbsp; &nbsp; <input type="checkbox" id="world_layer" class="world_layer" name="world_layer">
+<label for="world_layer"> <i class="fa fa-square" style="color: #e3ed58;" ></i> Information</label>
+</div>
+
+
+
+-------------------------------------
+EVERYTHING WILL BE ABOVE HERE TOO.
+-------------------------------------
+
+
+-------------------------------------
+EVERYTHING WILL BE ABOVE HERE
+-------------------------------------

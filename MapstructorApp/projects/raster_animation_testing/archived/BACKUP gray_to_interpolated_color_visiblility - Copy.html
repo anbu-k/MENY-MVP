@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Grayscale to Color Mapping with Slider</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+        }
+        #sliderContainer {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background-color: #f0f0f0;
+            padding: 10px 0;
+        }
+        #visibilitySlider {
+            width: 100%;
+            height: 50px;
+            -webkit-appearance: none;
+        }
+        #visibilitySlider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 30px;
+            height: 50px;
+            background: #4CAF50;
+            cursor: pointer;
+        }
+        #visibilitySlider::-moz-range-thumb {
+            width: 30px;
+            height: 50px;
+            background: #4CAF50;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="colorCanvas" width="500" height="500"></canvas>
+    <div id="sliderContainer">
+        <input type="range" id="visibilitySlider" min="0" max="255" value="255">
+        <div>
+            <span id="grayValue">255</span>
+            <br>
+            <span id="minLandVal"></span>
+            <br>
+            <span id="maxLandVal"></span>
+            <br>
+            <span id="val"></span>
+            <br>
+            <span id="valMult28"></span>
+            <br>
+            <span id="cumValMult28"></span>
+            <br>
+            <span id="pctVal"></span>
+            <br>
+            <span id="cumPctVal"></span>
+            <br>
+            <span id="sqKm"></span>
+            <br>
+            <span id="pctLand"></span>
+            <br>
+            <span id="cumPctLand"></span>
+        </div>
+    </div>    
+    <script>
+// Define the custom values for specific slider positions
+const positionValues = {};
+
+const csvData = `
+0,Hello,Tom
+37,to the whole,Timmy
+108,147,1,303,"$41,958,148","$1,174,828,144","$1,174,828,144",0.01%,0.01%,"5,673,506",0.71%,0.71%
+109,146,304,487,"$100,866,432","$2,824,260,096","$3,999,088,240",0.01%,0.02%,"56,808",0.73%,1.43%
+110,145,488,597,"$129,383,544","$3,622,739,232","$7,621,827,472",0.02%,0.03%,"54,564",0.70%,2.13%
+111,144,598,676,"$128,539,984","$3,599,119,552","$11,220,947,024",0.02%,0.05%,"46,391",0.59%,2.73%
+112,143,677,756,"$155,591,504","$4,356,562,112","$15,577,509,136",0.02%,0.07%,"50,015",0.64%,3.37%
+113,142,757,841,"$189,043,264","$5,293,211,392","$20,870,720,528",0.02%,0.09%,"54,521",0.70%,4.07%
+114,141,842,930,"$210,862,512","$5,904,150,336","$26,774,870,864",0.03%,0.12%,"54,853",0.70%,4.77%
+115,140,931,1020,"$226,794,976","$6,350,259,328","$33,125,130,192",0.03%,0.14%,"53,533",0.69%,5.46%
+116,139,1021,1109,"$246,697,248","$6,907,522,944","$40,032,653,136",0.03%,0.17%,"53,393",0.68%,6.14%
+117,138,1110,1209,"$299,000,576","$8,372,016,128","$48,404,669,264",0.04%,0.21%,"59,416",0.76%,6.91%
+255,World,Tommy
+`;
+
+csvData.split('\n').forEach(line => {
+    const values = line.split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/); // Split by comma not inside double quotes
+    const position = values.shift(); // Remove the first value and use it as the key
+    positionValues[position] = values.map(val => val.trim().replace(/"/g, '')); // Remove surrounding double quotes and trim
+});
+
+console.log(positionValues);
+
+
+
+        window.onload = function() {
+            var canvas = document.getElementById('colorCanvas');
+            var ctx = canvas.getContext('2d');
+            var slider = document.getElementById('visibilitySlider');
+            var grayValue = document.getElementById('grayValue');
+            var minLandVal = document.getElementById('minLandVal');
+            var maxLandVal = document.getElementById('maxLandVal');
+            var val = document.getElementById('val');
+            var valMult28 = document.getElementById('valMult28');
+            var cumValMult28 = document.getElementById('cumValMult28');
+            var pctVal = document.getElementById('pctVal');
+            var cumPctVal = document.getElementById('cumPctVal');
+            var sqKm = document.getElementById('sqKm');
+            var pctLand = document.getElementById('pctLand');
+            var cumPctLand = document.getElementById('cumPctLand');
+            var originalImageData = null;
+
+            // Load the grayscale image
+            var img = new Image();
+            img.onload = function() {
+                canvas.width = img.width;
+                canvas.height = img.height;
+                ctx.drawImage(img, 0, 0);
+                originalImageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                updateCanvas(255); // Initially show all pixels
+            };
+            img.src = './land_value_gray.jpg'; // Replace with the path to your grayscale image
+
+            // Define the color key points
+            const colorRamp = [
+                { value: 0, color: [43, 131, 186] },
+                { value: 63.75, color: [171, 221, 164] },
+                { value: 127.5, color: [255, 255, 191] },
+                { value: 191.25, color: [253, 174, 97] },
+                { value: 255, color: [215, 25, 28] }
+            ];
+
+            // Function to interpolate a color based on a grayscale value
+            function grayscaleToColor(grayscale) {
+            // Find the two key points the grayscale value falls between
+            let startIndex = 0;
+            for (let i = 1; i < colorRamp.length; i++) {
+            if (grayscale < colorRamp[i].value) {
+            startIndex = i - 1;
+            break;
+            }
+            }
+
+            const startValue = colorRamp[startIndex].value;
+            const endValue = colorRamp[startIndex + 1].value;
+            const position = (grayscale - startValue) / (endValue - startValue);
+
+            const startColor = colorRamp[startIndex].color;
+            const endColor = colorRamp[startIndex + 1].color;
+
+            const r = startColor[0] + (endColor[0] - startColor[0]) * position;
+            const g = startColor[1] + (endColor[1] - startColor[1]) * position;
+            const b = startColor[2] + (endColor[2] - startColor[2]) * position;
+
+            return [Math.round(r), Math.round(g), Math.round(b)];
+        }
+
+        // Function to update the canvas based on the slider value
+        function updateCanvas(threshold) {
+            var imageData = new ImageData(new Uint8ClampedArray(originalImageData.data), canvas.width, canvas.height);
+            var data = imageData.data;
+
+            // Map grayscale values to RGB values and apply threshold
+            for (var i = 0; i < data.length; i += 4) {
+                var grayscale = data[i];
+
+                if (grayscale <= threshold) {
+                    var rgb = grayscaleToColor(grayscale);
+                    data[i] = rgb[0];     // Red
+                    data[i + 1] = rgb[1]; // Green
+                    data[i + 2] = rgb[2]; // Blue
+                } else {
+                    data[i + 3] = 0; // Make pixel transparent
+                }
+            }
+
+            // Put the modified image data back to the canvas
+            ctx.putImageData(imageData, 0, 0);
+        }
+
+        // Update the canvas and the slider value display when the slider value changes
+        slider.oninput = function() {
+            updateCanvas(this.value);
+            grayValue.textContent = this.value;
+            const values = positionValues[this.value] || [];
+            minLandVal.textContent = values[0] || '';
+            maxLandVal.textContent = values[1] || '';
+            val.textContent = values[2] || '';
+            valMult28.textContent = values[3] || '';
+            cumValMult28.textContent = values[4] || '';
+            pctVal.textContent = values[5] || '';
+            cumPctVal.textContent = values[6] || '';
+            sqKm.textContent = values[7] || '';
+            pctLand.textContent = values[8] || '';
+            cumPctLand.textContent = values[9] || '';
+        };
+    };
+    </script>
+</body>
+</html>

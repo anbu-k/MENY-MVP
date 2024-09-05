@@ -1,0 +1,18 @@
+Create an HTML file, where this will be the body:
+
+
+
+
+-------------------------------------
+EVERYTHING WILL BE BELOW HERE
+-------------------------------------
+
+
+-------------------------------------
+EVERYTHING WILL BE ABOVE HERE TOO.
+-------------------------------------
+
+
+-------------------------------------
+EVERYTHING WILL BE ABOVE HERE
+-------------------------------------
