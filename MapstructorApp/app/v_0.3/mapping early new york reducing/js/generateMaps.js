@@ -1,4 +1,11 @@
+/**
+ * Generates HTML for a map layer item to be displayed in the UI
+ * 
+ * @param {object} map - The map object contaaining details for rendering
+ * @returns {string} - A string of HTML representing the map layer item
+ */
 function generateMapHTML(map) {
+  // The function returns a string of HTML to represent the map layer
   return `
       <div class="layer-list-row">
         <input class="${map.id}" type="radio" name="ltoggle" value="${
@@ -27,5 +34,5 @@ function generateMapHTML(map) {
 
 // Add the generated HTML to the #castello-maps-section
 document.getElementById("castello-maps-section").innerHTML = castelloMaps
-  .map(generateMapHTML)
-  .join("");
+  .map(generateMapHTML) // Use generateMapHTML to create HTML for each map
+  .join("");            // join the array of HTML strings into a single string

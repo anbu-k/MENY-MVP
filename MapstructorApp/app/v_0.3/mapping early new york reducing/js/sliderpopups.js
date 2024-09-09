@@ -3,14 +3,17 @@ $(
   "#infoLayerGrantLots, #infoLayerDutchGrants, #demoLayerInfo, #infoLayerCastello, #infoLayerNativeGroups"
 ).slideUp();
 
+// extracts text from a given HTML string by removing HTML tags
 const extractTextFromHTML = (htmlString) => $("<div>").html(htmlString).text();
 
+// adds content to a popup with optional formatting options
 const addFieldToPopup = (
   fieldContent,
   displayMode = "",
   addExtraBreak = "",
   defaultValue = ""
 ) => {
+  // extracts content or uses defualtValue if fieldContent is empty
   let content = fieldContent
     ? displayMode === "unlinked"
       ? extractTextFromHTML(fieldContent)
@@ -21,7 +24,9 @@ const addFieldToPopup = (
     : "";
 };
 
+// builds the content for a popup or info panel based on the provided properties
 const buildPopUpInfo = (props, sliderPopupName, type) => {
+  // extracts a node ID from various possible properties in the props object
   const nid =
     props.drupalNid ||
     props.nid ||

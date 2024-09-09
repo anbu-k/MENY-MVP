@@ -1,17 +1,30 @@
-
+/**
+ *  zooms both the beforeMap and afterMap to a predefined area (Dutch grants)
+ *  it maintains the current rotation/bearing of the maps
+ */
 function testZoom() {
+  // gets the current bearing of the beforeMap
     var current_bearing = beforeMap.getBearing();
+
+    // defines the bounding box coordinates for the Dutch grants
     var TestBounds = [
       -74.01507471506183, 40.70239266372983, -74.00734180289922,
       40.709035402164524,
-    ]; //dutch grants
+    ]; 
+    //dutch grants, zooms the beforeMap and afterMap to the specified bounds, preserviong the current bearing
     beforeMap.fitBounds(TestBounds, { bearing: current_bearing });
     afterMap.fitBounds(TestBounds, { bearing: current_bearing });
   }
   
+  /**
+   * zooms both beforeMap and afterMap to specific geographic bounds based on the given area name
+   * 
+   * @param {string} boundsName - the name of the geographic area
+   */
   function zoomtobounds(boundsName) {
     switch (boundsName) {
       case "LongIsland":
+        // adjust bounds based on window width for mobile and desktop views
         if (windoWidth <= 637) {
           beforeMap.fitBounds([
             [-74.0419692, 40.5419011],
@@ -70,10 +83,15 @@ function testZoom() {
         break;
     }
   }
-  
+  /**
+   * zooms the beforeMap and afterMap to a specific center point, based on the provided name
+   * 
+   * @param {string} centerName - the name of the center location
+   */
   function zoomtocenter(centerName) {
     switch (centerName) {
       case "NA":
+        // zooms to a predefined North American center
         beforeMap.easeTo({
           center: na_center,
           zoom: na_zoom,
@@ -119,22 +137,30 @@ function testZoom() {
   }
   
   
-
+   /**
+    * toggles the visibility of zoom labels on both the beforeMap and afterMap
+    * 
+    * @param {*} sel_opt - option to either show or hide zoom labels
+    */
   function zoomLabels(sel_opt) {
+    // if show is selected, display all zoom labels
     if (sel_opt == "show") {
       labelData.forEach(({title}) => {
         const id = `label-${title.toLowerCase().split(" ").join('-')}`
         afterMap.setLayoutProperty(id, "visibility", "visible")
         beforeMap.setLayoutProperty(id, "visibility", "visible")
       })
+      // updates the UI buttons to reflect the current state
       document.getElementById("show-zoom-label").style.display = "inline-block";
       document.getElementById("hide-zoom-label").style.display = "none";
     } else {
+      // if hide is selected, hide all zoom labels
       labelData.forEach(({title}) => {
         const id = `label-${title.toLowerCase().split(" ").join('-')}`
         afterMap.setLayoutProperty(id, "visibility", "none")
         beforeMap.setLayoutProperty(id, "visibility", "none")
       })
+      // updates the UI buttons to reflect the current state
       document.getElementById("hide-zoom-label").style.display = "inline-block";
       document.getElementById("show-zoom-label").style.display = "none";
     }

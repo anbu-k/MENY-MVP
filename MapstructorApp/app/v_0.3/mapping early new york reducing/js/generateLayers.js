@@ -1,6 +1,8 @@
 /**
+ * This class renders HTML for the Manhattan layers based on their type
+ * 
  * @param {{
- *  id: string;
+ *  id: string;   
  * name?: string;
  * caretId?: string;
  * label: string;
@@ -10,10 +12,11 @@
  * infoId: string;
  * type?: "group" | "lots-events" | "grants-lots" | "castello-points" | "current-buildings";
  * iconType?: "square"
- * }[]} layers
- * @returns {string}
+ * }[]} layers - an array of layer objects to be rendered
+ * @returns {string} - A string of HTML representing the rendered layers
  */
 function renderManhattanLayers(layers) {
+  // Predefined HTML template for current-buildings type
   const lastBitOfManhattanSectionTemplate = `
 <div class="layer-list-row">
   <input
@@ -40,17 +43,21 @@ function renderManhattanLayers(layers) {
   >
 </div>
 `; 
+
+  // Initializes the HTML string that will be built
   let r = "";
+  // Checks layer type and renders the corresponding HTML
   layers.forEach((layer) => {
     if (layer.type === "group") {
-      r += renderLayerRow(layer);
+      r += renderLayerRow(layer); // Renders a row for group type layers
     } else if (layer.type === "lots-events") {
-      r += renderCirclePointLayerRow(layer);
+      r += renderCirclePointLayerRow(layer); // Renders a row for lots-events
     } else if (layer.type === "grants-lots") {
-      r += renderGrantLotsLayerRow(layer);
+      r += renderGrantLotsLayerRow(layer); // Renders a row for grants-lots
     } else if (layer.type === "castello-points") {
-      r += renderCastelloPointsLayerRow(layer);
+      r += renderCastelloPointsLayerRow(layer); // Renders a row for castello-points
     } else if (layer.type === "current-buildings"){
+      // Renders specific HTML for current-buildings
       r += lastBitOfManhattanSectionTemplate;
       r += `<div class="layer-list-row">
       <input
@@ -80,13 +87,17 @@ function renderManhattanLayers(layers) {
       </div>
     </div>`
     } else {
+      //defualt rendering for any other types
       r += renderManahattaLayerItem(layer);
     }
   });
+
+  // returns the final HTML string
   return r;
 }
 
 /**
+ *  Renders HTML for the Long Island layers based on their type
  * @param {{
 *  id: string;
 * name?: string;
@@ -98,11 +109,14 @@ function renderManhattanLayers(layers) {
 * infoId: string;
 * type?: "group" | "lots-events" | "grants-lots" | "castello-points" | "current-buildings" | "custom_indian_paths";
 * iconType?: "square"
-* }[]} layers
-* @returns {string}
+* }[]} layers - an array of layer objects to be rendered
+* @returns {string} - a string of HTML representing the rendered layers
 */
 function renderLongIslandLayers(layers){
+  // initialize the HTML string
   let r = ''
+
+  // predefined HTML template for custom_indian_paths type
   const customIndianTemplate = `<div class="layer-list-row">
   <input type="checkbox" id="indian_paths" name="indian_paths" />
   <label for="indian_paths">
@@ -125,20 +139,25 @@ function renderLongIslandLayers(layers){
     </div>
   </div>
 </div>`
+
+// iterates over each layer in the input layers array
   layers.forEach(layer => {
     if(layer.type === "group"){
-      r += renderLayerRow(layer, true);
+      r += renderLayerRow(layer, true); // renders a row for group type layers
     } else if(layer.type === "custom_indian_paths"){
-      r+= customIndianTemplate;
+      r+= customIndianTemplate; // renders the custom Indian paths template
     } else {
-      r+= renderManahattaLayerItem(layer)
+      r+= renderManahattaLayerItem(layer) // default rendering for other types
     }
   })
+
+  // returns the final HTML string
   return r;
 }
 
 
 /**
+ *  Renders a single row for a map layer
  * 
  * @param {{
 *  id: string;

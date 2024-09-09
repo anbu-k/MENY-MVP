@@ -1,3 +1,5 @@
+// Array containing data for map labels, where each object represents a geographic location.
+// These labels are used to show names and coordinates for various historical or geographic regions on the map.
 
 var labelData = [
   {
