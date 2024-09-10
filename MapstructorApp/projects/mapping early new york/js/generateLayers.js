@@ -1,5 +1,6 @@
 /**
- * @param {{
+ * renderes the HTML for Manhattan layers based on their type
+ * @param {Array} layers {{
  *  id: string;
  * name?: string;
  * caretId?: string;
@@ -14,6 +15,7 @@
  * @returns {string}
  */
 function renderManhattanLayers(layers) {
+  // template for the Current Buildings section
   const lastBitOfManhattanSectionTemplate = `
 <div class="layer-list-row">
   <input
@@ -40,7 +42,10 @@ function renderManhattanLayers(layers) {
   >
 </div>
 `; 
-  let r = "";
+
+  let r = ""; // accumulator for the HTML content
+
+  // loops through each layer and generates the appropriate HTML based on its type
   layers.forEach((layer) => {
     if (layer.type === "group") {
       r += renderLayerRow(layer);
@@ -87,7 +92,9 @@ function renderManhattanLayers(layers) {
 }
 
 /**
- * @param {{
+ * Renders the HTML for Long Island layers based on their type
+ * 
+ * @param {Array} layers {{
 *  id: string;
 * name?: string;
 * caretId?: string;
@@ -139,8 +146,9 @@ function renderLongIslandLayers(layers){
 
 
 /**
+ * renders the HTML for a single layer row, including interactive icons and buttons
  * 
- * @param {{
+ * @param {object} layerData {{
 *  id: string;
 * name?: string;
 * caretId?: string;
@@ -194,8 +202,9 @@ function renderLayerRow(layerData, isMinus=false) {
   return html;
 }
 /**
+ * renders a single Manhattan-specific layer item
  * 
- * @param {{
+ * @param {object} layerData {{
  *  id: string;
 * name?: string;
 * caretId?: string;
@@ -233,8 +242,9 @@ function renderManahattaLayerItem(layerData) {
 }
 
 /**
+ * helper function to render layers with circle points (lots-events)
  * 
- * @param {{
+ * @param {object} layerData {{
 *  id: string;
 * name?: string;
 * caretId?: string;
@@ -285,8 +295,9 @@ function renderCirclePointLayerRow(layerData) {
 }
 
 /**
+ * helper function to render layers with square icons (grants-lots)
  * 
- * @param {{
+ * @param {object} layerData {{
 *  id: string;
 * name?: string;
 * caretId?: string;
@@ -335,8 +346,9 @@ function renderGrantLotsLayerRow(layerData) {
 }
 
 /**
+ * helper function to render Castello points layers
  * 
- * @param {{
+ * @param {object} layerData {{
 *  id: string;
 * name?: string;
 * caretId?: string;
@@ -385,7 +397,7 @@ function renderCastelloPointsLayerRow(layerData) {
 }
 
 
-
+// try to render the layers for Long Island, Manhattan, and additional information sections
 try{
 $("#long-island-section-layers").html(renderLongIslandLayers(longIslandLayerSections))
 $("#manahatta-section-layers").html(

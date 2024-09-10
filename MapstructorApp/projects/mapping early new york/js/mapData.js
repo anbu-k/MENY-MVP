@@ -1,11 +1,11 @@
-// Map data array
+// Map data array for Castello maps
 const castelloMaps = [
   {
-    id: "clm2yu5fg022801phfh479c8x",
-    name: "Castello Redrawn (Default)",
-    checked: true,
-    infoId: "castello-redrawn-plan",
-    zoomFunction: "zoomtocenter('NA')",
+    id: "clm2yu5fg022801phfh479c8x",  // unique identifier for the map
+    name: "Castello Redrawn (Default)", // display name for the map
+    checked: true,     // indicates that this map is selected by defualt
+    infoId: "castello-redrawn-plan", // ID for the info button related to this map
+    zoomFunction: "zoomtocenter('NA')", // function to be called when zooming to this map
   },
   {
     id: "clm9xh68b031301qx6k446vtt",
@@ -27,18 +27,18 @@ const castelloMaps = [
   },
 ];
 
-// Map data array for Manahatta
+// Map data array for Manahatta maps
 const manahattaMapsData = [
   {
     id: "clm2yu8w6025m01qb8p2khqxd",
-    name: "1609 | Manahatta",
-    zoomFunction: "zoomtobounds('Manhattan')",
-    infoId: "manahatta-map",
+    name: "1609 | Manahatta",   // name and year of the map
+    zoomFunction: "zoomtobounds('Manhattan')", // function to zoom to the map's bounds
+    infoId: "manahatta-map", // info ID for additional details on this map
   },
   {
     id: "clm2yucmy022j01mahf7qggow",
     name: "1639 | Manatus Map",
-    zoomFunction: "zoomtocenter('Manatus Map')",
+    zoomFunction: "zoomtocenter('Manatus Map')", // zoom to the center of the map
     infoId: "manatus-map",
   },
   {
@@ -68,12 +68,12 @@ const manahattaMapsData = [
 ];
 
 
-
+// array containing map data for Long Island maps
 const longIslandMapsData = [
   {
     id: "clm2yuk8t023601nsgs112fvn",
-    name: "1600-64 | Indian Paths & Places",
-    zoomFunction: "zoomtobounds('Brooklyn')",
+    name: "1600-64 | Indian Paths & Places",  // map showing Indian paths and places during the 1600s
+    zoomFunction: "zoomtobounds('Brooklyn')", // zoom to Brooklyn bounds
     infoId: "indian-paths-places",
   },
   {
@@ -132,6 +132,7 @@ const longIslandMapsData = [
   },
 ];
 
+// array containing map data for new Netherland maps
 const newNetherlandMapsData = [
   {
     id: "clm2yuqr1022l01ma0s5z4m59",
@@ -141,6 +142,7 @@ const newNetherlandMapsData = [
   },
 ];
 
+// array containing map data for New England maps
 const newEnglandMapsData = [
   {
     id: "clm2yus81025601p99sd68y0v",
