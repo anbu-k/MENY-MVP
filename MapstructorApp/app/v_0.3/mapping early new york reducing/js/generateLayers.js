@@ -213,7 +213,7 @@ function renderLayerRow(layerData, isMinus=false) {
   return html;
 }
 /**
- * 
+ * Renders HTML for the Manhatta layers 
  * @param {{
  *  id: string;
 * name?: string;
@@ -252,6 +252,7 @@ function renderManahattaLayerItem(layerData) {
 }
 
 /**
+ * this function generates the HTML string for a layer item in the list, using data from the layerData object
  * 
  * @param {{
 *  id: string;
@@ -304,8 +305,10 @@ function renderCirclePointLayerRow(layerData) {
 }
 
 /**
- * 
- * @param {{
+* renders HTML for a grant-lots layer row
+* This function generates the HTML string for a row in the layer list specific to grant lots data
+*
+* @param {{
 *  id: string;
 * name?: string;
 * caretId?: string;
@@ -354,6 +357,8 @@ function renderGrantLotsLayerRow(layerData) {
 }
 
 /**
+ * Renders HTML for a Castello points layer row
+ * This function generates the HTML string for a row in the layer list specific to "Castello points" data
  * 
  * @param {{
 *  id: string;

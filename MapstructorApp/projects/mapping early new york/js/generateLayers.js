@@ -1,5 +1,6 @@
 /**
- * renderes the HTML for Manhattan layers based on their type
+ * renders the HTML for Manhattan layers based on their type
+ * 
  * @param {Array} layers {{
  *  id: string;
  * name?: string;
