@@ -1,6 +1,7 @@
 'use client'
 import Image from "next/image";
 import SectionLayersComponent from "./components/layers/section-layers.component";
+import moment from 'moment';
 
 export default function Home() {
   return (
