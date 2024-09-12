@@ -208,38 +208,23 @@ Stores flags and IDs for tracking the visibility and interaction of various laye
 Contains metadata for different layer sections like "Dutch Grants," "Castello Points," and "Native Groups" for Manhattan and Long Island.
 
 
-
-  
-
 ### layersFunctions.js
 
   
 
 Defines event listeners for map layers and adds or removes map layers based on specific configurations.
 
-- unction  setupLayerEvents(map, layers)
---  **`getPopupByName(layer.popup)`:** Presumably retrieves a popup instance by name.
---   **`generatePopupContent(layer.id, e.features)`:** Likely generates HTML content for the popup based on the layer and features.
---  **`map.setFeatureState()`:** Updates the state of a specific feature, such as its hover state.
+- setupLayerEvents(map, layers)
+-- **Purpose:** This function manages mouse events (movement, click, and exit) and pop up events. does this by going through all the layers and checking.
 
-In summary, this code provides interactive behavior for map features: it changes the cursor, displays popups, and manages feature states based on mouse events.
-  
-
-  
+- addMapLayers(map, layers, date)
+--	
 
 ### layersList.js
 
-  
-
 Contains the configuration for different map layers, specifying how they should appear on the map (e.g., Dutch Grants, native groups) and their visibility depending on user interactions.
 
-  
 
-*(layersList)*
-
-  
-
-  
 
 ### mapData.js
 
