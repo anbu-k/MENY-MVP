@@ -1,4 +1,5 @@
 import Image from "next/image";
+import SectionLayersComponent from "./components/layers/section-layers.component";
 
 export default function Home() {
   return (
@@ -95,87 +96,9 @@ export default function Home() {
         <div className="infoLayerElem" id="infoLayerCastello"></div>
         <div className="infoLayerElem" id="demoLayerInfo"></div>
       </div>
-      <div id="studioMenu">
-        <i id="mobi-hide-sidebar" className="fa fa-arrow-circle-left fa-3x"></i>
-        <p className="title">LAYERS</p>
-        <br />
-        <center>
-          <b
-            ><i
-              className="fas fa-minus-square compress-expand-icon"
-              id="manahatta-section-caret"
-              onClick={sectionCompressExpand('#manahatta-section-layers','#manahatta-section-caret')}
-            ></i>
-            &nbsp; Manhattan</b>
-        </center>
-        <div id="manahatta-section-layers"></div>
-        <br />
-        <center>
-          <b
-            ><i
-              className="fas fa-plus-square compress-expand-icon"
-              id="long-island-section-caret"
-              onClick={sectionCompressExpand('#long-island-section-layers','#long-island-section-caret')}
-            ></i>
-            &nbsp; Long Island</b>
-        </center>
-        <div id="long-island-section-layers"></div>
 
-        <br />
-        <div>
-          <script src="js/generateLayers.js"></script>
-          <hr />
-          <p className="title">MAPS</p>
-
-          <div className="layer-list-row">
-            <input
-              className="clm2yrx1y025401p93v26bhyl"
-              type="radio"
-              name="ltoggle"
-              value="clm2yrx1y025401p93v26bhyl"
-              checked
-            />
-            <input
-              className="clm2yrx1y025401p93v26bhyl"
-              type="radio"
-              name="rtoggle"
-              value="clm2yrx1y025401p93v26bhyl"
-            />
-            &nbsp;
-            <label htmlFor="clm2yrx1y025401p93v26bhyl"
-              >Current Satellite
-              <div className="dummy-label-layer-space"></div></label>
-            <div className="layer-buttons-block">
-              <div className="layer-buttons-list">
-                <i style={{width: "16px"}}></i>
-                <i
-                  className="fa fa-info-circle layer-info trigger-popup"
-                  id="satellite-image"
-                  title="Layer Info"
-                ></i>
-              </div>
-            </div>
-          </div>
-          <br />
-          <center>
-            <b
-              ><i
-                className="fas fa-minus-square compress-expand-icon"
-                id="castello-maps-section-caret"
-                onClick={sectionCompressExpand('#castello-maps-section','#castello-maps-section-caret')}
-              ></i>
-              &nbsp; 1660 | Castello Plan</b
-            >
-          </center>
-          <div id="castello-maps-section"></div>
-          <center>
-            <button onClick={zoomtobounds('World')} id="zoom-world">
-              &nbsp; &nbsp; <i className="fa fa-globe"></i> &nbsp;
-              <b>Zoom to World</b> &nbsp; &nbsp; &nbsp;
-            </button>
-          </center>
-        </div>
-      </div>
+      {/* Add Layers in here when structured somewhere */}
+      <SectionLayersComponent layers={[]} />
 
       <div id="before" className="map"></div>
       <div id="after" className="map"></div>
