@@ -2,6 +2,7 @@
 import Image from "next/image";
 import SectionLayersComponent from "./components/layers/section-layers.component";
 import moment from 'moment';
+import RulerComponent from "./components/ruler/ruler.component";
 
 export default function Home() {
   return (
@@ -112,27 +113,7 @@ export default function Home() {
       </div>
 
       <div id="footer">
-        <div id="slider">
-          <div id="mobi-year">...</div>
-
-          <div className="timeline">
-            <div className="year">
-              <span id="ruler-date1"> ... </span><span className="timeline-ruler"></span>
-            </div>
-            <div className="year">
-              <span id="ruler-date2"> ... </span><span className="timeline-ruler"></span>
-            </div>
-            <div className="year">
-              <span id="ruler-date3"> ... </span><span className="timeline-ruler"></span>
-            </div>
-            <div className="year">
-              <span id="ruler-date4"> ... </span><span className="timeline-ruler"></span>
-            </div>
-            <div className="year">
-              <span id="ruler-date5"> ... </span><span className="timeline-ruler"></span>
-            </div>
-          </div>
-        </div>
+        <RulerComponent></RulerComponent>
       </div>
 
       <div id="loading">

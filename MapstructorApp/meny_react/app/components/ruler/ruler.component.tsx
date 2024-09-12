@@ -16,23 +16,23 @@ const RulerComponent = () => {
 
     return (
         <div id="slider">
-            <div id="mobi-year">...</div>
+            <div id="mobi-year">&nbsp; &#8678; &nbsp; TIME &nbsp; &nbsp; &nbsp; &nbsp; SLIDE &nbsp; &#8680;</div>
 
             <div className="timeline">
             <div className="year">
-                <span id="ruler-date1"> ... </span><span className="timeline-ruler"></span>
+                <span id="ruler-date1"> { moment(date_ruler1).year() ?? '...' } </span><span className="timeline-ruler"></span>
             </div>
             <div className="year">
-                <span id="ruler-date2"> ... </span><span className="timeline-ruler"></span>
+                <span id="ruler-date2"> { moment(date_ruler2).year() ?? '...' } </span><span className="timeline-ruler"></span>
             </div>
             <div className="year">
-                <span id="ruler-date3"> ... </span><span className="timeline-ruler"></span>
+                <span id="ruler-date3"> &nbsp; &#8678; &nbsp; TIME &nbsp; &nbsp; &nbsp; &nbsp; SLIDE &nbsp; &#8680; </span><span className="timeline-ruler"></span>
             </div>
             <div className="year">
-                <span id="ruler-date4"> ... </span><span className="timeline-ruler"></span>
+                <span id="ruler-date4"> { moment(date_ruler4).year() ?? '...' } </span><span className="timeline-ruler"></span>
             </div>
             <div className="year">
-                <span id="ruler-date5"> ... </span><span className="timeline-ruler"></span>
+                <span id="ruler-date5"> { moment(date_ruler5).year() ?? '...' } </span><span className="timeline-ruler"></span>
             </div>
             </div>
         </div>
