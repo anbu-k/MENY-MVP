@@ -1,4 +1,3 @@
-import mapboxgl from 'mapbox-gl';
 import moment from 'moment';
 
 //#region Variable Declarations

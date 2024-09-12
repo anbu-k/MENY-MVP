@@ -1,3 +1,5 @@
+import mapboxgl from 'mapbox-gl';
+import moment from 'moment';
 // #region Mapbox Access Token
 // Set the access token for Mapbox services.
 
@@ -66,7 +68,7 @@ afterMap.addControl(nav, "bottom-right");
 //RIGHT MENU
 var rightInputs = document.getElementsByName("rtoggle");
 
-function switchRightLayer(layer) {
+function switchRightLayer(layer: any) {
   var rightLayerClass = layer.target.className;
   afterMap.setStyle("mapbox://styles/mapny/" + rightLayerClass);
 }
@@ -78,7 +80,7 @@ for (var i = 0; i < rightInputs.length; i++) {
 //LEFT MENU
 var leftInputs = document.getElementsByName("ltoggle");
 
-function switchLeftLayer(layer) {
+function switchLeftLayer(layer: any) {
   var leftLayerClass = layer.target.className;
   beforeMap.setStyle("mapbox://styles/mapny/" + leftLayerClass);
 }
@@ -112,27 +114,27 @@ function demoFilterRangeCalc() {
       curr_end_timestamp = null;
 
     for (let i = 0; i < demo_layer_features.length; i++) {
-      if (demo_layer_features[i].properties.TAXLOT == demo_layer_taxlot) {
+      if (demo_layer_features[i].properties!.TAXLOT == demo_layer_taxlot) {
         demo_layer_feature_props = demo_layer_features[i].properties;
 
         if (
-          typeof demo_layer_features[i].properties.DayStart === "undefined" ||
-          demo_layer_features[i].properties.DayStart === null
+          typeof demo_layer_features[i].properties!.DayStart === "undefined" ||
+          demo_layer_features[i].properties!.DayStart === null
         )
           curr_start_timestamp = null;
         else
           curr_start_timestamp = moment(
-            demo_layer_features[i].properties.DayStart,
+            demo_layer_features[i].properties!.DayStart,
             "YYYYMMDD"
           ).unix();
         if (
-          typeof demo_layer_features[i].properties.DayEnd === "undefined" ||
-          demo_layer_features[i].properties.DayEnd === null
+          typeof demo_layer_features[i].properties!.DayEnd === "undefined" ||
+          demo_layer_features[i].properties!.DayEnd === null
         )
           curr_end_timestamp = null;
         else
           curr_end_timestamp = moment(
-            demo_layer_features[i].properties.DayEnd,
+            demo_layer_features[i].properties!.DayEnd,
             "YYYYMMDD"
           ).unix();
 
