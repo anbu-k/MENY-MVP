@@ -7,6 +7,7 @@ type SectionLayerProps = {
 
 const SectionLayerComponent = (props: SectionLayerProps) => {
     const [layerIsOpen, setLayerIsOpen] = useState<boolean>(false);
+    console.log(props)
 
     return (
         <>
@@ -17,14 +18,13 @@ const SectionLayerComponent = (props: SectionLayerProps) => {
                 id="long-island-section-caret"
                 onClick={() => setLayerIsOpen(!layerIsOpen)}
                 ></i>
-                &nbsp; {props.layer.name /* Possibly need a different "DisplayName" prop to be used for this if not formatted correctly */}</b>
+                &nbsp; {props.layer?.name ?? "" /* Possibly need a different "DisplayName" prop to be used for this if not formatted correctly */}</b>
             </center>
             <div className="layer-list-row">
                 <input
                 type="checkbox"
-                id={props.layer.id}
-                name={props.layer.name}
-                checked={props.layer.checked}
+                id={props.layer?.id ?? ""}
+                name={props.layer?.name ?? ""}
                 />
             </div>
 
@@ -34,7 +34,7 @@ const SectionLayerComponent = (props: SectionLayerProps) => {
                     color: props.layer.iconColor
                 }}
                 ></i>{props.layer.label}
-            <div className="dummy-label-layer-space">Replace this with component</div> 
+            <div className="dummy-label-layer-space"></div> 
             </label>
             <div className="layer-buttons-block">
             <div className="layer-buttons-list">
