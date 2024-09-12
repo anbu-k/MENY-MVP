@@ -2,9 +2,12 @@
 import Image from "next/image";
 import SectionLayersComponent from "./components/layers/section-layers.component";
 import moment from 'moment';
-import RulerComponent from "./components/ruler/ruler.component";
+import { useState } from "react";
+import SliderWithDatePanel from "./components/slider/slider-with-date-panel.component";
 
 export default function Home() {
+  const [currDate, setCurrDate] = useState<moment.Moment | null>(null)
+
   return (
     <>
       <input className="checker" type="checkbox" id="o" hidden />
@@ -108,13 +111,7 @@ export default function Home() {
 
       <div id="mobi-view-sidebar"><i className="fa fa-bars fa-2x"></i></div>
 
-      <div id="datepanel">
-        <b><span id="date"></span></b>
-      </div>
-
-      <div id="footer">
-        <RulerComponent></RulerComponent>
-      </div>
+      <SliderWithDatePanel callback={(date: moment.Moment | null) => setCurrDate(date)}></SliderWithDatePanel>
 
       <div id="loading">
         <i className="fa fa-sync fa-10x fa-spin" id="loading-icon"></i>
