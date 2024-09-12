@@ -28,7 +28,7 @@ const SectionLayerComponent = (props: SectionLayerProps) => {
                 />
             </div>
 
-            <label htmlFor="${layerData.id || fallbackData.id}">
+            <label htmlFor={props.layer.id}>
                 <i className="fa fa-play-circle" style={
                 {
                     color: props.layer.iconColor
