@@ -1,8 +1,13 @@
 'use client'
 import Image from "next/image";
 import SectionLayersComponent from "./components/layers/section-layers.component";
+import moment from 'moment';
+import { useState } from "react";
+import SliderWithDatePanel from "./components/slider/slider-with-date-panel.component";
 
 export default function Home() {
+  const [currDate, setCurrDate] = useState<moment.Moment | null>(null)
+
   return (
     <>
       <input className="checker" type="checkbox" id="o" hidden />
@@ -106,33 +111,7 @@ export default function Home() {
 
       <div id="mobi-view-sidebar"><i className="fa fa-bars fa-2x"></i></div>
 
-      <div id="datepanel">
-        <b><span id="date"></span></b>
-      </div>
-
-      <div id="footer">
-        <div id="slider">
-          <div id="mobi-year">...</div>
-
-          <div className="timeline">
-            <div className="year">
-              <span id="ruler-date1"> ... </span><span className="timeline-ruler"></span>
-            </div>
-            <div className="year">
-              <span id="ruler-date2"> ... </span><span className="timeline-ruler"></span>
-            </div>
-            <div className="year">
-              <span id="ruler-date3"> ... </span><span className="timeline-ruler"></span>
-            </div>
-            <div className="year">
-              <span id="ruler-date4"> ... </span><span className="timeline-ruler"></span>
-            </div>
-            <div className="year">
-              <span id="ruler-date5"> ... </span><span className="timeline-ruler"></span>
-            </div>
-          </div>
-        </div>
-      </div>
+      <SliderWithDatePanel callback={(date: moment.Moment | null) => setCurrDate(date)}></SliderWithDatePanel>
 
       <div id="loading">
         <i className="fa fa-sync fa-10x fa-spin" id="loading-icon"></i>
