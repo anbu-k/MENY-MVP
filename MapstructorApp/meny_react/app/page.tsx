@@ -4,6 +4,7 @@ import SectionLayersComponent from "./components/layers/section-layers.component
 import moment from 'moment';
 import { useState } from "react";
 import SliderWithDatePanel from "./components/slider/slider-with-date-panel.component";
+import RightInfoBar from "./components/right-info-bar/right-info-bar.component";
 import { SectionLayer } from "./models/layers/layer.model";
 
 // Remove this when we have a way to get layers correctly
@@ -216,13 +217,7 @@ export default function Home() {
         <br />
         <span id="dir-txt">&#9204;</span> <br /><br />
       </button>
-      <div id="rightInfoBar" className="rightInfoBarBorder">
-        <div className="infoLayerElem" id="infoLayerGrantLots"></div>
-        <div className="infoLayerElem" id="infoLayerDutchGrants"></div>
-        <div className="infoLayerElem" id="infoLayerNativeGroups"></div>
-        <div className="infoLayerElem" id="infoLayerCastello"></div>
-        <div className="infoLayerElem" id="demoLayerInfo"></div>
-      </div>
+      <RightInfoBar/>
 
       {/* Add Layers in here when structured somewhere */}
       <SectionLayersComponent layers={currLayers} />
