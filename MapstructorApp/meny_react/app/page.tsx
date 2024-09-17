@@ -5,6 +5,7 @@ import moment from 'moment';
 import { useState } from "react";
 import SliderWithDatePanel from "./components/slider/slider-with-date-panel.component";
 import { SectionLayer } from "./models/layers/layer.model";
+import MapComparisonComponent from "./components/map/map-compare-container.component";
 
 // Remove this when we have a way to get layers correctly
 const manhattanLayerSections = [
@@ -227,8 +228,7 @@ export default function Home() {
       {/* Add Layers in here when structured somewhere */}
       <SectionLayersComponent layers={currLayers} />
 
-      <div id="before" className="map"></div>
-      <div id="after" className="map"></div>
+      <MapComparisonComponent></MapComparisonComponent>
 
       <div id="mobi-view-sidebar"><i className="fa fa-bars fa-2x"></i></div>
 
