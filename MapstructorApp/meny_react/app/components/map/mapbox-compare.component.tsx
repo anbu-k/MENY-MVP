@@ -32,7 +32,7 @@ export default function MapboxCompareWrapper(props: any) {
   }, []);
 
   useEffect(() => {
-    if (mapRef.current || !MapboxCompare) return;
+    if (mapRef.current || !MapboxCompare || !comparisonContainerRef.current) return;
 
     const beforeMap = new mapboxgl.Map({
         container: 'before',
@@ -58,7 +58,28 @@ export default function MapboxCompareWrapper(props: any) {
         comparisonContainerRef.current
     );
 
-    console.log(mapRef.current, afterMap, beforeMap);
+    if(beforeMapContainerRef.current) {
+        beforeMapContainerRef.current.style.position = 'absolute';
+        beforeMapContainerRef.current.style.top = '0';
+        beforeMapContainerRef.current.style.bottom = '0';
+        beforeMapContainerRef.current.style.width = '100%';
+    }
+    if(afterMapContainerRef.current) {
+        afterMapContainerRef.current.style.position = 'absolute';
+        afterMapContainerRef.current.style.top = '0';
+        afterMapContainerRef.current.style.bottom = '0';
+        afterMapContainerRef.current.style.width = '100%';
+    }
+
+    if(window) {
+        console.log(window)
+        window.addEventListener('resize', () => {
+        // Your code to execute on window resize
+        console.log('Window resized!');
+        });
+    }
+
+    console.log(mapRef.current, afterMap, beforeMap, comparisonContainerRef);
   }, [MapboxCompare])
 
   return (
@@ -66,7 +87,7 @@ export default function MapboxCompareWrapper(props: any) {
         <div
         id="comparison-container"
         ref={comparisonContainerRef}
-        style={{ width: '100%', height: '100%', position: 'relative' }}
+        style={{ height: '100%', position: 'relative' }}
         >
             <div id="before" ref={beforeMapContainerRef} style={mapStyle}></div>
             <div id="after" ref={afterMapContainerRef} style={mapStyle}></div>
