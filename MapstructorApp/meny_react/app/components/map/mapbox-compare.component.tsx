@@ -50,6 +50,8 @@ export default function MapboxCompareWrapper(props: any) {
         afterMap,
         comparisonContainerRef.current
     );
+
+    console.log(mapRef.current, afterMap, beforeMap);
   }, [MapboxCompare])
 
   return (
@@ -57,10 +59,10 @@ export default function MapboxCompareWrapper(props: any) {
         <div
         id="comparison-container"
         ref={comparisonContainerRef}
-        style={{ height: '100%', position: 'relative' }}
+        style={{ width: '100%', height: '100%', position: 'relative' }}
         >
-        <div id="before" ref={beforeMapContainerRef} style={mapStyle as DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement>}></div>
-        <div id="after" ref={afterMapContainerRef} style={mapStyle as DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement>}></div>
+            <div id="before" ref={beforeMapContainerRef} style={mapStyle as DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement>}></div>
+            <div id="after" ref={afterMapContainerRef} style={mapStyle as DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement>}></div>
         </div>
     </>
   )

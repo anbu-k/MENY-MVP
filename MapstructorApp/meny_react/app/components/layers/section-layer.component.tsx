@@ -7,7 +7,6 @@ type SectionLayerProps = {
 
 const SectionLayerComponent = (props: SectionLayerProps) => {
     const [layerIsOpen, setLayerIsOpen] = useState<boolean>(false);
-    console.log(props)
 
     return (
         <>
