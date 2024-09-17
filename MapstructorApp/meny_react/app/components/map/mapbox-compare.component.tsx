@@ -71,6 +71,14 @@ export default function MapboxCompareWrapper(props: any) {
         afterMapContainerRef.current.style.width = '100%';
     }
 
+    //Before map
+    var nav = new mapboxgl.NavigationControl();
+    beforeMap.addControl(nav, "bottom-right");
+
+    //After map
+    var nav = new mapboxgl.NavigationControl();
+    afterMap.addControl(nav, "bottom-right");
+
     if(window) {
         console.log(window)
         window.addEventListener('resize', () => {
