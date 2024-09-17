@@ -7,19 +7,19 @@ type SectionLayersProps = {
 }
 
 const SectionLayersComponent = (props: SectionLayersProps) => {
-    console.log("LAYERSSSS: ", props.layers);
-
     return (
         <div id="studioMenu">
         <i id="mobi-hide-sidebar" className="fa fa-arrow-circle-left fa-3x"></i>
         <p className="title">LAYERS</p>
         <br />
         {
-            props.layers.map(layer => {
+            props.layers.map((layer, idx) => {
                 return (
                     <>
-                        <SectionLayerComponent layer={layer} />
-                        <br />
+                        <div key={`section-layer-${idx}`}>
+                            <SectionLayerComponent layer={layer} />
+                            <br />
+                        </div>
                     </>
                 )
             })
