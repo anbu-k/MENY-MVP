@@ -1,5 +1,6 @@
 "use client";
 import mapboxgl from 'mapbox-gl';
+import moment from 'moment';
 import { DetailedHTMLProps, HTMLAttributes, useEffect, useRef, useState } from "react";
 
 export default function MapboxCompareWrapper(props: any) {
@@ -13,6 +14,9 @@ export default function MapboxCompareWrapper(props: any) {
 
   const mapStyle = { position: 'absolute', top: 0, bottom: 0, width: '100%' };
 
+    mapboxgl.accessToken = 'pk.eyJ1IjoibWFwbnkiLCJhIjoiY2xtMG93amk4MnBrZTNnczUzY2VvYjg0ciJ9.MDMHYBlVbG14TJD120t6NQ';
+    mapboxgl.config.ACCESS_TOKEN = 'pk.eyJ1IjoibWFwbnkiLCJhIjoiY2xtMG93amk4MnBrZTNnczUzY2VvYjg0ciJ9.MDMHYBlVbG14TJD120t6NQ'
+
   useEffect(() => {
     import('mapbox-gl-compare').then((mod) => {
         setMapboxCompare(() => mod.default);
@@ -22,9 +26,6 @@ export default function MapboxCompareWrapper(props: any) {
 
   useEffect(() => {
     if (mapRef.current || !MapboxCompare) return;
-  
-    mapboxgl.accessToken = 'pk.eyJ1IjoibWFwbnkiLCJhIjoiY2xtMG93amk4MnBrZTNnczUzY2VvYjg0ciJ9.MDMHYBlVbG14TJD120t6NQ';
-    mapboxgl.config.ACCESS_TOKEN = 'pk.eyJ1IjoibWFwbnkiLCJhIjoiY2xtMG93amk4MnBrZTNnczUzY2VvYjg0ciJ9.MDMHYBlVbG14TJD120t6NQ'
 
     const beforeMap = new mapboxgl.Map({
         container: 'before',
@@ -51,8 +52,9 @@ export default function MapboxCompareWrapper(props: any) {
     );
   }, [MapboxCompare])
 
-  return hasType && MapboxCompare && (
-    <div
+  return (
+    <>
+        <div
         id="comparison-container"
         ref={comparisonContainerRef}
         style={{ height: '100%', position: 'relative' }}
@@ -60,5 +62,6 @@ export default function MapboxCompareWrapper(props: any) {
         <div id="before" ref={beforeMapContainerRef} style={mapStyle as DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement>}></div>
         <div id="after" ref={afterMapContainerRef} style={mapStyle as DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement>}></div>
         </div>
-  );
+    </>
+  )
 }
