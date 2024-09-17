@@ -12,10 +12,17 @@ export default function MapboxCompareWrapper(props: any) {
   const afterMapContainerRef = useRef<HTMLDivElement>(null);
   const comparisonContainerRef = useRef<HTMLDivElement>(null);
 
-  const mapStyle = { position: 'absolute', top: 0, bottom: 0, width: '100%' };
+  const mapStyle: DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement> = {
+    style: {
+        position: 'absolute',
+        top: 0,
+        bottom: 0,
+        width: '100%'
+    }
+};
 
     mapboxgl.accessToken = 'pk.eyJ1IjoibWFwbnkiLCJhIjoiY2xtMG93amk4MnBrZTNnczUzY2VvYjg0ciJ9.MDMHYBlVbG14TJD120t6NQ';
-    mapboxgl.config.ACCESS_TOKEN = 'pk.eyJ1IjoibWFwbnkiLCJhIjoiY2xtMG93amk4MnBrZTNnczUzY2VvYjg0ciJ9.MDMHYBlVbG14TJD120t6NQ'
+    mapboxgl.config.ACCESS_TOKEN = 'pk.eyJ1IjoibWFwbnkiLCJhIjoiY2xtMG93amk4MnBrZTNnczUzY2VvYjg0ciJ9.MDMHYBlVbG14TJD120t6NQ';
 
   useEffect(() => {
     import('mapbox-gl-compare').then((mod) => {
@@ -61,8 +68,8 @@ export default function MapboxCompareWrapper(props: any) {
         ref={comparisonContainerRef}
         style={{ width: '100%', height: '100%', position: 'relative' }}
         >
-            <div id="before" ref={beforeMapContainerRef} style={mapStyle as DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement>}></div>
-            <div id="after" ref={afterMapContainerRef} style={mapStyle as DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement>}></div>
+            <div id="before" ref={beforeMapContainerRef} style={mapStyle}></div>
+            <div id="after" ref={afterMapContainerRef} style={mapStyle}></div>
         </div>
     </>
   )
