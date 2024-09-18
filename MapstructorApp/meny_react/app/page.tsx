@@ -4,8 +4,9 @@ import SectionLayersComponent from "./components/layers/section-layers.component
 import moment from 'moment';
 import { useState } from "react";
 import SliderWithDatePanel from "./components/slider/slider-with-date-panel.component";
-import RightInfoBar from "./components/right-info-bar/right-info-bar.component";
 import { SectionLayer } from "./models/layers/layer.model";
+import { GenericPopUpProps } from "./models/popups/generic-pop-up.model";
+import BuildPopUpInfo from "./components/right-info-bar/popups/pop-up";
 
 // Remove this when we have a way to get layers correctly
 const manhattanLayerSections = [
@@ -102,8 +103,54 @@ const longIslandLayerSections = [
   }
 ];
 
+//Test Popup Props
+const dutchGrantPopupTest: GenericPopUpProps = {
+  DayEnd: 17000102,
+  DayEnd1: 16550429,
+  DayStart: 16430713,
+  Lot: "B1",
+  day1: "13-Jul",
+  day2: "Apr. 29",
+  descriptio: "Gr-br. to Cornelis Volckersen. (GG: 83.) Desc: A double lot for two hos. and two gardens, lying on the Common Highway, its br. along said road is 9 r. and 8 ft., and below on the marsh of the same br.; its length on the N. side is 18 r., 2 ft., 5 ins. an",
+  lot2: "",
+  name: "Cornelis Volckersen",
+  nid: 19107,
+  notes: "",
+  styling1: "knownfull",
+  year1: "1643",
+  year2: "1655",
+  type: "dutch-grant",
+}
+const lotEventPopupTest: GenericPopUpProps = {
+  DayEnd: 16750703,
+  DayStart: 16621201,
+  TAXLOT: "C7",
+  color: "2",
+  color_num: 2,
+  end_date: "1675-07-03",
+  nid: 1550,
+  num: 6,
+  start_date: "1662-12-01",
+  title: "C7_12-1662",
+  type: "lot-event"
+}
+const castelloTaxlotPopupTest: GenericPopUpProps = {
+  block: "L",
+  id: 173,
+  lot: "5",
+  lot2: "L5",
+  new_link: "https://nahc-mapping.org/mappingNY/encyclopedia/taxlot/L5",
+  nid: 18691,
+  old_link_2: "http://thenittygritty.org/nahc/encyclopedia/taxlot/L5",
+  tax_lots_1: "House",
+  tax_lots_2: "----------",
+  tax_lots_3: "http://nahc.simcenterdev.org/taxlot/l5",
+  type: "castello-taxlot",
+}
+
 export default function Home() {
-  const [currDate, setCurrDate] = useState<moment.Moment | null>(null)
+  const [currDate, setCurrDate] = useState<moment.Moment | null>(null);
+  const [popUp, setPopUp] = useState<GenericPopUpProps | null>(lotEventPopupTest);
 
   const currLayers: SectionLayer[] = [
     ...manhattanLayerSections.map(x => {
@@ -217,7 +264,11 @@ export default function Home() {
         <br />
         <span id="dir-txt">&#9204;</span> <br /><br />
       </button>
-      <RightInfoBar/>
+      
+      {popUp &&  
+        <BuildPopUpInfo
+          popUpProps = {popUp}
+      />}
 
       {/* Add Layers in here when structured somewhere */}
       <SectionLayersComponent layers={currLayers} />
