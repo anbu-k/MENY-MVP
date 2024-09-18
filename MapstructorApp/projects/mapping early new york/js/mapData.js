@@ -1,4 +1,6 @@
-// Map data array for Castello maps
+/**
+ * This array is a list of maps to be generated for the Castello Taxlors
+ */
 const castelloMaps = [
   {
     id: "clm2yu5fg022801phfh479c8x",  // unique identifier for the map

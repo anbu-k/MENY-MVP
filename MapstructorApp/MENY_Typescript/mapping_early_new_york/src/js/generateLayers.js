@@ -1,23 +1,20 @@
 /**
- * This class renders HTML for the Manhattan layers based on their type
- * 
  * @param {{
- *  id: string;   
- * name?: string;
- * caretId?: string;
- * label: string;
- * iconColor?: string;
- * itemSelector?: string;
- * zoomTo?: string;
- * infoId: string;
- * type?: "group" | "lots-events" | "grants-lots" | "castello-points" | "current-buildings";
- * iconType?: "square"
- * }[]} layers - an array of layer objects to be rendered
- * @returns {string} - A string of HTML representing the rendered layers
- */
+*  id: string;
+* name?: string;
+* caretId?: string;
+* label: string;
+* iconColor?: string;
+* itemSelector?: string;
+* zoomTo?: string;
+* infoId: string;
+* type?: "group" | "lots-events" | "grants-lots" | "castello-points" | "current-buildings";
+* iconType?: "square"
+* }[]} layers
+* @returns {string}
+*/
 function renderManhattanLayers(layers) {
-  // Predefined HTML template for current-buildings type
-  const lastBitOfManhattanSectionTemplate = `
+ const lastBitOfManhattanSectionTemplate = `
 <div class="layer-list-row">
  <input
    type="checkbox"
@@ -43,62 +40,54 @@ function renderManhattanLayers(layers) {
  >
 </div>
 `; 
-
-  // Initializes the HTML string that will be built
-  let r = "";
-  // Checks layer type and renders the corresponding HTML
-  layers.forEach((layer) => {
-    if (layer.type === "group") {
-      r += renderLayerRow(layer); // Renders a row for group type layers
-    } else if (layer.type === "lots-events") {
-      r += renderCirclePointLayerRow(layer); // Renders a row for lots-events
-    } else if (layer.type === "grants-lots") {
-      r += renderGrantLotsLayerRow(layer); // Renders a row for grants-lots
-    } else if (layer.type === "castello-points") {
-      r += renderCastelloPointsLayerRow(layer); // Renders a row for castello-points
-    } else if (layer.type === "current-buildings"){
-      // Renders specific HTML for current-buildings
-      r += lastBitOfManhattanSectionTemplate;
-      r += `<div class="layer-list-row">
-      <input
-        type="checkbox"
-        class="current_buildings"
-        id="current_buildings_lines"
-        name="current_buildings_lines"
-      />
-      <label for="current_buildings_lines">
-        <i class="far fa-square" style="color: #0000ff"></i> Current
-        Buildings
-        <div class="dummy-label-layer-space"></div
-      ></label>
-      <div class="layer-buttons-block">
-        <div class="layer-buttons-list">
-          <i
-            class="fa fa-crosshairs zoom-to-layer"
-            onclick="zoomtocenter('NA')"
-            title="Zoom to Layer"
-          ></i>
-          <i
-            class="fa fa-info-circle layer-info trigger-popup"
-            id="current-buildings-lines-info-layer"
-            title="Layer Info"
-          ></i>
-        </div>
-      </div>
-    </div>`
-    } else {
-      //defualt rendering for any other types
-      r += renderManahattaLayerItem(layer);
-    }
-  });
-
-  // returns the final HTML string
-  return r;
+ let r = "";
+ layers.forEach((layer) => {
+   if (layer.type === "group") {
+     r += renderLayerRow(layer);
+   } else if (layer.type === "lots-events") {
+     r += renderCirclePointLayerRow(layer);
+   } else if (layer.type === "grants-lots") {
+     r += renderGrantLotsLayerRow(layer);
+   } else if (layer.type === "castello-points") {
+     r += renderCastelloPointsLayerRow(layer);
+   } else if (layer.type === "current-buildings"){
+     r += lastBitOfManhattanSectionTemplate;
+     r += `<div class="layer-list-row">
+     <input
+       type="checkbox"
+       class="current_buildings"
+       id="current_buildings_lines"
+       name="current_buildings_lines"
+     />
+     <label for="current_buildings_lines">
+       <i class="far fa-square" style="color: #0000ff"></i> Current
+       Buildings
+       <div class="dummy-label-layer-space"></div
+     ></label>
+     <div class="layer-buttons-block">
+       <div class="layer-buttons-list">
+         <i
+           class="fa fa-crosshairs zoom-to-layer"
+           onclick="zoomtocenter('NA')"
+           title="Zoom to Layer"
+         ></i>
+         <i
+           class="fa fa-info-circle layer-info trigger-popup"
+           id="current-buildings-lines-info-layer"
+           title="Layer Info"
+         ></i>
+       </div>
+     </div>
+   </div>`
+   } else {
+     r += renderManahattaLayerItem(layer);
+   }
+ });
+ return r;
 }
 
 /**
- *  Renders HTML for the Long Island layers based on their type
- * @param {{
+* @param {{
 *  id: string;
 * name?: string;
 * caretId?: string;
@@ -109,57 +98,49 @@ function renderManhattanLayers(layers) {
 * infoId: string;
 * type?: "group" | "lots-events" | "grants-lots" | "castello-points" | "current-buildings" | "custom_indian_paths";
 * iconType?: "square"
-* }[]} layers - an array of layer objects to be rendered
-* @returns {string} - a string of HTML representing the rendered layers
+* }[]} layers
+* @returns {string}
 */
 function renderLongIslandLayers(layers){
-  // initialize the HTML string
-  let r = ''
-
-  // predefined HTML template for custom_indian_paths type
-  const customIndianTemplate = `<div class="layer-list-row">
-  <input type="checkbox" id="indian_paths" name="indian_paths" />
-  <label for="indian_paths">
-    <i class="fas fa-slash slash-icon" style="color: #ff0000"></i>
-    1600-64 | Paths
-    <div class="dummy-label-layer-space"></div
-  ></label>
-  <div class="layer-buttons-block">
-    <div class="layer-buttons-list">
-      <i
-        class="fa fa-crosshairs zoom-to-layer"
-        onclick="zoomtobounds('Brooklyn')"
-        title="Zoom to Layer"
-      ></i>
-      <i
-        class="fa fa-info-circle layer-info trigger-popup"
-        id="indian-paths-info-layer"
-        title="Layer Info"
-      ></i>
-    </div>
-  </div>
+ let r = ''
+ const customIndianTemplate = `<div class="layer-list-row">
+ <input type="checkbox" id="indian_paths" name="indian_paths" />
+ <label for="indian_paths">
+   <i class="fas fa-slash slash-icon" style="color: #ff0000"></i>
+   1600-64 | Paths
+   <div class="dummy-label-layer-space"></div
+ ></label>
+ <div class="layer-buttons-block">
+   <div class="layer-buttons-list">
+     <i
+       class="fa fa-crosshairs zoom-to-layer"
+       onclick="zoomtobounds('Brooklyn')"
+       title="Zoom to Layer"
+     ></i>
+     <i
+       class="fa fa-info-circle layer-info trigger-popup"
+       id="indian-paths-info-layer"
+       title="Layer Info"
+     ></i>
+   </div>
+ </div>
 </div>`
-
-// iterates over each layer in the input layers array
-  layers.forEach(layer => {
-    if(layer.type === "group"){
-      r += renderLayerRow(layer, true); // renders a row for group type layers
-    } else if(layer.type === "custom_indian_paths"){
-      r+= customIndianTemplate; // renders the custom Indian paths template
-    } else {
-      r+= renderManahattaLayerItem(layer) // default rendering for other types
-    }
-  })
-
-  // returns the final HTML string
-  return r;
+ layers.forEach(layer => {
+   if(layer.type === "group"){
+     r += renderLayerRow(layer, true);
+   } else if(layer.type === "custom_indian_paths"){
+     r+= customIndianTemplate;
+   } else {
+     r+= renderManahattaLayerItem(layer)
+   }
+ })
+ return r;
 }
 
 
 /**
- *  Renders a single row for a map layer
- * 
- * @param {{
+* 
+* @param {{
 *  id: string;
 * name?: string;
 * caretId?: string;
@@ -213,9 +194,9 @@ function renderLayerRow(layerData, isMinus=false) {
  return html;
 }
 /**
- * Renders HTML for the Manhatta layers 
- * @param {{
- *  id: string;
+* 
+* @param {{
+*  id: string;
 * name?: string;
 * caretId?: string;
 * label: string;
@@ -252,9 +233,8 @@ function renderManahattaLayerItem(layerData) {
 }
 
 /**
- * this function generates the HTML string for a layer item in the list, using data from the layerData object
- * 
- * @param {{
+* 
+* @param {{
 *  id: string;
 * name?: string;
 * caretId?: string;
@@ -343,9 +323,7 @@ function renderCirclePointLayerRow(layerData) {
 }
 
 /**
-* renders HTML for a grant-lots layer row
-* This function generates the HTML string for a row in the layer list specific to grant lots data
-*
+* 
 * @param {{
 *  id: string;
 * name?: string;
@@ -375,10 +353,8 @@ function renderGrantLotsLayerRow(layerData) {
 }
 
 /**
- * Renders HTML for a Castello points layer row
- * This function generates the HTML string for a row in the layer list specific to "Castello points" data
- * 
- * @param {{
+* 
+* @param {{
 *  id: string;
 * name?: string;
 * caretId?: string;

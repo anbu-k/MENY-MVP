@@ -256,41 +256,80 @@ function renderManahattaLayerItem(layerData) {
 * infoId: string;
 * type?: "group" | "lots-events" | "grants-lots" | "castello-points" | "current-buildings";
 * iconType?: "square"
+* }} layerData
+* 
+* @param {{
+*  id: string;
+* name?: string;
+* label: string;
+* iconColor?: string;
+* zoomTo?: string;
+* infoId: string;
+* }} fallbackData 
+ * @returns {string}
+ */
+function renderGenericLayerRow(layerData, fallbackData) {
+  const html = `
+  <div class="layer-list-row">
+    <input
+      type="checkbox"
+      id="${layerData.id || fallbackData.id}"
+      name="${layerData.name || fallbackData.name}"
+      ${layerData.checked ? 'checked="checked"' : ""}
+    />
+
+    <label for="${layerData.id || fallbackData.id}">
+      <i class="fa fa-play-circle" style="color: ${
+        layerData.iconColor || fallbackData.iconColor
+      }"></i>${layerData.label || fallbackData.label}
+      <div class="dummy-label-layer-space"></div>
+    </label>
+    <div class="layer-buttons-block">
+      <div class="layer-buttons-list">
+        <i
+          class="fa fa-crosshairs zoom-to-layer"
+          onclick="zoomtocenter('${layerData.zoomTo || "N/A"}')"
+          title="Zoom to Layer"
+        ></i>
+        <i
+          class="fa fa-info-circle layer-info trigger-popup"
+          id="${layerData.infoId || fallbackData.infoId}"
+          title="Layer Info"
+        ></i>
+      </div>
+    </div>
+  </div>
+`;
+
+  return html;
+}
+
+/**
+ * 
+ * @param {{
+*  id: string;
+* name?: string;
+* caretId?: string;
+* label: string;
+* iconColor?: string;
+* itemSelector?: string;
+* zoomTo?: string;
+* infoId: string;
+* type?: "group" | "lots-events" | "grants-lots" | "castello-points" | "current-buildings";
+* iconType?: "square"
 * }} layerData 
  * @returns {string}
  */
 function renderCirclePointLayerRow(layerData) {
-  const html = `
-      <div class="layer-list-row">
-        <input
-          type="checkbox"
-          id="${layerData.id || "circle_point"}"
-          name="${layerData.name || "circle_point"}"
-          ${layerData.checked ? 'checked="checked"' : ""}
-        />
-  
-        <label for="${layerData.id || "circle_point"}">
-          <i class="fa fa-play-circle" style="color: ${
-            layerData.iconColor || "#097911"
-          }"></i>${layerData.label || "1643-75 | Lot Events"}
-          <div class="dummy-label-layer-space"></div>
-        </label>
-        <div class="layer-buttons-block">
-          <div class="layer-buttons-list">
-            <i
-              class="fa fa-crosshairs zoom-to-layer"
-              onclick="zoomtocenter('${layerData.zoomTo || "NA"}')"
-              title="Zoom to Layer"
-            ></i>
-            <i
-              class="fa fa-info-circle layer-info trigger-popup"
-              id="${layerData.infoId || "demo-taxlot-info-layer"}"
-              title="Layer Info"
-            ></i>
-          </div>
-        </div>
-      </div>
-    `;
+  const fallbackData = {
+  id: "circle_point",
+  name: "circle_point",
+  label: "1643-75 | Lot Events",
+  iconColor: "#097911",
+  infoId: "demo-taxlot-info-layer",
+  }
+
+  const html = renderGenericLayerRow(layerData, fallbackData);
 
   return html;
 }
@@ -313,35 +352,15 @@ function renderCirclePointLayerRow(layerData) {
  * @returns {string}
  */
 function renderGrantLotsLayerRow(layerData) {
-  const html = `
-      <div class="layer-list-row">
-        <input
-          type="checkbox"
-          id="${layerData.id || "grant_lots"}"
-          name="${layerData.name || "grant_lots"}"
-        />
-        <label for="${layerData.id || "grant_lots"}">
-          <i class="fa fa-square" style="color: ${
-            layerData.iconColor || "#008888"
-          }"></i>${layerData.label || "1643-67 | Demo Grant Divisions: C7"}
-          <div class="dummy-label-layer-space"></div>
-        </label>
-        <div class="layer-buttons-block">
-          <div class="layer-buttons-list">
-            <i
-              class="fa fa-crosshairs zoom-to-layer"
-              onclick="zoomtocenter('${layerData.zoomTo || "NA"}')"
-              title="Zoom to Layer"
-            ></i>
-            <i
-              class="fa fa-info-circle layer-info trigger-popup"
-              id="${layerData.infoId || "demo-grant-info-layer"}"
-              title="Layer Info"
-            ></i>
-          </div>
-        </div>
-      </div>
-    `;
+  const fallbackData = {
+    id: "grant_lots",
+    name: "grant_lots",
+    label: "1643-67 | Demo Grant Divisions: C7",
+    iconColor: "#008888",
+    infoId: "demo-grant-info-layer",
+  }
+
+  const html = renderGenericLayerRow(layerData, fallbackData);
 
   return html;
 }
@@ -400,12 +419,12 @@ function renderCastelloPointsLayerRow(layerData) {
 
 // try to render the layers for Long Island, Manhattan, and additional information sections
 try{
-$("#long-island-section-layers").html(renderLongIslandLayers(longIslandLayerSections))
-$("#manahatta-section-layers").html(
-  renderManhattanLayers(manhattanLayerSections)
-);
-$("#info-section-layers").html(renderLongIslandLayers(informationOfInterest))
+  $("#long-island-section-layers").html(renderLongIslandLayers(longIslandLayerSections))
+  $("#manahatta-section-layers").html(
+    renderManhattanLayers(manhattanLayerSections)
+  );
+  $("#info-section-layers").html(renderLongIslandLayers(informationOfInterest))
+  console.log("generateLayer script ran successfully :)");
 }catch(error){
   console.log(error)
 }
-console.log("generateLayer script ran successfully :)");
