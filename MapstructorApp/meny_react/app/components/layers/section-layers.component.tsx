@@ -7,6 +7,7 @@ type SectionLayersProps = {
 }
 
 const SectionLayersComponent = (props: SectionLayersProps) => {
+    console.log("LAYERSSSS: ", props.layers);
 
     return (
         <div id="studioMenu">
