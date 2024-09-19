@@ -1,8 +1,17 @@
-
+/**
+ * creates a map label as a GeoJSON feature with specific properties for display and interactivity
+ * 
+ * @param {string} title - the title of the label to be displayed
+ * @param {Array} coordinates - the geographic coordinates, longitude and latitude where the label will be placed
+ * @param {number} minZoom - the optimal minimum zoom level at which the label will become visible
+ * @returns {object} - returns an object representing the label
+ */
 function createLabel(title, coordinates, minZoom = null) {
     return {
+      // Ggnerates a unique ID for the label by transforming the title to lowercase and replacing spaces with hyphens
       id: `label-${title.toLowerCase().replace(/\s+/g, '-')}`,
       type: "symbol",
+        // defines the data source as GeoJSON, specifying the label's coordinates and properties
       source: {
         type: "geojson",
         data: {
@@ -14,7 +23,10 @@ function createLabel(title, coordinates, minZoom = null) {
           }],
         },
       },
+      // conditionally includes the minzoom property if a minZoom value is provided.
       ...(minZoom && { minzoom: minZoom }),
+
+      // defines the layout properties for the label, including text font, size, and visibility.
       layout: {
         visibility: "visible",
         "text-font": ["Asap Medium"],
@@ -39,7 +51,13 @@ function createLabel(title, coordinates, minZoom = null) {
   Create a function to add event listeners for interactivity (mouseenter, mouseleave, click):
   */
   
-  
+  /**
+   * adds interactivity (hover and click behavior) to a specific label on the map
+   * 
+   * @param {*} map - the map instance where the label is added
+   * @param {*} labelObject - the label object created by createlabel, which contains properties for the label
+   * @param {*} boundsName - the name of the bounds area to zoom to when the label is clicked
+   */
   function addInteractivityToLabel(map, labelObject, boundsName) {
     const labelId = labelObject.id;
   

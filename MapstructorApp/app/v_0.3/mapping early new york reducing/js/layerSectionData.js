@@ -1,3 +1,4 @@
+// Manhattan layer sections: an array of objects that defined different map layers and their properties for the Manhattan area
 const manhattanLayerSections = [
   {
     id: "grants_layer_items",
@@ -49,6 +50,7 @@ const manhattanLayerSections = [
   },
 ];
 
+// Long Island layer sections: an array of objects that define different map layers and their properties for the Long Island area
 const longIslandLayerSections = [
   {
     id: "native_groups_layer_items",

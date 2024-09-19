@@ -1,3 +1,14 @@
+/**
+ * generates HTML for displaying a map item with interactive elements (radio buttons, zoom, info buttons)
+ * 
+ * @param {object} map - the map object containing properties such as:
+ * - id : the unique identifier for the map
+ * - name: the name of the map to be displayed as a label
+ * - zoomFunction: the function to zoom to this map when the crosshairs icon is clicked
+ * - infoId: the unique ID for the info button related to this map
+ * - checked: boolean indicating if this map should be pre-selected/checked
+ * @returns {string} - returns the HTML string for the map item, formatted for insertion into the page
+ */
 function generateMapHTML(map) {
     return `
       <div class="layer-list-row">

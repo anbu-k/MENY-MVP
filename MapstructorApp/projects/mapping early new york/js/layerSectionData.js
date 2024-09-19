@@ -1,3 +1,4 @@
+// array containing sections for Manhattan layers, each representing different time periods or types of layers
 const manhattanLayerSections = [
   {
     id: "manahatta_items",
@@ -162,6 +163,7 @@ const manhattanLayerSections = [
   },
 ];
 
+// array containing sections for Long Island layers, covering different historical time periods and groups
 const longIslandLayerSections = [
 
   {
@@ -453,6 +455,7 @@ const longIslandLayerSections = [
   
 ];
 
+// array containing information of interest layers for display
 const informationOfInterest = [
   {
     id: 'info_items',
