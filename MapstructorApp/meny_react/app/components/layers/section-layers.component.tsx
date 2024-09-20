@@ -1,5 +1,6 @@
 import { SectionLayer } from "@/app/models/layers/layer.model";
 import SectionLayerComponent from "./section-layer.component";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 
 type SectionLayersProps = {
@@ -7,11 +8,9 @@ type SectionLayersProps = {
 }
 
 const SectionLayersComponent = (props: SectionLayersProps) => {
-    console.log("LAYERSSSS: ", props.layers);
-
     return (
         <div id="studioMenu">
-        <i id="mobi-hide-sidebar" className="fa fa-arrow-circle-left fa-3x"></i>
+        <FontAwesomeIcon id="mobi-hide-sidebar" icon="arrow-circle-left" />
         <p className="title">LAYERS</p>
         <br />
         {
