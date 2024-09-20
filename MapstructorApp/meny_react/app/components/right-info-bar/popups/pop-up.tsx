@@ -5,7 +5,7 @@ type PopUpProps = {
     popUpProps: GenericPopUpProps,
 }
 
-const BuildPopUpInfo = (props: PopUpProps) => {
+const SliderPopUp = (props: PopUpProps) => {
     const [renderedEntity, setRenderedEntity] = useState(null);
     const [nid, setNid] = useState<number | string | undefined>(props.popUpProps.nid);
     useEffect(() => {
@@ -160,7 +160,7 @@ const BuildPopUpInfo = (props: PopUpProps) => {
         );
     }
   };
-export default BuildPopUpInfo;
+export default SliderPopUp;
 //Zak comment get info methods below that fill lots_info
 //This will leave at some point but I want them here to figure
 //out how to deal with this lots_info

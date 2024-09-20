@@ -6,7 +6,7 @@ import { useState } from "react";
 import SliderWithDatePanel from "./components/slider/slider-with-date-panel.component";
 import { SectionLayer } from "./models/layers/layer.model";
 import { GenericPopUpProps } from "./models/popups/generic-pop-up.model";
-import BuildPopUpInfo from "./components/right-info-bar/popups/pop-up";
+import SliderPopUp from "./components/right-info-bar/popups/pop-up";
 
 // Remove this when we have a way to get layers correctly
 const manhattanLayerSections = [
@@ -147,10 +147,17 @@ const castelloTaxlotPopupTest: GenericPopUpProps = {
   tax_lots_3: "http://nahc.simcenterdev.org/taxlot/l5",
   type: "castello-taxlot",
 }
+const longIslandNativeGroupsPopupTest: GenericPopUpProps = {
+  
+FID_1: 220,
+name: "Unkechaugs",
+nid: "10021",
+type: "long-island-native-groups",
+}
 
 export default function Home() {
   const [currDate, setCurrDate] = useState<moment.Moment | null>(null);
-  const [popUp, setPopUp] = useState<GenericPopUpProps | null>(lotEventPopupTest);
+  const [popUp, setPopUp] = useState<GenericPopUpProps | null>(longIslandNativeGroupsPopupTest);
 
   const currLayers: SectionLayer[] = [
     ...manhattanLayerSections.map(x => {
@@ -266,7 +273,7 @@ export default function Home() {
       </button>
       
       {popUp &&  
-        <BuildPopUpInfo
+        <SliderPopUp
           popUpProps = {popUp}
       />}
 
