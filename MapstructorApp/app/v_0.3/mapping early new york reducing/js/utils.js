@@ -1,4 +1,11 @@
+/**
+ * attaches tooltips to target elements
+ * 
+ * @param {string} target_items - a jQuery selector for the target elements that should display tooltips
+ * @param {string} name - the class name to apply to the tooltip elements
+ */
 function simple_tooltip(target_items, name) {
+  // iterates over each element that matches the target selector
     $(target_items).each(function (i) {
       $("body").append(
         "<div class='" +
@@ -10,9 +17,11 @@ function simple_tooltip(target_items, name) {
           $(this).attr("title") +
           "</p></div>"
       );
+      // stores the reference to the tooltip element created for the current item
       var my_tooltip = $("#" + name + i);
   
       $(this)
+      // removes the title attrivute from the target item to prevent default browser tooltips
         .removeAttr("title")
         .mouseover(function () {
           my_tooltip.css({ opacity: 1.0, display: "none" }).fadeIn(200);
