@@ -36,7 +36,7 @@ const SectionLayerGroupComponent = (props: SectionLayerGroupsProps) => {
                 />
 
                 <label htmlFor={`section-layer-group-${props.group?.id ?? ""}`}>
-                <FontAwesomeIcon onClick={toggleGroup} icon={props.group.items.length > 0 ? getFontawesomeIcon(props.group.iconType) : (layerIsOpen ? getFontawesomeIcon(FontAwesomeLayerIcons.PLUS_SQUARE) : getFontawesomeIcon(FontAwesomeLayerIcons.MINUS_SQUARE))} style={{
+                <FontAwesomeIcon onClick={toggleGroup} icon={props.group.items.length > 0 ? getFontawesomeIcon(props.group.iconType, props.group.isSolid) : (layerIsOpen ? getFontawesomeIcon(FontAwesomeLayerIcons.PLUS_SQUARE, true) : getFontawesomeIcon(FontAwesomeLayerIcons.MINUS_SQUARE, true))} style={{
                     color: props.group.items.length > 0 ? IconColors.GREY : props.group.iconColor,
                 }} /> {props.group.label}
                 <div className="dummy-label-layer-space"></div> 
