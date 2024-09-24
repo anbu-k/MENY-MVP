@@ -1,24 +1,25 @@
+import { IconColors } from "../colors.model"
+import { FontAwesomeLayerIcons } from "../font-awesome.model"
 
 export type SectionLayer = {
-    id: string, // Possibly done need id, name and label, consider combining their usages.
-    name: string,
+    id: number,
     label: string,
-    checked: boolean,
-    iconColor: string,
+    groups: SectionLayerGroup[]
 }
 
 export type SectionLayerItem = {
     id: number,
-    htmlId: string,
-    iconColor: string,
     label: string,
-    iconType: string,
+    iconColor: IconColors,
+    iconType: FontAwesomeLayerIcons,
     isSolid: boolean,
 }
 
 export type SectionLayerGroup = {
     id: number,
-    htmlId: string,
     label: string,
+    iconColor: IconColors,
+    iconType: FontAwesomeLayerIcons,
+    isSolid: boolean,
     items: SectionLayerItem[]
 }
