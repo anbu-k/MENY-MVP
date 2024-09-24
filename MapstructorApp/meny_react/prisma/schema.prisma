@@ -20,3 +20,5 @@ model Map {
   infoId       String
   zoomFunction String
 }
+
+
