@@ -1,42 +1,33 @@
-import { NextApiRequest, NextApiHandler, NextApiResponse } from "next";
 import { PrismaClient } from "@prisma/client";
+import { NextResponse } from "next/server";
+import { Map } from "@prisma/client";
 
-export default async function handler(
-    req: NextApiRequest,
-    res: NextApiResponse
-)
+
+export  async function GET()
 {
     const prisma = new PrismaClient();
+    const m = await prisma.map.findMany();
 
-    if(req.method === 'GET') {
-        const map = await prisma.map.findMany();
-        return res.send(map)
-    }
+    return NextResponse.json({
+        m
+     })
+}
 
-    /*
-    `id` VARCHAR(191) NOT NULL,
-    `name` VARCHAR(191) NOT NULL,
-    `checked` BOOLEAN NOT NULL,
-    `infoId` VARCHAR(191) NOT NULL,
-    `zoomFunction` VARCHAR(191) NOT NULL,
+export async function POST(request: Request) {
+        const prisma = new PrismaClient();
+        const m:Map = await request.json();
 
-    UNIQUE INDEX `Map_id_key`(`id`),
-    PRIMARY KEY (`id`)
-    */
-    // if(req.method == 'POST'){
-    //     const {id, name, checked, infoId, zoomFunction} = req.body;
-    //     const result = await prisma.map.create({
-    //         data: {
-    //           id,
-    //           name,
-    //           checked,
-    //           infoId,
-    //           zoomFunction,
-    //         },
-    //       })
-    //       res.json(result)
-    // }
-
-    const map = await prisma.map.findMany();
-    return res.send(map)
+        await prisma.map.create({
+        data: {
+            id: m.id,
+            name: m.name,
+            checked: m.checked,
+            infoId: m.infoId,
+            zoomFunction: m.zoomFunction
+        },
+    })
+    
+    return NextResponse.json({
+        message: "Success"
+    })
 }
