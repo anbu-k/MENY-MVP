@@ -15,7 +15,7 @@ datasource db {
 
 model Map {
   id           String  @id @unique
-  name         String
+  name         String 
   checked      Boolean
   infoId       String
   zoomFunction String
