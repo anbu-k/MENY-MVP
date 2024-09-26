@@ -4,9 +4,13 @@ import { Map } from "@prisma/client";
 import { error } from "console";
 
 const prisma = new PrismaClient();
-//TODO - make a API-all functions
+/* 
+TODO
+    - make the increamenting id for new maps 
+    - fix get function to get one map
+*/
 
-// export async function GET(request: Request) {
+/* export async function GET(request: Request) {
 //     console.clear();
 //     console.log("<============== GET REQUEST: ==============>");
 
@@ -38,10 +42,10 @@ const prisma = new PrismaClient();
 
 //     return NextResponse.json({ //return maps
 //         map
-//      })
-// }
+//      })}
+*/ 
 
-export  async function GET(){
+export  async function GET(){//get all maps
     console.log("<================== GET ALL ==================>:");
 
     const all_maps : Map = await prisma.map.findMany(); //find all maps
@@ -59,7 +63,7 @@ export async function POST(request: Request) { //create
         //console.log("Request Headers:", request.headers);  //DEBUG
         //console.log("Incoming data:", m);
 
-        console.log("<================== POST ==================>\n", m);
+        console.log("<================== POST ==================>: ", m);
 
         if (!m.id || !m.name || m.checked === undefined || !m.infoId || !m.zoomFunction) { //check to see if the JSON is vaild
             console.log("ERROR: MISSING DATA -- SENDING 400");
@@ -161,7 +165,7 @@ export async function PUT(request: Request){ //modify
             }, { status: 400 });
         }
 
-    // console.log(await prisma.map.findFirst({where:{id: m.id}}));
+    // console.log(await prisma.map.findFirst({where:{id: m.id}})); //DEBUG
 
         if(await prisma.map.findFirst({
             where:{
@@ -200,4 +204,3 @@ export async function PUT(request: Request){ //modify
         }, { status: 500 });
     } 
 }
-
