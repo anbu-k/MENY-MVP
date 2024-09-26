@@ -12,7 +12,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowCircleLeft } from "@fortawesome/free-solid-svg-icons";
 import SectionLayerComponent from "./components/layers/section-layer.component";
 import { FontAwesomeLayerIcons } from "./models/font-awesome.model";
-
+import {CSSTransition} from 'react-transition-group'; //VsCode gets mad at this import but works fine -Zak
+"./global.css";
 // Remove this when we have a way to get layers correctly
 
 const manhattaLayerSections: SectionLayerItem[] = [
@@ -107,17 +108,50 @@ const castelloTaxlotPopupTest: GenericPopUpProps = {
   tax_lots_3: "http://nahc.simcenterdev.org/taxlot/l5",
   type: "castello-taxlot",
 }
-const longIslandNativeGroupsPopupTest: GenericPopUpProps = {
-  
-FID_1: 220,
-name: "Unkechaugs",
-nid: "10021",
-type: "long-island-native-groups",
+const longIslandNativeGroupsPopupTest: GenericPopUpProps = {  
+  FID_1: 220,
+  name: "Unkechaugs",
+  nid: "10021",
+  type: "long-island-native-groups",
+}
+const fortAmsterdamDutchGrantPopUpTest: GenericPopUpProps = {
+  Aligned: "added",
+  DayEnd: 17000102,
+  DayEnd1: 17900101,
+  DayStart: 16250101,
+  Lot: "Fort Amsterdam",
+  day1: "",
+  day2: "",
+  descriptio: "N/A",
+  lot2: "",
+  name: "Fort Amsterdam",
+  notes: "Wooden fort built, then a much larger stone fort in same location built 1633-35. Demolished after the American Revolution.",
+  styling1: "knownfull",
+  year1: "1625",
+  year2: "1790",
+  type: "dutch-grant",
+}
+const noNidPopUpTest: GenericPopUpProps = {
+Aligned: "added",
+DayEnd: 17000102,
+DayStart: 16540511,
+Lot: "A14.2",
+day1: "May 11",
+day2: "",
+descriptio: "See A14 desc.",
+lot2: "",
+name: "Paulus Leendersen Van Der Grift",
+notes: "Using date on map which is of conf. Using end date of adjacent lot.",
+styling1: "knownfull",
+year1: "1654",
+type: "dutch-grant",
 }
 
 export default function Home() {
   const [currDate, setCurrDate] = useState<moment.Moment | null>(null);
-  const [popUp, setPopUp] = useState<GenericPopUpProps | null>(longIslandNativeGroupsPopupTest);
+  const [popUp, setPopUp] = useState<GenericPopUpProps | null>(dutchGrantPopupTest);
+  const [popUpVisible, setPopUpVisible] = useState(true);
+  const [layerPanelVisible, setLayerPanelVisible] = useState(true);
 
   return (
     <>
@@ -202,22 +236,26 @@ export default function Home() {
         </div>
       </div>
 
-      <button id="view-hide-layer-panel">
+      <button id="view-hide-layer-panel" onClick={() => {setLayerPanelVisible(!layerPanelVisible)}}>
         <br />
         <span id="dir-txt">&#9204;</span> <br /><br />
       </button>
       
-      {popUp &&  
-        <SliderPopUp
-          popUpProps = {popUp}
-      />}
+       
+      {popUp && <CSSTransition
+        in={popUpVisible}
+        timeout={500}
+        classNames="popup"
+        unmountOnExit>
+          <SliderPopUp popUpProps={popUp}/>
+      </CSSTransition>}
 
-      <div id="studioMenu">
+      {layerPanelVisible && (<div id="studioMenu">
         <FontAwesomeIcon id="mobi-hide-sidebar" icon={faArrowCircleLeft} />
         <p className="title">LAYERS</p>
         <br />
         <SectionLayerComponent layersHeader={manhattaLayer.label} layer={manhattaLayer} />
-      </div>
+      </div>)}
 
       <div id="before" className="map"></div>
       <div id="after" className="map"></div>

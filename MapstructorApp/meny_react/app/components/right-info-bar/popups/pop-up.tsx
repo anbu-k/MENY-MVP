@@ -19,19 +19,22 @@ const SliderPopUp = (props: PopUpProps) => {
     }, [nid]);
   
     if (props.popUpProps.type === "castello-taxlot")
-      return (
-        <div id ='rightInfoBar' className= 'rightInfoBarBorder'>
-            <div className="infoLayerElem" id="infoLayerCastello">
-                <h3>Castello Taxlot (1660)</h3>
-                <hr/><br/>
-                <b>Taxlot: </b>{props.popUpProps.lot2}<br/>
-                <b>Property Type: </b>{props.popUpProps.tax_lots_1}
-                <br/><br/>
-                <b>Encyclopedia Page: </b><br/><a href="https://encyclopedia.nahc-mapping.org/lots/taxlot{props.popUpProps.lot2}" target="_blank">https://encyclopedia.nahc-mapping.org/lots/taxlot{props.popUpProps.lot2}</a>
+    {
+        const hrefUrl: string = "https://encyclopedia.nahc-mapping.org/lots/taxlot" + props.popUpProps.lot2;
+        return (
+            <div id ='rightInfoBar' className= 'rightInfoBarBorder'>
+                <div className="infoLayerElem" id="infoLayerCastello">
+                    <h3>Castello Taxlot (1660)</h3>
+                    <hr/><br/>
+                    <b>Taxlot: </b>{props.popUpProps.lot2}<br/>
+                    <b>Property Type: </b>{props.popUpProps.tax_lots_1}
+                    <br/><br/>
+                    <b>Encyclopedia Page: </b><br/><a href={hrefUrl} target="_blank">https://encyclopedia.nahc-mapping.org/lots/taxlot{props.popUpProps.lot2}</a>
+                </div>
             </div>
-        </div>
-        
-    );
+            
+        );
+    }   
     // if (props.popUpProps.type === "lot-event")
     //   return (
     //     <div className="infoLayerElem" id="infoLayerGrantLots">
@@ -100,64 +103,50 @@ const SliderPopUp = (props: PopUpProps) => {
                     );
                 }
     // } else {
-    //  //REMEMBER TO REPLACE props. WITH props.popUpProps.
-    //   let popup_html = "";
-    //   if (typeof lots_info[props.Lot] === "undefined") {
-    //     popup_html = `<h3>Dutch Grant</h3><hr>${props.name}<br><b>Dutch Grant Lot:</b> <a href='https://encyclopedia.nahc-mapping.org/grantlot/${props.Lot}' target='_blank'>${props.Lot}</a><br><br><b>Start:</b> <i>${props.day1} ${props.year1}</i><br><b>End:</b> <i>${props.day2} ${props.year2}</i><br><br><b>Description (partial):</b><br>${props.descriptio}<br><br>`;
-    //   } else {
-    //     let builds_imgs = "";
-    //     if (lots_info[props.Lot].builds.length > 0) {
-    //       for (let i = 0; i < lots_info[props.Lot].builds.length; i++) {
-    //         builds_imgs += `<img src='https://encyclopedia.nahc-mapping.org${
-    //           lots_info[props.Lot].builds[i]
-    //         }' width='258' ><br><br>`;
-    //       }
-    //     }
-    //     popup_html = `<h3>Dutch Grant</h3><hr><br><b>Dutch Grant Lot:</b> <a href='https://encyclopedia.nahc-mapping.org/lots/grantlot${props.Lot}' target='_blank'>${props.Lot}</a><br><br>`;
-    //     if (lots_info[props.Lot].to_party_linked.length > 0) {
-    //       popup_html += `<b>To Party:</b> <i>${
-    //         lots_info[props.Lot].to_party_linked
-    //       }</i><br><br>`;
-    //     } else if (lots_info[props.Lot].to_party.length > 0) {
-    //       popup_html += `<b>To Party:</b> <i>${
-    //         lots_info[props.Lot].to_party
-    //       }</i><br><br>`;
-    //     }
-    //     if (lots_info[props.Lot].from_party_linked.length > 0) {
-    //       popup_html += `<b>From Party:</b> <i>${
-    //         lots_info[props.Lot].from_party_linked
-    //       }</i><br><br>`;
-    //     } else if (lots_info[props.Lot].from_party.length > 0) {
-    //       popup_html += `<b>From Party:</b> <i>${
-    //         lots_info[props.Lot].from_party
-    //       }</i><br><br>`;
-    //     }
-    //     if (lots_info[props.Lot].date_start.length > 0) {
-    //       popup_html += `<b>Start:</b> <i>${
-    //         lots_info[props.Lot].date_start
-    //       }</i><br>`;
-    //     }
-    //     if (lots_info[props.Lot].date_end.length > 0) {
-    //       popup_html += `<b>End:</b> <i>${
-    //         lots_info[props.Lot].date_end
-    //       }</i><br><br>`;
-    //     }
-    //     if (lots_info[props.Lot].descr.length > 0) {
-    //       popup_html += `<b>Description:</b><br><i>${
-    //         lots_info[props.Lot].descr
-    //       }</i>`;
-    //     }
-    //     popup_html += `<br><br>${builds_imgs}`;
-    //   }
-    //   return popup_html;
+        var popup_html:string = `<h3>Dutch Grant</h3><hr>${props.popUpProps.name}<br><b>Dutch Grant Lot:</b> <a href='https://encyclopedia.nahc-mapping.org/grantlot/${props.popUpProps.Lot}' target='_blank'>${props.popUpProps.Lot}</a><br><br><b>Start:</b> <i>${props.popUpProps.day1} ${props.popUpProps.year1}</i><br><b>End:</b> <i>${props.popUpProps.day2} ${props.popUpProps.year2}</i><br><br><b>Description (partial):</b><br>${props.popUpProps.descriptio}<br><br>`;
     }
     else
     {
-        return (
+        if(props.popUpProps.name === "Fort Amsterdam")
+        {
+            return (
+                <div id='rightInfoBar' className='rightInfoBarBorder'>
+                    <div className="infoLayerElem" id="infoLayerDutchGrants">
+                    <h3>Dutch Grant</h3>
+                    <br/><b>Dutch Grant Lot:</b><a href='https://encyclopedia.nahc-mapping.org/lots/grantlotFort Amsterdam' target='_blank'>Fort Amsterdam</a>
+                    <br/><br/><b>From Party:</b> 
+                    <i>
+                        <a target="_blank" href="https://nahc-mapping.org/mappingNY/encyclopedia/node/3277">DWIC - Corporation - Dutch West India Company (DWIC)</a>
+                    </i>
+                    <br/><br/><br/>
+                    <img src='https://encyclopedia.nahc-mapping.org/sites/default/files/2022-02/Fort%20Amsterdam%20warm%201%20mg%201650%20Len%20Tantillo_0.jpg' width='258' ></img>
+                    <br/><br/>
+                    </div>
+                </div>
+            );
+        }
+        else
+        {
+            const hrefUrl: string = "https://encyclopedia.nahc-mapping.org/lots/taxlot" + props.popUpProps.Lot;
+            return (
             <div id ='rightInfoBar' className= 'rightInfoBarBorder'>
-                <div className="infoLayerElem" id="infoLayerGrantLots">NO NID FOUND</div>
+                <div className="infoLayerElem" id="infoLayerDutchGrants">
+                    <h3>Dutch Grant</h3>
+                    {props.popUpProps.name}
+                    <br/><b>Dutch Grant Lot:</b> <a href={hrefUrl} target='_blank'>{props.popUpProps.Lot}</a>
+                    <br/><br/>
+                    <b>Start:</b> <i>{props.popUpProps.day1} {props.popUpProps.year1}</i>
+                    <br/>
+                    <b>End:</b> <i>{props.popUpProps.day2} {props.popUpProps.year2}</i>
+                    <br/><br/>
+                    <b>Description (partial):</b>
+                    <br/>{props.popUpProps.descriptio}
+                    <br/><br/>
+                </div>
             </div>
-        );
+            );
+        }
+        
     }
   };
 export default SliderPopUp;
