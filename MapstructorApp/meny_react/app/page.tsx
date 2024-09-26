@@ -10,6 +10,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowCircleLeft } from "@fortawesome/free-solid-svg-icons";
 import SectionLayerComponent from "./components/layers/section-layer.component";
 import { FontAwesomeLayerIcons } from "./models/font-awesome.model";
+import MapComparisonComponent from "./components/map/map-compare-container.component";
 
 // Remove this when we have a way to get layers correctly
 
@@ -166,8 +167,7 @@ export default function Home() {
         <SectionLayerComponent layersHeader={manhattaLayer.label} layer={manhattaLayer} />
       </div>
 
-      <div id="before" className="map"></div>
-      <div id="after" className="map"></div>
+      <MapComparisonComponent></MapComparisonComponent>
 
       <div id="mobi-view-sidebar"><i className="fa fa-bars fa-2x"></i></div>
 
