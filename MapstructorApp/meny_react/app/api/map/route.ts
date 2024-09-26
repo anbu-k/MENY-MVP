@@ -161,7 +161,7 @@ export async function PUT(request: Request){ //modify
             }, { status: 400 });
         }
 
-    console.log(await prisma.map.findFirst({where:{id: m.id}}));
+    // console.log(await prisma.map.findFirst({where:{id: m.id}}));
 
         if(await prisma.map.findFirst({
             where:{
