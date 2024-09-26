@@ -1,29 +1,56 @@
-import { PrismaClient } from "@prisma/client";
+import { Prisma, PrismaClient } from "@prisma/client";
 import { NextResponse } from 'next/server';
 import { Map } from "@prisma/client";
+import { error } from "console";
 
 const prisma = new PrismaClient();
-//TODO - make a blank-all functions
+//TODO - make a API-all functions
 
-export  async function GET()
-{
-    console.log("GET ALL REQUSET:");
-    const m : Map = await prisma.map.findMany(); //find all maps
+// export async function GET(request: Request) {
+//     console.clear();
+//     console.log("<============== GET REQUEST: ==============>");
 
+//     try {
+//         const m: Map = await request.json();
+
+//         if (!m.id) {
+//             return GETONE(request);
+//         } else {
+//             return GETALL();
+//         }
+//     } catch (error) {
+//         console.error("Error parsing request JSON:", error);
+//         return new Response("Invalid JSON", { status: 400 });
+//     }
+// }
+
+// export async function GETONE(request: Request)
+// {
+//     const tmp: Map = await request.json();
+
+//    const map : Map = await prisma.map.findFirst({
+//     where: {
+//         id: tmp.id
+//     }
+//   }); //find map m
+
+//    console.log("GET REQUSET:", m);
+
+//     return NextResponse.json({ //return maps
+//         map
+//      })
+// }
+
+export  async function GET(){
+    console.log("<================== GET ALL ==================>:");
+
+    const all_maps : Map = await prisma.map.findMany(); //find all maps
+    console.log("<================== GET COMPELETE ==================>");
     return NextResponse.json({ //return maps
-        m
+        all_maps
      })
 }
 
-// export  async function GETALL()
-// {
-//     console.log("GET ALL REQUSET:");
-//     const m : Map = await prisma.map.findMany(); //find all maps
-
-//     return NextResponse.json({ //return maps
-//         m
-//      })
-// }
 
 export async function POST(request: Request) { //create
     try {
@@ -32,13 +59,26 @@ export async function POST(request: Request) { //create
         //console.log("Request Headers:", request.headers);  //DEBUG
         //console.log("Incoming data:", m);
 
-        console.log("POST REQUSET:", m);
+        console.log("<================== POST ==================>\n", m);
 
         if (!m.id || !m.name || m.checked === undefined || !m.infoId || !m.zoomFunction) { //check to see if the JSON is vaild
+            console.log("ERROR: MISSING DATA -- SENDING 400");
             console.error("Validation error: Missing required fields", m);
             return NextResponse.json({ //sends error and 400 (Bad Request) if not
                 message: "Invalid data: ",
                 error: "Missing required fields",
+            }, { status: 400 });
+        }
+        if(await prisma.map.findFirst({
+            where:{
+                id: m.id
+            }
+        }) != undefined){
+            console.log("ERROR: ATTEMPED REPEATED RECORDS -- SENDING 400");
+            console.error("Validation error: Missing required fields", m);
+            return NextResponse.json({ //sends error and 400 (Bad Request) if not
+                message: "Already exist",
+                error: "REPEATED RECORDS ARE NOT ALLOWED",
             }, { status: 400 });
         }
 
@@ -51,7 +91,7 @@ export async function POST(request: Request) { //create
                 zoomFunction: m.zoomFunction,
             },
         });
-        
+        console.log("<================== POST COMPELETE ==================>: ", newMap.id);
         return NextResponse.json({ //send success and the newmap data back 
             message: "Success",
             data: newMap
@@ -65,20 +105,17 @@ export async function POST(request: Request) { //create
             error: error.message,
         }, { status: 500 });
     } 
-    
-    finally { //SAVE THAT MEMORY/CONNECTION
-        await prisma.$disconnect();
-    }
 }
 
 export async function DELETE(request: Request){ //delete 
     const m: Map = await request.json();
 
-    console.log("DELETE REQUSET:", m.id);//logging
+    console.log("<================== DELETE ==================>: ", m.id);//logging
 
     
     try{
-        if (!m.id || !m.name || m.checked === undefined || !m.infoId || !m.zoomFunction) { //check to see if the JSON is vaild
+        if (!m.id) { //check to see if the JSON is vaild
+            console.log("ERROR: MISSING ID DATA -- SENDING 400");
             console.error("Validation error: Missing required fields", m);
             return NextResponse.json({ //sends error and 400 (Bad Request) if not
                 message: "Invalid data: ",
@@ -92,21 +129,75 @@ export async function DELETE(request: Request){ //delete
             },
           })
 
+          console.log("<================== DELETE COMPLETE ==================>: ", m.id);//sucess delete map
+
         return NextResponse.json({ //send success and the delmap data back 
             message: "Success",
             data: delmap
         });
     }
     catch (error: any) { //catch error if try fails
-        console.error("Error creating map:", error); //log to server
+        console.error("Error Deleting map:", error); //log to server
         return NextResponse.json({ //send 500 (Internal Server Error) and what the error is to frontend
-            message: "Failed to create map",
+            message: "Failed to Deleting map",
             error: error.message,
         }, { status: 500 });
     } 
 }
 
-export async function PUT(request: Request){ //create or modify
+export async function PUT(request: Request){ //modify
+    const m: Map = await request.json();
+    
 
+    console.log("<================== PUT ==================>: ",m.id);
+
+    try{
+        if (!m.id || !m.name || m.checked === undefined || !m.infoId || !m.zoomFunction) { //check to see if the JSON is vaild
+            console.log("ERROR: MISSING DATA -- SENDING 400");
+            console.error("Validation error: Missing required fields", m);
+            return NextResponse.json({ //sends error and 400 (Bad Request) if not
+                message: "Invalid data: ",
+                error: "Missing required fields",
+            }, { status: 400 });
+        }
+
+    console.log(await prisma.map.findFirst({where:{id: m.id}}));
+
+        if(await prisma.map.findFirst({
+            where:{
+                id: m.id
+            }
+        }) == undefined){
+            console.log("ERROR: Map does not exist -- SENDING 400");
+            console.error("Map does not exsit in database, please do a post request", m);
+            return NextResponse.json({ //sends error and 400 (Bad Request) if not
+                message: "Map Not In Database: ",
+                error: "Map does not exsit in database, please do a post request",
+            }, { status: 400 });
+        }
+            const mod_map = await prisma.map.update({
+                where: { id: m.id },
+                data: {
+                    name: m.name,
+                    checked: m.checked,
+                    infoId: m.infoId,
+                    zoomFunction: m.zoomFunction
+                },
+              });
+            
+            // console.log(await prisma.map.findFirst({where:{id: m.id}}));
+              console.log("<================== PUT COMPELETE==================>: ",m.id);
+              return NextResponse.json({ //send success and the newmap data back 
+                message: "Success",
+                data: mod_map
+                });
+    }
+    catch (error: any) { //catch error if try fails
+        console.error("Error Updating map:", error); //log to server
+        return NextResponse.json({ //send 500 (Internal Server Error) and what the error is to frontend
+            message: "Failed to Updating map",
+            error: error.message,
+        }, { status: 500 });
+    } 
 }
 
