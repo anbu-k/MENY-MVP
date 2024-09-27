@@ -62,7 +62,6 @@ const manhattaLayer: SectionLayer = {
   groups: manhattaSectionGroups
 }
 
-console.log();
 export default function Home() {
   const [currDate, setCurrDate] = useState<moment.Moment | null>(null)
 
@@ -161,41 +160,18 @@ export default function Home() {
         <div className="infoLayerElem" id="demoLayerInfo"></div>
       </div>
 
-      {/* Add Layers in here when structured somewhere */}
-      <SectionLayersComponent layers={[]} />
+      <div id="studioMenu">
+        <FontAwesomeIcon id="mobi-hide-sidebar" icon={faArrowCircleLeft} />
+        <p className="title">LAYERS</p>
+        <br />
+        <SectionLayerComponent layersHeader={manhattaLayer.label} layer={manhattaLayer} />
+      </div>
 
-      <div id="before" className="map"></div>
-      <div id="after" className="map"></div>
+      <MapComparisonComponent></MapComparisonComponent>
 
       <div id="mobi-view-sidebar"><i className="fa fa-bars fa-2x"></i></div>
 
-      <div id="datepanel">
-        <b><span id="date"></span></b>
-      </div>
-
-      <div id="footer">
-        <div id="slider">
-          <div id="mobi-year">...</div>
-
-          <div className="timeline">
-            <div className="year">
-              <span id="ruler-date1"> ... </span><span className="timeline-ruler"></span>
-            </div>
-            <div className="year">
-              <span id="ruler-date2"> ... </span><span className="timeline-ruler"></span>
-            </div>
-            <div className="year">
-              <span id="ruler-date3"> ... </span><span className="timeline-ruler"></span>
-            </div>
-            <div className="year">
-              <span id="ruler-date4"> ... </span><span className="timeline-ruler"></span>
-            </div>
-            <div className="year">
-              <span id="ruler-date5"> ... </span><span className="timeline-ruler"></span>
-            </div>
-          </div>
-        </div>
-      </div>
+      <SliderWithDatePanel callback={(date: moment.Moment | null) => setCurrDate(date)}></SliderWithDatePanel>
 
       <div id="loading">
         <i className="fa fa-sync fa-10x fa-spin" id="loading-icon"></i>
