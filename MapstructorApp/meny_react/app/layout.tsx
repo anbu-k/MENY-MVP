@@ -56,7 +56,7 @@ export default function RootLayout({
         <meta property="og:site_name" content="New Amsterdam History" />
         <meta name="twitter:image:alt" content="New Amsterdam Icon" />
 
-        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
         <meta name="theme-color" content="#00A2E5" />
         <meta
           name="apple-mobile-web-app-title"

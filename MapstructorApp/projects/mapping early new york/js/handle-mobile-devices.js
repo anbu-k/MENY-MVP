@@ -1,6 +1,8 @@
+// regular expression to test the user agent and detect if the browser is on a mobile device
 const browserTestRegexp =
   /Android|webOS|iPhone|iPad|iPod|BlackBerry|Windows Phone|IEMobile|Opera Mini/i;
 
+// tests the user's device by checked the navigator.userAgent string against the regular expression
 if (browserTestRegexp.test(navigator.userAgent)) {
   // true for mobile device
   console.warn("mobile device");

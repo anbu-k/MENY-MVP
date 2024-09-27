@@ -1,7 +1,13 @@
+/**
+ * this class sets up event listeners for each layer, allowing for interactions such as hover effects & displaying popups
+ * 
+ * @param {object} map - The map instance
+ * @param {Array} layers - An array of layer objects, each containing properties
+ */
 function setupLayerEvents(map, layers) {
+ // iterates through each layer to add event listeners
   layers.forEach((layer) => {
     let hoveredId = null; // Variable to store the id of the hovered feature
-
     if (layer.id !== "places-right")
       map.on("mouseenter", layer.id, (e) => {
         map.getCanvas().style.cursor = "pointer";
@@ -78,6 +84,13 @@ function setupLayerEvents(map, layers) {
   });
 }
 
+/**
+ * Adds specified map layers to the given map instance
+ * 
+ * @param {object} map - the map instance to which the layers will be added
+ * @param {Array} layers - an array of layer configuration objects to be added to the map
+ * @param {string} date - optional data parameter to configure the layers
+ */
 function addMapLayers(map, layers, date) {
   layers.forEach((layer) => {
     if (map === beforeMap) addMapLayer(map, getLayer(layer.id), date);
@@ -85,9 +98,16 @@ function addMapLayers(map, layers, date) {
   });
 }
 
+/**
+ * adds and sets up all the necessary map layers for the given year and date
+ * 
+ * @param {number} yr - the year for which the layers should be added
+ * @param {string} date - the date parameter used to filter or adjust layer content
+ */
 function addAllLayers(yr, date) {
+  // iterates through the maps (beforeMap and afterMap) to add and configure layers for each
   ["", ""].forEach((position,index) => {
-    const map = index === 0 ? beforeMap : afterMap;
+    const map = index === 0 ? beforeMap : afterMap; // determines which map (vefore or after) is being configured
     const popupMap = index === 0 ? "beforeMap" : "afterMap";
 
     //#region - Lot events and dutch grants
