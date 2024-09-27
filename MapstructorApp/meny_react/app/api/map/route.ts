@@ -1,54 +1,59 @@
 import { Prisma, PrismaClient } from "@prisma/client";
 import { NextResponse } from 'next/server';
 import { Map } from "@prisma/client";
-import { error } from "console";
 
 const prisma = new PrismaClient();
-/* 
-TODO
-    - fix get function to get one map
-*/
 
- export async function GET(request: Request) {
-    console.clear();//DEBUG
-    console.log("<============== GET REQUEST: ==============>");
+/*
+//  export async function GET(request: Request) {
+//     console.clear();//DEBUG
+//     console.log("Request body:", await request.text());
+//     console.log("<============== GET REQUEST: ==============>");
 
-    try {
-        const m: Map = await request.json();
+//     try {
+//         const m: Map = await request.json();
 
-        if (m.id) {
-            return GETONE(m);
-        } else {
-            return GETALL();
-        }
-    } catch (error) {
-        console.error("Error parsing request JSON:", error);
-        return new Response("Invalid JSON", { status: 400 });
-    }
-}
+//         if (m.id) {
+//             const tmp  = GETONE(m);
+//             return NextResponse.json({ //send only one map
+//                 message: "Success",
+//                 data: tmp
+//                 });
+//         } else {
+//             const tmp  = GETALL();
+//             return NextResponse.json({ //send all maps
+//                 message: "Success",
+//                 data: tmp
+//                 });
+//         }
+//     } catch (error) {
+//         console.error("Error parsing request JSON:", error);
+//         return new Response("Invalid JSON", { status: 400 });
+//     }
+// }
 
-function GETONE(m:Map)
-{
-    const map : Map = await prisma.map.findFirst({
-    where: {
-        id: m.id
-    }
-  }); //find map m
+// async function GETONE(m:Map)
+// {
+//     const map : Map = await prisma.map.findFirst({
+//     where: {
+//         id: m.id
+//     }
+//   }); //find map m
 
-   console.log("GET REQUSET:", m);
+//    console.log("GET REQUSET:", m);
 
-    return NextResponse.json({ //return maps
-        map
-     })} 
+//     return map;
+// }*/
 
-function GETALL(){//get all maps
+export async function GET(){//get all maps
     console.log("<================== GET ALL ==================>:");
 
     const all_maps : Map = await prisma.map.findMany(); //find all maps
     console.log("<================== GET COMPELETE ==================>");
-    return NextResponse.json({ //return maps
-        all_maps
-     })
+    return NextResponse.json({ //send all maps
+        message: "Success",
+        data: all_maps
+    });
 }
 
 
