@@ -1,6 +1,4 @@
 'use client'
-import Image from "next/image";
-import SectionLayersComponent from "./components/layers/section-layer-group.component";
 import moment from 'moment';
 import { useState } from "react";
 import SliderWithDatePanel from "./components/slider/slider-with-date-panel.component";
@@ -11,6 +9,8 @@ import { faArrowCircleLeft } from "@fortawesome/free-solid-svg-icons";
 import SectionLayerComponent from "./components/layers/section-layer.component";
 import { FontAwesomeLayerIcons } from "./models/font-awesome.model";
 import MapComparisonComponent from "./components/map/map-compare-container.component";
+import { MapFiltersGroup, MapFiltersItem } from './models/maps/map.model';
+import MapFilterWrapperComponent from './components/map-filters/map-filter-wrapper.component';
 
 // Remove this when we have a way to get layers correctly
 
@@ -61,6 +61,39 @@ const manhattaLayer: SectionLayer = {
   label: "MANHATTAN",
   groups: manhattaSectionGroups
 }
+
+const defaultMap: MapFiltersItem = {
+  id: 0,
+  name: 'clm2yrx1y025401p93v26bhyl',
+  label: 'Current Satellite',
+  defaultCheckedForBeforeMap: true,
+  defaultCheckedForAfterMap: false,
+  showInfoButton: true,
+  showZoomButton: false,
+  mapId: 'clm2yrx1y025401p93v26bhyl'
+}
+
+const displayedMaps: MapFiltersItem[] = [
+  {
+    id: 0,
+    name: 'clm2yu5fg022801phfh479c8x',
+    label: '1660 Original Castello Plan',
+    defaultCheckedForBeforeMap: false,
+    defaultCheckedForAfterMap: false,
+    showInfoButton: true,
+    showZoomButton: true,
+    mapId: 'clm2yu5fg022801phfh479c8x'
+  }
+]
+
+const mapFilterGroups: MapFiltersGroup[] = [
+  {
+    id: 0,
+    name: '1660 | Castello Plans',
+    label: '1660 | Castello Plans',
+    maps: displayedMaps
+  }
+]
 
 export default function Home() {
   const [currDate, setCurrDate] = useState<moment.Moment | null>(null)
@@ -165,6 +198,8 @@ export default function Home() {
         <p className="title">LAYERS</p>
         <br />
         <SectionLayerComponent layersHeader={manhattaLayer.label} layer={manhattaLayer} />
+
+        <MapFilterWrapperComponent defaultMap={defaultMap} mapGroups={mapFilterGroups} />
       </div>
 
       <MapComparisonComponent></MapComparisonComponent>

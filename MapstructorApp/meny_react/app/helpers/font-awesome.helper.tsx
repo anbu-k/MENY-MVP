@@ -13,7 +13,8 @@ import {
     faSquare as faSquareSolid,
     faPlusSquare as faPlusSquareSolid,
     faMinusSquare as faMinusSquareSolid,
-    faPlayCircle as faPlayCircleSolid
+    faPlayCircle as faPlayCircleSolid,
+    faGlobe
 } from "@fortawesome/free-solid-svg-icons";
 
 export function getFontawesomeIcon(iconVal: FontAwesomeLayerIcons, solid: boolean = false) {
@@ -40,6 +41,8 @@ export function getFontawesomeIcon(iconVal: FontAwesomeLayerIcons, solid: boolea
             return faSlashSolid;
         case FontAwesomeLayerIcons[FontAwesomeLayerIcons.COMMENT_DOTS]:
             return faCommentDots;
+        case FontAwesomeLayerIcons[FontAwesomeLayerIcons.WORLD]:
+            return faGlobe
     }
     return faSquare;
 }
