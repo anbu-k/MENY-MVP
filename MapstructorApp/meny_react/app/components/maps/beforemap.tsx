@@ -44,6 +44,13 @@ const sourceLayers: SourceLayer[] = [
       type: "vector",
       url: "mapbox://mapny.7q2vs9ar",
     },
+  },
+  {
+    id: "lot_events-bf43eb",
+    source: {
+      type: "vector",
+      url: "mapbox://mapny.9s9s67wu",
+    }
   }
 ]
 
@@ -78,6 +85,80 @@ const layerData: AnyLayer[] = [
       ],
       "fill-outline-color": "#FF0000",
     }
+  },
+  {
+    id: "dutch_grants-5ehfqe-highlighted",
+    type: "fill",
+    source: "dutch_grants-5ehfqe",
+    layout: {
+      visibility: "none"
+    },
+    "source-layer": "dutch_grants-5ehfqe",
+    paint: {
+      "fill-color": "#e3ed58",
+      "fill-opacity": [
+        "case",
+        ["boolean", ["feature-state", "hover"], false],
+        0.8,
+        0,
+      ],
+      "fill-outline-color": "#FF0000",
+    },
+  },
+  {
+    id: "lot_events-bf43eb",
+    type: "circle",
+    source: "lot_events-bf43eb",
+    layout: {
+      visibility: "none"
+    },
+    "source-layer": "lot_events-bf43eb",
+    paint: {
+      "circle-color": {
+        type: "categorical",
+        property: "color",
+        stops: [
+          ["6", "#0000ee"],
+          ["5", "#097911"],
+          ["4", "#0000ee"],
+          ["3", "#097911"],
+          ["2", "#0000ee"],
+          ["1", "#097911"],
+        ],
+        default: "#FF0000",
+      },
+      "circle-opacity": [
+        "case",
+        ["boolean", ["feature-state", "hover"], false],
+        0.5,
+        1,
+      ],
+      "circle-stroke-width": 2,
+      "circle-stroke-color": {
+        type: "categorical",
+        property: "color",
+        stops: [
+          ["6", "#0000ee"],
+          ["5", "#097911"],
+          ["4", "#0000ee"],
+          ["3", "#097911"],
+          ["2", "#0000ee"],
+          ["1", "#097911"],
+        ],
+        default: "#FF0000",
+      },
+      "circle-stroke-opacity": [
+        "case",
+        ["boolean", ["feature-state", "hover"], false],
+        1,
+        0,
+      ],
+      "circle-radius": {
+        type: "categorical",
+        property: "TAXLOT",
+        stops: [["C7", 9]],
+      },
+    },
   },
 ];
 

@@ -112,45 +112,6 @@ export default function Home() {
       if(beforeMap.current)
       {
         addBeforeLayers(beforeMap.current, '2024-09-16');
-        // beforeMap.current.addLayer({
-        //   id: "grant-lots-lines",
-        //   type: "line",
-        //   source: {
-        //     type: "vector",
-        //     url: "mapbox://mapny.7dw0tqar",
-        //   },
-        //   layout: {
-        //     visibility: "none",
-        //   },
-        //   "source-layer": "dutch_grants_lines-0y4gkx",
-        //   paint: {
-        //     "line-color": "#FF0000",
-        //     "line-width": 3,
-        //     "line-opacity": 0.8,
-        //   },
-        // });
-        // beforeMap.current.addLayer({
-        //   id: "dutch_grants-5ehfqe",
-        //   type: "fill",
-        //   source: {
-        //     type: "vector",
-        //     url: "mapbox://mapny.7q2vs9ar",
-        //   },
-        //   layout: {
-        //     visibility: "none"
-        //   },
-        //   "source-layer": "dutch_grants-5ehfqe",
-        //   paint: {
-        //     "fill-color": "#e3ed58",
-        //     "fill-opacity": [
-        //       "case",
-        //       ["boolean", ["feature-state", "hover"], false],
-        //       0.8,
-        //       0.45,
-        //     ],
-        //     "fill-outline-color": "#FF0000",
-        //   },
-        // });
       }
     });
 
@@ -158,45 +119,6 @@ export default function Home() {
       if(afterMap.current)
       {
         addBeforeLayers(afterMap.current, '2024-09-16');
-        // afterMap.current.addLayer({
-        //   id: "grant-lots-lines",
-        //   type: "line",
-        //   source: {
-        //     type: "vector",
-        //     url: "mapbox://mapny.7dw0tqar",
-        //   },
-        //   layout: {
-        //     visibility: "none",
-        //   },
-        //   "source-layer": "dutch_grants_lines-0y4gkx",
-        //   paint: {
-        //     "line-color": "#FF0000",
-        //     "line-width": 3,
-        //     "line-opacity": 0.8,
-        //   },
-        // });
-        // afterMap.current.addLayer({
-        //   id: "dutch_grants-5ehfqe",
-        //   type: "fill",
-        //   source: {
-        //     type: "vector",
-        //     url: "mapbox://mapny.7q2vs9ar",
-        //   },
-        //   layout: {
-        //     visibility: "none"
-        //   },
-        //   "source-layer": "dutch_grants-5ehfqe",
-        //   paint: {
-        //     "fill-color": "#e3ed58",
-        //     "fill-opacity": [
-        //       "case",
-        //       ["boolean", ["feature-state", "hover"], false],
-        //       0.8,
-        //       0.45,
-        //     ],
-        //     "fill-outline-color": "#FF0000",
-        //   },
-        // });
       }
     });
 
@@ -236,7 +158,7 @@ export default function Home() {
   useEffect(() => {
     if(!mapLoaded) return;
 
-    const allLayerIds: string[] = ['dutch_grants-5ehfqe', 'grant-lots-lines'];
+    const allLayerIds: string[] = ['dutch_grants-5ehfqe', 'grant-lots-lines', 'dutch_grants-5ehfqe-highlighted', 'lot_events-bf43eb'];
     // for each layerId, check whether it is included in activeLayerIds,
     // show and hide accordingly by setting layer visibility
     allLayerIds.forEach((layerId) => {
@@ -337,7 +259,7 @@ export default function Home() {
         setLayerPanelVisible(!layerPanelVisible);
         if(layerPanelVisible)
         {
-          setActiveLayerIds(['dutch_grants-5ehfqe', 'grant-lots-lines']);
+          setActiveLayerIds(['dutch_grants-5ehfqe', 'grant-lots-lines', 'dutch_grants-5ehfqe-highlighted', 'lot_events-bf43eb']);
         }
         else
         {
