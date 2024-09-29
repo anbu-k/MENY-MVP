@@ -1,44 +1,113 @@
-import mapboxgl from 'mapbox-gl';
+import mapboxgl, { CustomLayerInterface, SourceSpecification } from 'mapbox-gl';
+import { AnyLayer } from 'mapbox-gl';
 
 // Layer and event data structures
-interface Layer {
+interface Layer extends AnyLayer {
+  type: string;
+  id: string;
+  source: {
+    type: string;
+    url: string;
+  };
+  "source-layer": string;
+  layout: {
+    visibility: "visible" | "none";
+  };
+  paint: any;
+}
+
+interface SourceLayer {
+  id: string;
+  source: SourceSpecification;
+}
+
+interface EventLayer {
   type: string;
   id: string;
   sourceId: string;
-}
-
-interface EventLayer extends Layer {
   popup: string;
   infoProperty: string;
+  visibility: string;
 }
 
-const layerData: Layer[] = [
-  { type: "layer", id: "lot_events-bf43eb-left", sourceId: "lot_events-bf43eb" },
-  { type: "layer", id: "dutch_grants-5ehfqe-left", sourceId: "dutch_grants-5ehfqe" },
+const sourceLayers: SourceLayer[] = [
+  { 
+    id: "grant-lots-lines",
+    source: {
+      type: "vector",
+      url: "mapbox://mapny.7dw0tqar",
+    },
+  },
+  {
+    id: "dutch_grants-5ehfqe",
+    source: {
+      type: "vector",
+      url: "mapbox://mapny.7q2vs9ar",
+    },
+  }
+]
+
+const layerData: AnyLayer[] = [
+  { id: "grant-lots-lines",
+    type: "line",
+    source: "grant-lots-lines",
+    layout: {
+      visibility: "none",
+    },
+    "source-layer": "dutch_grants_lines-0y4gkx",
+    paint: {
+      "line-color": "#FF0000",
+      "line-width": 3,
+      "line-opacity": 0.8,
+    },
+  },
+  { id: "dutch_grants-5ehfqe",
+    type: "fill",
+    source: "dutch_grants-5ehfqe",
+    layout: {
+      visibility: "none"
+    },
+    "source-layer": "dutch_grants-5ehfqe",
+    paint: {
+      "fill-color": "#e3ed58",
+      "fill-opacity": [
+        "case",
+        ["boolean", ["feature-state", "hover"], false],
+        0.8,
+        0.45,
+      ],
+      "fill-outline-color": "#FF0000",
+    }
+  },
 ];
 
 const eventLayerData: EventLayer[] = [
-  { type: "layer", id: "dutch_grants-5ehfqe-left", sourceId: "dutch_grants-5ehfqe", popup: "DutchGrantPopUp", infoProperty: "Lot" },
-  { type: "layer", id: "lot_events-bf43eb-left", sourceId: "lot_events-bf43eb", popup: "StatePopUp", infoProperty: "TAXLOT" },
+  { type: "layer", id: "dutch_grants-5ehfqe-left", sourceId: "dutch_grants-5ehfqe", popup: "DutchGrantPopUp", infoProperty: "Lot", visibility: "visible"},
+  { type: "layer", id: "lot_events-bf43eb-left", sourceId: "lot_events-bf43eb", popup: "StatePopUp", infoProperty: "TAXLOT", visibility: "visible" },
 ];
 
 // Helper function to add layers and events to the before map
 export function addBeforeLayers(map: mapboxgl.Map, date: string) {
   removeMapLayers(map, layerData);
+  addMapSourceLayers(map, sourceLayers)
   addMapLayers(map, layerData, date);
   setupLayerEvents(map, eventLayerData);
 }
 
-function addMapLayers(map: mapboxgl.Map, layers: Layer[], date: string) {
-  layers.forEach(layer => {
-    const beforeLayer = getBeforeLayer(map, layer.id);
-    if (beforeLayer) {
-      map.addLayer(beforeLayer);
-    }
+function addMapSourceLayers(map: mapboxgl.Map, sourceLayerData: SourceLayer[])
+{
+  sourceLayerData.forEach(layer => {
+    map.addSource(layer.id, layer.source);
   });
 }
 
-function removeMapLayers(map: mapboxgl.Map, layers: Layer[]) {
+function addMapLayers(map: mapboxgl.Map, layers: AnyLayer[], date: string) {
+  layers.forEach(layer => {
+    map.addLayer(layer);
+  });
+}
+
+function removeMapLayers(map: mapboxgl.Map, layers: AnyLayer[]) {
   layers.forEach(layer => {
     map.removeLayer(layer.id);
   });

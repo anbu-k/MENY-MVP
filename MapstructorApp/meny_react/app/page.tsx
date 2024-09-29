@@ -2,7 +2,7 @@
 import Image from "next/image";
 import SectionLayersComponent from "./components/layers/section-layer-group.component";
 import moment from 'moment';
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import SliderWithDatePanel from "./components/slider/slider-with-date-panel.component";
 import { SectionLayer, SectionLayerGroup, SectionLayerItem } from "./models/layers/layer.model";
 import { IconColors } from "./models/colors.model";
@@ -11,6 +11,8 @@ import { faArrowCircleLeft } from "@fortawesome/free-solid-svg-icons";
 import SectionLayerComponent from "./components/layers/section-layer.component";
 import { FontAwesomeLayerIcons } from "./models/font-awesome.model";
 import MapComparisonComponent from "./components/map/map-compare-container.component";
+import mapboxgl, { Map } from 'mapbox-gl'; 
+import { addBeforeLayers } from "./components/maps/beforemap";
 
 // Remove this when we have a way to get layers correctly
 
@@ -62,8 +64,191 @@ const manhattaLayer: SectionLayer = {
   groups: manhattaSectionGroups
 }
 
+mapboxgl.accessToken = 'pk.eyJ1IjoibWFwbnkiLCJhIjoiY2xtMG93amk4MnBrZTNnczUzY2VvYjg0ciJ9.MDMHYBlVbG14TJD120t6NQ';
 export default function Home() {
-  const [currDate, setCurrDate] = useState<moment.Moment | null>(null)
+  const [currDate, setCurrDate] = useState<moment.Moment | null>(null);
+  const [layerPanelVisible, setLayerPanelVisible] = useState(true);
+  const [MapboxCompare, setMapboxCompare] = useState<any>(null);
+  const beforeMapContainerRef = useRef<HTMLDivElement>(null);
+  const afterMapContainerRef = useRef<HTMLDivElement>(null);
+  const comparisonContainerRef = useRef<HTMLDivElement>(null);
+  const beforeMap = useRef<Map | null>(null);
+  const afterMap = useRef<Map | null>(null);
+  const [activeLayerIds, setActiveLayerIds] = useState<string[]>([]);
+  const [mapLoaded, setMapLoaded] = useState(false);
+
+
+  useEffect(() => {
+    import('mapbox-gl-compare').then((mod) => {
+      setMapboxCompare(() => mod.default);
+    });
+  }, []);
+
+  useEffect(() => {
+    if (!MapboxCompare || !comparisonContainerRef.current) return;
+    setMapLoaded(true);
+
+    beforeMap.current = new mapboxgl.Map({
+      container: beforeMapContainerRef.current as HTMLElement,
+      style: 'mapbox://styles/nittyjee/cjooubzup2kx52sqdf9zmmv2j',
+      center: [-74.01454, 40.70024],
+      zoom: 15.09,
+      bearing: -51.3,
+      attributionControl: false,
+    });
+
+    afterMap.current = new mapboxgl.Map({
+      container: afterMapContainerRef.current as HTMLElement,
+      style: 'mapbox://styles/nittyjee/cjowjzrig5pje2rmmnjb5b0y2',
+      center: [-74.01454, 40.70024],
+      zoom: 15.09,
+      bearing: -51.3,
+      attributionControl: false,
+    });
+
+    const mapboxCompare = new MapboxCompare(beforeMap.current, afterMap.current, comparisonContainerRef.current as HTMLElement);
+
+    beforeMap.current.on('load', () => {
+      if(beforeMap.current)
+      {
+        addBeforeLayers(beforeMap.current, '2024-09-16');
+        // beforeMap.current.addLayer({
+        //   id: "grant-lots-lines",
+        //   type: "line",
+        //   source: {
+        //     type: "vector",
+        //     url: "mapbox://mapny.7dw0tqar",
+        //   },
+        //   layout: {
+        //     visibility: "none",
+        //   },
+        //   "source-layer": "dutch_grants_lines-0y4gkx",
+        //   paint: {
+        //     "line-color": "#FF0000",
+        //     "line-width": 3,
+        //     "line-opacity": 0.8,
+        //   },
+        // });
+        // beforeMap.current.addLayer({
+        //   id: "dutch_grants-5ehfqe",
+        //   type: "fill",
+        //   source: {
+        //     type: "vector",
+        //     url: "mapbox://mapny.7q2vs9ar",
+        //   },
+        //   layout: {
+        //     visibility: "none"
+        //   },
+        //   "source-layer": "dutch_grants-5ehfqe",
+        //   paint: {
+        //     "fill-color": "#e3ed58",
+        //     "fill-opacity": [
+        //       "case",
+        //       ["boolean", ["feature-state", "hover"], false],
+        //       0.8,
+        //       0.45,
+        //     ],
+        //     "fill-outline-color": "#FF0000",
+        //   },
+        // });
+      }
+    });
+
+    afterMap.current.on('load', () => {
+      if(afterMap.current)
+      {
+        addBeforeLayers(afterMap.current, '2024-09-16');
+        // afterMap.current.addLayer({
+        //   id: "grant-lots-lines",
+        //   type: "line",
+        //   source: {
+        //     type: "vector",
+        //     url: "mapbox://mapny.7dw0tqar",
+        //   },
+        //   layout: {
+        //     visibility: "none",
+        //   },
+        //   "source-layer": "dutch_grants_lines-0y4gkx",
+        //   paint: {
+        //     "line-color": "#FF0000",
+        //     "line-width": 3,
+        //     "line-opacity": 0.8,
+        //   },
+        // });
+        // afterMap.current.addLayer({
+        //   id: "dutch_grants-5ehfqe",
+        //   type: "fill",
+        //   source: {
+        //     type: "vector",
+        //     url: "mapbox://mapny.7q2vs9ar",
+        //   },
+        //   layout: {
+        //     visibility: "none"
+        //   },
+        //   "source-layer": "dutch_grants-5ehfqe",
+        //   paint: {
+        //     "fill-color": "#e3ed58",
+        //     "fill-opacity": [
+        //       "case",
+        //       ["boolean", ["feature-state", "hover"], false],
+        //       0.8,
+        //       0.45,
+        //     ],
+        //     "fill-outline-color": "#FF0000",
+        //   },
+        // });
+      }
+    });
+
+    const compareSwiper = document.querySelector('.compare-swiper') as HTMLElement;
+    if (compareSwiper) {
+      compareSwiper.innerHTML = ''; 
+
+      const circleHandle = document.createElement('div');
+      circleHandle.classList.add('compare-circle');  
+      circleHandle.innerHTML = '<span>⏴⏵</span>';  
+
+      compareSwiper.appendChild(circleHandle);
+
+      circleHandle.onmousedown = function (e: MouseEvent) {
+        e.preventDefault();
+
+        const containerWidth = comparisonContainerRef.current?.offsetWidth || 1;
+
+        document.onmousemove = function (e) {
+          let newLeft = e.clientX;
+
+          newLeft = Math.max(0, Math.min(newLeft, containerWidth));
+
+          compareSwiper.style.left = `${newLeft}px`;
+
+          const swiperPosition = newLeft / containerWidth;  
+          mapboxCompare.setSlider(swiperPosition * containerWidth);  
+        };
+
+          document.onmouseup = function () {
+          document.onmousemove = null;
+        };
+      };
+    }
+  }, [MapboxCompare]);
+
+  useEffect(() => {
+    if(!mapLoaded) return;
+
+    const allLayerIds: string[] = ['dutch_grants-5ehfqe', 'grant-lots-lines'];
+    // for each layerId, check whether it is included in activeLayerIds,
+    // show and hide accordingly by setting layer visibility
+    allLayerIds.forEach((layerId) => {
+      if (activeLayerIds.includes(layerId)) {
+        beforeMap.current.setLayoutProperty(layerId, 'visibility', 'visible');
+        afterMap.current.setLayoutProperty(layerId, 'visibility', 'visible');
+      } else {
+        beforeMap.current.setLayoutProperty(layerId, 'visibility', 'none');
+        afterMap.current.setLayoutProperty(layerId, 'visibility', 'none');
+      }
+    });
+  }, [activeLayerIds])
 
   return (
     <>
@@ -148,7 +333,17 @@ export default function Home() {
         </div>
       </div>
 
-      <button id="view-hide-layer-panel">
+      <button id="view-hide-layer-panel" onClick={() => {
+        setLayerPanelVisible(!layerPanelVisible);
+        if(layerPanelVisible)
+        {
+          setActiveLayerIds(['dutch_grants-5ehfqe', 'grant-lots-lines']);
+        }
+        else
+        {
+          setActiveLayerIds([]);
+        }
+      }}>
         <br />
         <span id="dir-txt">&#9204;</span> <br /><br />
       </button>
@@ -167,7 +362,11 @@ export default function Home() {
         <SectionLayerComponent layersHeader={manhattaLayer.label} layer={manhattaLayer} />
       </div>
 
-      <MapComparisonComponent></MapComparisonComponent>
+      <MapComparisonComponent
+        comparisonContainerRef={comparisonContainerRef}
+        beforeMapContainerRef={beforeMapContainerRef}
+        afterMapContainerRef={afterMapContainerRef}
+      ></MapComparisonComponent>
 
       <div id="mobi-view-sidebar"><i className="fa fa-bars fa-2x"></i></div>
 
