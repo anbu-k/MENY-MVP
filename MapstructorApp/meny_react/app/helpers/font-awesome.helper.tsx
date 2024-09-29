@@ -41,7 +41,7 @@ export function getFontawesomeIcon(iconVal: FontAwesomeLayerIcons, solid: boolea
             return faSlashSolid;
         case FontAwesomeLayerIcons[FontAwesomeLayerIcons.COMMENT_DOTS]:
             return faCommentDots;
-        case FontAwesomeLayerIcons[FontAwesomeLayerIcons.WORLD]:
+        case FontAwesomeLayerIcons[FontAwesomeLayerIcons.GLOBE]:
             return faGlobe
     }
     return faSquare;

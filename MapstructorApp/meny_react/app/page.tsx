@@ -9,11 +9,11 @@ import { faArrowCircleLeft } from "@fortawesome/free-solid-svg-icons";
 import SectionLayerComponent from "./components/layers/section-layer.component";
 import { FontAwesomeLayerIcons } from "./models/font-awesome.model";
 import MapComparisonComponent from "./components/map/map-compare-container.component";
-import { MapFiltersGroup, MapFiltersItem } from './models/maps/map.model';
+import { MapFiltersGroup, MapFiltersItem } from './models/maps/map-filters.model';
 import MapFilterWrapperComponent from './components/map-filters/map-filter-wrapper.component';
+import { MapItem } from './models/maps/map.model';
 
 // Remove this when we have a way to get layers correctly
-
 const manhattaLayerSections: SectionLayerItem[] = [
   {
     id: 0,
@@ -94,6 +94,22 @@ const mapFilterGroups: MapFiltersGroup[] = [
     maps: displayedMaps
   }
 ]
+
+const beforeMap: MapItem = {
+  mapId: 'cjooubzup2kx52sqdf9zmmv2j',
+  center: [-74.01454, 40.70024],
+  zoom: 15.09,
+  bearing: -51.3,
+  attributionControl: false,
+}
+
+const afterMap: MapItem = {
+  mapId: 'cjowjzrig5pje2rmmnjb5b0y2',
+  center: [-74.01454, 40.70024],
+  zoom: 15.09,
+  bearing: -51.3,
+  attributionControl: false,
+}
 
 export default function Home() {
   const [currDate, setCurrDate] = useState<moment.Moment | null>(null)
@@ -199,10 +215,10 @@ export default function Home() {
         <br />
         <SectionLayerComponent layersHeader={manhattaLayer.label} layer={manhattaLayer} />
 
-        <MapFilterWrapperComponent defaultMap={defaultMap} mapGroups={mapFilterGroups} />
+        <MapFilterWrapperComponent beforeMapCallback={() => {}} afterMapCallback={() => {}} defaultMap={defaultMap} mapGroups={mapFilterGroups} />
       </div>
 
-      <MapComparisonComponent></MapComparisonComponent>
+      <MapComparisonComponent beforeMap={beforeMap} afterMap={afterMap}></MapComparisonComponent>
 
       <div id="mobi-view-sidebar"><i className="fa fa-bars fa-2x"></i></div>
 

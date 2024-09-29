@@ -1,6 +1,6 @@
 import { getFontawesomeIcon } from "@/app/helpers/font-awesome.helper";
 import { FontAwesomeLayerIcons } from "@/app/models/font-awesome.model";
-import { MapFiltersGroup, MapFiltersItem } from "@/app/models/maps/map.model";
+import { MapFiltersGroup, MapFiltersItem } from "@/app/models/maps/map-filters.model";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import MapFilterComponent from "./map-filter.component";
 import MapFiltersGroupComponent from "./map-filters-group.component";
@@ -8,7 +8,9 @@ import MapFiltersGroupComponent from "./map-filters-group.component";
 
 export type MapFilterWrapperProps = {
     defaultMap: MapFiltersItem,
-    mapGroups: MapFiltersGroup[]
+    mapGroups: MapFiltersGroup[],
+    beforeMapCallback: (map: MapFiltersItem) => void,
+    afterMapCallback: (map: MapFiltersItem) => void,
 }
 
 const MapFilterWrapperComponent = (props: MapFilterWrapperProps) => {
@@ -17,7 +19,7 @@ const MapFilterWrapperComponent = (props: MapFilterWrapperProps) => {
         <>
         <div>
             <p className="title">MAPS</p>
-            <MapFilterComponent map={props.defaultMap}></MapFilterComponent>
+            <MapFilterComponent map={props.defaultMap} displayZoomButton={false} displayInfoButton></MapFilterComponent>
             <br />
             <div id="maps-group">
                 {
@@ -27,9 +29,19 @@ const MapFilterWrapperComponent = (props: MapFilterWrapperProps) => {
                 }
             </div>
             <center>
-                <button onClick={() => {}/*() => zoomtobounds('World')*/} id="zoom-world">
+                <button
+                style={{
+                    borderColor: 'grey',
+                    borderWidth: '1px',
+                    borderStyle: 'solid',
+                    borderRadius: '5px',
+                    padding: '1px',
+                    paddingLeft: '5px',
+                    paddingRight: '5px'
+                }}
+                onClick={() => {}/*() => zoomtobounds('World')*/} id="zoom-world">
                     <FontAwesomeIcon icon={getFontawesomeIcon(FontAwesomeLayerIcons.GLOBE)}></FontAwesomeIcon>
-                    <b>Zoom to World</b> &nbsp; &nbsp; &nbsp;
+                    <strong>Zoom to World</strong>
                 </button>
             </center>
         </div>
