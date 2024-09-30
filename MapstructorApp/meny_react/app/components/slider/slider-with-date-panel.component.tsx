@@ -19,6 +19,7 @@ const SliderWithDatePanel: React.FC<SliderWithDatePanelProps> = (props) => {
   const [currDate, setCurrDate] = useState<moment.Moment | null>(moment("1663-06-01", "YYYY-MM-DD")); 
   const [sliderValue, setSliderValue] = useState<number>(0); 
   const [isDragging, setIsDragging] = useState<boolean>(false);
+  const [sliderColor, setSliderColor] = useState<string>("gray"); // Start gray on page load
   const sliderRef = useRef<HTMLDivElement>(null);
 
   const minYear = 1626;
@@ -60,6 +61,7 @@ const SliderWithDatePanel: React.FC<SliderWithDatePanelProps> = (props) => {
 
   const handleMouseDown = (e: React.MouseEvent) => {
     setIsDragging(true);
+    setSliderColor("darkorange"); 
     const slider = sliderRef.current;
     if (slider) {
       const rect = slider.getBoundingClientRect();
@@ -100,7 +102,7 @@ const SliderWithDatePanel: React.FC<SliderWithDatePanelProps> = (props) => {
   useEffect(() => {
     setSliderValue(middleSliderPosition); 
     updateDate(middleSliderPosition); 
-  }, []);
+  }, [middleSliderPosition]);
 
   return (
     <div>
@@ -139,7 +141,12 @@ const SliderWithDatePanel: React.FC<SliderWithDatePanelProps> = (props) => {
           <div className="slider-track-horizontal"></div>
           <div
             className="slider-handle-horizontal"
-            style={{ left: `${(sliderValue / totalSliderSteps) * 100}%` }} 
+            style={{ 
+              left: `${(sliderValue / totalSliderSteps) * 100}%`, 
+              backgroundColor: sliderColor 
+            }} 
+            onMouseEnter={() => setSliderColor(isDragging ? "darkorange" : "#007aff")} 
+            onMouseLeave={() => setSliderColor(isDragging ? "darkorange" : "gray")} 
           ></div>
         </div>
       </div>
