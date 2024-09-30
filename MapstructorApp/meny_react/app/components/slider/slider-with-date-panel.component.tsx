@@ -75,7 +75,7 @@ const SliderWithDatePanel: React.FC<SliderWithDatePanelProps> = (props) => {
       const rect = slider.getBoundingClientRect();
       moveSlider(e.clientX - rect.left, rect.width);
     }
-  }, 10); 
+  }, 0); 
 
   const handleMouseUp = () => {
     setIsDragging(false);
