@@ -3,11 +3,13 @@ import mapboxgl, { Map } from 'mapbox-gl';
 import { useEffect, useRef, useState } from "react";
 import { addBeforeLayers } from '../maps/beforemap';  
 import '../../compare.css';  
+import { MapItem } from '@/app/models/maps/map.model';
 
 mapboxgl.accessToken = 'pk.eyJ1IjoibWFwbnkiLCJhIjoiY2xtMG93amk4MnBrZTNnczUzY2VvYjg0ciJ9.MDMHYBlVbG14TJD120t6NQ';
 
 interface MapboxCompareWrapperProps {
-  someProp?: string; 
+  afterMap: MapItem,
+  beforeMap: MapItem
 }
 
 export default function MapboxCompareWrapper(props: MapboxCompareWrapperProps) {
@@ -28,20 +30,20 @@ export default function MapboxCompareWrapper(props: MapboxCompareWrapperProps) {
 
     const beforeMap: Map = new mapboxgl.Map({
       container: beforeMapContainerRef.current as HTMLElement,
-      style: 'mapbox://styles/nittyjee/cjooubzup2kx52sqdf9zmmv2j',
-      center: [-74.01454, 40.70024],
-      zoom: 15.09,
-      bearing: -51.3,
-      attributionControl: false,
+      style: `mapbox://styles/nittyjee/${props.beforeMap.mapId.trim()}`,
+      center: props.beforeMap.center,
+      zoom: props.beforeMap.zoom,
+      bearing: props.beforeMap.bearing,
+      attributionControl: props.beforeMap.attributionControl,
     });
 
     const afterMap: Map = new mapboxgl.Map({
       container: afterMapContainerRef.current as HTMLElement,
-      style: 'mapbox://styles/nittyjee/cjowjzrig5pje2rmmnjb5b0y2',
-      center: [-74.01454, 40.70024],
-      zoom: 15.09,
-      bearing: -51.3,
-      attributionControl: false,
+      style: `mapbox://styles/nittyjee/${props.afterMap.mapId.trim()}`,
+      center: props.afterMap.center,
+      zoom: props.afterMap.zoom,
+      bearing: props.afterMap.bearing,
+      attributionControl: props.afterMap.attributionControl,
     });
 
     const mapboxCompare = new MapboxCompare(beforeMap, afterMap, comparisonContainerRef.current as HTMLElement);

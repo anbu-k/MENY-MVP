@@ -1,6 +1,4 @@
 'use client'
-import Image from "next/image";
-import SectionLayersComponent from "./components/layers/section-layer-group.component";
 import moment from 'moment';
 import { useState } from "react";
 import SliderWithDatePanel from "./components/slider/slider-with-date-panel.component";
@@ -11,9 +9,11 @@ import { faArrowCircleLeft } from "@fortawesome/free-solid-svg-icons";
 import SectionLayerComponent from "./components/layers/section-layer.component";
 import { FontAwesomeLayerIcons } from "./models/font-awesome.model";
 import MapComparisonComponent from "./components/map/map-compare-container.component";
+import { MapFiltersGroup, MapFiltersItem } from './models/maps/map-filters.model';
+import MapFilterWrapperComponent from './components/map-filters/map-filter-wrapper.component';
+import { MapItem } from './models/maps/map.model';
 
 // Remove this when we have a way to get layers correctly
-
 const manhattaLayerSections: SectionLayerItem[] = [
   {
     id: 0,
@@ -60,6 +60,55 @@ const manhattaLayer: SectionLayer = {
   id: 0,
   label: "MANHATTAN",
   groups: manhattaSectionGroups
+}
+
+const defaultMap: MapFiltersItem = {
+  id: 0,
+  name: 'clm2yrx1y025401p93v26bhyl',
+  label: 'Current Satellite',
+  defaultCheckedForBeforeMap: true,
+  defaultCheckedForAfterMap: false,
+  showInfoButton: true,
+  showZoomButton: false,
+  mapId: 'clm2yrx1y025401p93v26bhyl'
+}
+
+const displayedMaps: MapFiltersItem[] = [
+  {
+    id: 0,
+    name: 'clm2yu5fg022801phfh479c8x',
+    label: '1660 Original Castello Plan',
+    defaultCheckedForBeforeMap: false,
+    defaultCheckedForAfterMap: false,
+    showInfoButton: true,
+    showZoomButton: true,
+    mapId: 'clm2yu5fg022801phfh479c8x'
+  }
+]
+
+const mapFilterGroups: MapFiltersGroup[] = [
+  {
+    id: 0,
+    name: '1660 | Castello Plans',
+    label: '1660 | Castello Plans',
+    maps: displayedMaps
+  }
+]
+
+const beforeMap: MapItem = {
+  mapId: 'cjooubzup2kx52sqdf9zmmv2j',
+  center: [-74.01454, 40.70024],
+  zoom: 15.09,
+  bearing: -51.3,
+  attributionControl: false,
+}
+
+const afterMap: MapItem = {
+  mapId: 'cjowjzrig5pje2rmmnjb5b0y2',
+  center: [-74.01454, 40.70024],
+  zoom: 15.09,
+  bearing: -51.3,
+  attributionControl: false,
 }
 
 export default function Home() {
@@ -165,9 +214,11 @@ export default function Home() {
         <p className="title">LAYERS</p>
         <br />
         <SectionLayerComponent layersHeader={manhattaLayer.label} layer={manhattaLayer} />
+
+        <MapFilterWrapperComponent beforeMapCallback={() => {}} afterMapCallback={() => {}} defaultMap={defaultMap} mapGroups={mapFilterGroups} />
       </div>
 
-      <MapComparisonComponent></MapComparisonComponent>
+      <MapComparisonComponent beforeMap={beforeMap} afterMap={afterMap}></MapComparisonComponent>
 
       <div id="mobi-view-sidebar"><i className="fa fa-bars fa-2x"></i></div>
 
