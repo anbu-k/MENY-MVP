@@ -1,38 +1,61 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect } from "react"; 
 import moment from "moment";
 import DatePanelComponent from "./date-panel/date-panel.component";
-import "../../slider-timelines.css";
+import "../../slider-timeline-date.css";
+
+const debounce = (func: (...args: any[]) => void, delay: number) => {
+  let timeoutId: NodeJS.Timeout;
+  return (...args: any[]) => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => func(...args), delay);
+  };
+};
 
 type SliderWithDatePanelProps = {
   callback: (date: moment.Moment | null) => void;
 };
 
 const SliderWithDatePanel: React.FC<SliderWithDatePanelProps> = (props) => {
-  const [currDate, setCurrDate] = useState<moment.Moment | null>(moment("1663", "YYYY")); // Start at 1663
-  const [sliderValue, setSliderValue] = useState<number>(1663); // Start at 1663 (middle)
+  const [currDate, setCurrDate] = useState<moment.Moment | null>(moment("1663-06-01", "YYYY-MM-DD")); 
+  const [sliderValue, setSliderValue] = useState<number>(0); 
   const [isDragging, setIsDragging] = useState<boolean>(false);
   const sliderRef = useRef<HTMLDivElement>(null);
 
   const minYear = 1626;
   const maxYear = 1700;
+  const totalYears = maxYear - minYear + 1;
+  const totalDaysInYear = 365; 
 
-  // Update the date based on slider position
-  const updateDate = (year: number) => {
-    const newDate = moment([year, 0, 1]); // January 1st of the selected year
+  const totalSliderSteps = totalYears * totalDaysInYear;
+
+  const calculateSliderPosition = (date: moment.Moment) => {
+    const year = date.year();
+    const dayOfYear = date.dayOfYear();
+    const yearOffset = year - minYear; 
+    return (yearOffset * totalDaysInYear) + dayOfYear;
+  };
+
+  const middleYear = Math.floor((minYear + maxYear) / 2);
+  const middleDate = moment(`${middleYear}-06-01`, "YYYY-MM-DD"); 
+  const middleSliderPosition = calculateSliderPosition(middleDate);
+
+  const updateDate = (position: number) => {
+    const yearOffset = position / totalDaysInYear;
+    const newYear = minYear + Math.floor(yearOffset);
+    const dayOfYear = Math.round((yearOffset % 1) * totalDaysInYear);
+    
+    const newDate = newYear === maxYear 
+      ? moment("1700-01-01", "YYYY-MM-DD") 
+      : moment().year(newYear).dayOfYear(Math.min(dayOfYear + 1, totalDaysInYear));
+
     setCurrDate(newDate);
     props.callback(newDate);
   };
 
-  const calculateYearFromPosition = (positionX: number, sliderWidth: number) => {
-    const percentage = positionX / sliderWidth;
-    const year = minYear + Math.round(((maxYear - minYear) * percentage));
-    return Math.min(Math.max(year, minYear), maxYear); // Clamp the year between min and max
-  };
-
   const moveSlider = (positionX: number, sliderWidth: number) => {
-    const year = calculateYearFromPosition(positionX, sliderWidth);
-    setSliderValue(year);
-    updateDate(year);
+    const position = Math.min((positionX / sliderWidth) * totalSliderSteps, totalSliderSteps - 1);
+    setSliderValue(position);
+    updateDate(position); 
   };
 
   const handleMouseDown = (e: React.MouseEvent) => {
@@ -44,13 +67,13 @@ const SliderWithDatePanel: React.FC<SliderWithDatePanelProps> = (props) => {
     }
   };
 
-  const handleMouseMove = (e: MouseEvent) => {
+  const throttledMoveSlider = debounce((e: MouseEvent) => {
     if (isDragging && sliderRef.current) {
       const slider = sliderRef.current;
       const rect = slider.getBoundingClientRect();
       moveSlider(e.clientX - rect.left, rect.width);
     }
-  };
+  }, 10); 
 
   const handleMouseUp = () => {
     setIsDragging(false);
@@ -58,19 +81,33 @@ const SliderWithDatePanel: React.FC<SliderWithDatePanelProps> = (props) => {
 
   useEffect(() => {
     document.addEventListener("mouseup", handleMouseUp);
-    document.addEventListener("mousemove", handleMouseMove);
+    document.addEventListener("mousemove", throttledMoveSlider);
     return () => {
       document.removeEventListener("mouseup", handleMouseUp);
-      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mousemove", throttledMoveSlider);
     };
   }, [isDragging]);
+
+  const handleTimelineClick = (e: React.MouseEvent) => {
+    const slider = sliderRef.current;
+    if (slider) {
+      const rect = slider.getBoundingClientRect();
+      const clickX = e.clientX - rect.left; 
+      moveSlider(clickX, rect.width);
+    }
+  };
+
+  useEffect(() => {
+    setSliderValue(middleSliderPosition); 
+    updateDate(middleSliderPosition); 
+  }, []);
 
   return (
     <div>
       <DatePanelComponent currDate={currDate} />
 
       <div id="footer">
-        <div className="timeline">
+        <div className="timeline" onClick={handleTimelineClick}>
           <div className="year">
             <span id="ruler-date1">1633</span>
             <span className="timeline-ruler"></span>
@@ -93,17 +130,16 @@ const SliderWithDatePanel: React.FC<SliderWithDatePanelProps> = (props) => {
           </div>
         </div>
 
-        {/* Horizontal Slider */}
         <div
           id="horizontal-slider"
           ref={sliderRef}
-          onMouseDown={handleMouseDown} // Start drag on mousedown
+          onMouseDown={handleMouseDown}
           className="slider-container-horizontal"
         >
           <div className="slider-track-horizontal"></div>
           <div
             className="slider-handle-horizontal"
-            style={{ left: `${((sliderValue - minYear) / (maxYear - minYear)) * 100}%` }} // Adjust slider handle position horizontally
+            style={{ left: `${(sliderValue / totalSliderSteps) * 100}%` }} 
           ></div>
         </div>
       </div>
