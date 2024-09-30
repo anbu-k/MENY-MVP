@@ -18,6 +18,8 @@ export default function MapboxCompareWrapper(props: MapboxCompareWrapperProps) {
   const afterMapContainerRef = useRef<HTMLDivElement>(null);
   const comparisonContainerRef = useRef<HTMLDivElement>(null);
   const footerHeight = 74;
+  const beforeMapRef = useRef<Map | null>(null);
+  const afterMapRef = useRef<Map | null>(null);
 
   useEffect(() => {
     import('mapbox-gl-compare').then((mod) => {
@@ -45,6 +47,9 @@ export default function MapboxCompareWrapper(props: MapboxCompareWrapperProps) {
       bearing: props.afterMap.bearing,
       attributionControl: props.afterMap.attributionControl,
     });
+
+    beforeMapRef.current = beforeMap;
+    afterMapRef.current = afterMap;
 
     const mapboxCompare = new MapboxCompare(beforeMap, afterMap, comparisonContainerRef.current as HTMLElement);
 
@@ -78,12 +83,28 @@ export default function MapboxCompareWrapper(props: MapboxCompareWrapperProps) {
           mapboxCompare.setSlider(swiperPosition * containerWidth);  
         };
 
-          document.onmouseup = function () {
+        document.onmouseup = function () {
           document.onmousemove = null;
         };
       };
     }
   }, [MapboxCompare]);
+
+  // Zoom controls for both before and after maps
+  const handleZoomIn = () => {
+    beforeMapRef.current?.zoomIn();
+    afterMapRef.current?.zoomIn();
+  };
+
+  const handleZoomOut = () => {
+    beforeMapRef.current?.zoomOut();
+    afterMapRef.current?.zoomOut();
+  };
+
+  const handleResetNorth = () => {
+    beforeMapRef.current?.resetNorth();
+    afterMapRef.current?.resetNorth();
+  };
 
   return (
     <div
@@ -97,6 +118,13 @@ export default function MapboxCompareWrapper(props: MapboxCompareWrapperProps) {
 
       {/* Compare Swiper */}
       <div className="compare-swiper"></div>
+
+      {/* Zoom and North Reset Controls */}
+      <div className="map-controls">
+        <button className="zoom-btn" onClick={handleZoomIn}>+</button>
+        <button className="zoom-btn" onClick={handleZoomOut}>-</button>
+        <button className="north-btn" onClick={handleResetNorth}>⭮</button>
+      </div>
     </div>
   );
 }

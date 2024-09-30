@@ -37,3 +37,38 @@
     color: #ffffff;
     cursor: ew-resize;
   }
+
+  .map-controls {
+    position: absolute;
+    bottom: 90px; 
+    right: 300px;  
+    z-index: 999; 
+    display: flex;
+    flex-direction: row;
+    gap: 0px; /* Space between the buttons */
+  }
+  
+  .zoom-btn, .north-btn {
+    background-color: #ffffff;
+    border: 1px solid #000000;
+    border-radius: 5px;
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
+    color: #333333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.3);
+    transition: background-color 0.3s ease;
+  }
+  
+  .zoom-btn:hover, .north-btn:hover {
+    background-color: #f0f0f0;
+  }
+  
+  .zoom-btn:active, .north-btn:active {
+    background-color: #e0e0e0;
+  }
+  
