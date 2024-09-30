@@ -66,7 +66,7 @@ export async function POST(request: Request) { //create
 
         console.log("<================== POST ==================>: ", m);
 
-        if (!m.name || m.checked === undefined || !m.infoId || !m.zoomFunction) { //check to see if the JSON is vaild
+        if (!m.name || !m.checked || !m.infoId || !m.zoomFunction) { //check to see if the JSON is vaild
             console.log("ERROR: MISSING DATA -- SENDING 400");
             console.error("Validation error: Missing required fields", m);
             return NextResponse.json({ //sends error and 400 (Bad Request) if not
@@ -158,7 +158,7 @@ export async function PUT(request: Request){ //modify
     console.log("<================== PUT ==================>: ",m.id);
 
     try{
-        if (!m.id || !m.name || m.checked === undefined || !m.infoId || !m.zoomFunction) { //check to see if the JSON is vaild
+        if (!m.id || !m.name || !m.checked|| !m.infoId || !m.zoomFunction) { //check to see if the JSON is vaild
             console.log("ERROR: MISSING DATA -- SENDING 400");
             console.error("Validation error: Missing required fields", m);
             return NextResponse.json({ //sends error and 400 (Bad Request) if not
