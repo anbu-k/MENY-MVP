@@ -6,5 +6,6 @@ export enum FontAwesomeLayerIcons {
     INFO_CIRCLE,
     CROSSHAIRS,
     LINE,
-    COMMENT_DOTS
+    COMMENT_DOTS,
+    GLOBE
 }
