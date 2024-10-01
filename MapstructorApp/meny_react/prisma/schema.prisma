@@ -15,11 +15,14 @@ datasource db {
 }
 
 model Map {
-  id           Int  @id @unique @default(autoincrement())
-  name         String @unique
-  checked      Boolean
-  infoId       String
-  zoomFunction String
+  id                      Int  @id @unique @default(autoincrement())
+  name                    String @unique
+  longitude               Decimal
+  latitude                Decimal
+  infoId                  String
+  zoom                    Decimal
+  bearing                 Decimal
+  attributionControl      Boolean
 }
 
 model LayerSection {

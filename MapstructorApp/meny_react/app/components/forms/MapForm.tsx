@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useFormik } from 'formik';
-
+//TODO - return id
 const POSTMapForm = () => {
   const [responseMessage, setResponseMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
@@ -28,7 +28,7 @@ const POSTMapForm = () => {
         }
 
         const data = await response.json();
-        setResponseMessage(`Success: ${data.message}`); 
+        setResponseMessage(`Success - map ID: ${data.message}`); 
         formik.resetForm(); 
       } catch (error) {
         setErrorMessage(`Error: ${error.message}`);

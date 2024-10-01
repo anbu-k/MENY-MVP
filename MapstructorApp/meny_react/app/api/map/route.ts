@@ -66,7 +66,9 @@ export async function POST(request: Request) { //create
 
         console.log("<================== POST ==================>: ", m);
 
-        if (!m.name || m.checked === undefined || !m.infoId || !m.zoomFunction) { //check to see if the JSON is vaild
+        if (!m.name || m.attributionControl === undefined || !m.longitude || !m.latitude ||
+            !m.infoId || !m.zoom || !m.bearing
+        ) { //check to see if the JSON is vaild
             console.log("ERROR: MISSING DATA -- SENDING 400");
             console.error("Validation error: Missing required fields", m);
             return NextResponse.json({ //sends error and 400 (Bad Request) if not
@@ -92,15 +94,18 @@ export async function POST(request: Request) { //create
         const newMap = await prisma.map.create({ //create the new map in DB 
             data: {
                 name: m.name,
-                checked: m.checked,
+                attributionControl: m.attributionControl,
                 infoId: m.infoId,
-                zoomFunction: m.zoomFunction,
+                longitude: m.longitude,
+                latitude: m.latitude,
+                zoom: m.zoom,
+                bearing: m.bearing
             },
         });
         console.log("<================== POST COMPELETE ==================>: ", newMap.id);
         return NextResponse.json({ //send success and the newmap data back 
             message: "Success",
-            data: newMap.id
+            map_id: newMap.id
         });
     } 
     
@@ -158,7 +163,9 @@ export async function PUT(request: Request){ //modify
     console.log("<================== PUT ==================>: ",m.id);
 
     try{
-        if (!m.id || !m.name || m.checked === undefined || !m.infoId || !m.zoomFunction) { //check to see if the JSON is vaild
+        if (!m.id || !m.name || m.attributionControl === undefined || !m.longitude || !m.latitude ||
+            !m.infoId || !m.zoom || !m.bearing
+        ){ //check to see if the JSON is vaild
             console.log("ERROR: MISSING DATA -- SENDING 400");
             console.error("Validation error: Missing required fields", m);
             return NextResponse.json({ //sends error and 400 (Bad Request) if not
@@ -185,9 +192,12 @@ export async function PUT(request: Request){ //modify
                 where: { id: m.id },
                 data: {
                     name: m.name,
-                    checked: m.checked,
+                    attributionControl: m.attributionControl,
                     infoId: m.infoId,
-                    zoomFunction: m.zoomFunction
+                    longitude: m.longitude,
+                    latitude: m.latitude,
+                    zoom: m.zoom,
+                    bearing: m.bearing
                 },
               });
             
