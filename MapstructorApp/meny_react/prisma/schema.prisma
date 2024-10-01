@@ -3,7 +3,8 @@
 
 // Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
+// Command for refreashing the db: 
+//        npx prisma generate; npx prisma db push
 generator client {
   provider = "prisma-client-js"
 }
@@ -14,8 +15,8 @@ datasource db {
 }
 
 model Map {
-  id           String  @id @unique
-  name         String
+  id           Int  @id @unique @default(autoincrement())
+  name         String @unique
   checked      Boolean
   infoId       String
   zoomFunction String

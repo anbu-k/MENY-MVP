@@ -1,21 +1,25 @@
 'use client'
-import Image from "next/image";
-import SectionLayersComponent from "./components/layers/section-layer-group.component";
 import moment from 'moment';
 import { useEffect, useRef, useState } from "react";
 import SliderWithDatePanel from "./components/slider/slider-with-date-panel.component";
+import { GenericPopUpProps } from "./models/popups/generic-pop-up.model";
+import SliderPopUp from "./components/right-info-bar/popups/pop-up";
 import { SectionLayer, SectionLayerGroup, SectionLayerItem } from "./models/layers/layer.model";
 import { IconColors } from "./models/colors.model";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowCircleLeft } from "@fortawesome/free-solid-svg-icons";
 import SectionLayerComponent from "./components/layers/section-layer.component";
 import { FontAwesomeLayerIcons } from "./models/font-awesome.model";
+import {CSSTransition} from 'react-transition-group'; //VsCode gets mad at this import but works fine -Zak
+"./global.css";
 import MapComparisonComponent from "./components/map/map-compare-container.component";
 import mapboxgl, { Map } from 'mapbox-gl'; 
 import { addBeforeLayers } from "./components/maps/beforemap";
+import { MapFiltersGroup, MapFiltersItem } from './models/maps/map-filters.model';
+import MapFilterWrapperComponent from './components/map-filters/map-filter-wrapper.component';
+import { MapItem } from './models/maps/map.model';
 
 // Remove this when we have a way to get layers correctly
-
 const manhattaLayerSections: SectionLayerItem[] = [
   {
     id: 0,
@@ -63,10 +67,142 @@ const manhattaLayer: SectionLayer = {
   label: "MANHATTAN",
   groups: manhattaSectionGroups
 }
+//Test Popup Props
+const dutchGrantPopupTest: GenericPopUpProps = {
+  DayEnd: 17000102,
+  DayEnd1: 16550429,
+  DayStart: 16430713,
+  Lot: "B1",
+  day1: "13-Jul",
+  day2: "Apr. 29",
+  descriptio: "Gr-br. to Cornelis Volckersen. (GG: 83.) Desc: A double lot for two hos. and two gardens, lying on the Common Highway, its br. along said road is 9 r. and 8 ft., and below on the marsh of the same br.; its length on the N. side is 18 r., 2 ft., 5 ins. an",
+  lot2: "",
+  name: "Cornelis Volckersen",
+  nid: 19107,
+  notes: "",
+  styling1: "knownfull",
+  year1: "1643",
+  year2: "1655",
+  type: "dutch-grant",
+}
+const lotEventPopupTest: GenericPopUpProps = {
+  DayEnd: 16750703,
+  DayStart: 16621201,
+  TAXLOT: "C7",
+  color: "2",
+  color_num: 2,
+  end_date: "1675-07-03",
+  nid: 1550,
+  num: 6,
+  start_date: "1662-12-01",
+  title: "C7_12-1662",
+  type: "lot-event"
+}
+const castelloTaxlotPopupTest: GenericPopUpProps = {
+  block: "L",
+  id: 173,
+  lot: "5",
+  lot2: "L5",
+  new_link: "https://nahc-mapping.org/mappingNY/encyclopedia/taxlot/L5",
+  nid: 18691,
+  old_link_2: "http://thenittygritty.org/nahc/encyclopedia/taxlot/L5",
+  tax_lots_1: "House",
+  tax_lots_2: "----------",
+  tax_lots_3: "http://nahc.simcenterdev.org/taxlot/l5",
+  type: "castello-taxlot",
+}
+const longIslandNativeGroupsPopupTest: GenericPopUpProps = {  
+  FID_1: 220,
+  name: "Unkechaugs",
+  nid: "10021",
+  type: "long-island-native-groups",
+}
+const fortAmsterdamDutchGrantPopUpTest: GenericPopUpProps = {
+  Aligned: "added",
+  DayEnd: 17000102,
+  DayEnd1: 17900101,
+  DayStart: 16250101,
+  Lot: "Fort Amsterdam",
+  day1: "",
+  day2: "",
+  descriptio: "N/A",
+  lot2: "",
+  name: "Fort Amsterdam",
+  notes: "Wooden fort built, then a much larger stone fort in same location built 1633-35. Demolished after the American Revolution.",
+  styling1: "knownfull",
+  year1: "1625",
+  year2: "1790",
+  type: "dutch-grant",
+}
+const noNidPopUpTest: GenericPopUpProps = {
+Aligned: "added",
+DayEnd: 17000102,
+DayStart: 16540511,
+Lot: "A14.2",
+day1: "May 11",
+day2: "",
+descriptio: "See A14 desc.",
+lot2: "",
+name: "Paulus Leendersen Van Der Grift",
+notes: "Using date on map which is of conf. Using end date of adjacent lot.",
+styling1: "knownfull",
+year1: "1654",
+type: "dutch-grant",
+}
+const defaultMap: MapFiltersItem = {
+  id: 0,
+  name: 'clm2yrx1y025401p93v26bhyl',
+  label: 'Current Satellite',
+  defaultCheckedForBeforeMap: true,
+  defaultCheckedForAfterMap: false,
+  showInfoButton: true,
+  showZoomButton: false,
+  mapId: 'clm2yrx1y025401p93v26bhyl'
+}
+
+const displayedMaps: MapFiltersItem[] = [
+  {
+    id: 0,
+    name: 'clm2yu5fg022801phfh479c8x',
+    label: '1660 Original Castello Plan',
+    defaultCheckedForBeforeMap: false,
+    defaultCheckedForAfterMap: false,
+    showInfoButton: true,
+    showZoomButton: true,
+    mapId: 'clm2yu5fg022801phfh479c8x'
+  }
+]
+
+const mapFilterGroups: MapFiltersGroup[] = [
+  {
+    id: 0,
+    name: '1660 | Castello Plans',
+    label: '1660 | Castello Plans',
+    maps: displayedMaps
+  }
+]
+
+const beforeMapItem: MapItem = {
+  mapId: 'cjooubzup2kx52sqdf9zmmv2j',
+  center: [-74.01454, 40.70024],
+  zoom: 15.09,
+  bearing: -51.3,
+  attributionControl: false,
+}
+
+const afterMapItem: MapItem = {
+  mapId: 'cjowjzrig5pje2rmmnjb5b0y2',
+  center: [-74.01454, 40.70024],
+  zoom: 15.09,
+  bearing: -51.3,
+  attributionControl: false,
+}
 
 mapboxgl.accessToken = 'pk.eyJ1IjoibWFwbnkiLCJhIjoiY2xtMG93amk4MnBrZTNnczUzY2VvYjg0ciJ9.MDMHYBlVbG14TJD120t6NQ';
 export default function Home() {
   const [currDate, setCurrDate] = useState<moment.Moment | null>(null);
+  const [popUp, setPopUp] = useState<GenericPopUpProps | null>(dutchGrantPopupTest);
+  const [popUpVisible, setPopUpVisible] = useState(true);
   const [layerPanelVisible, setLayerPanelVisible] = useState(true);
   const [MapboxCompare, setMapboxCompare] = useState<any>(null);
   const beforeMapContainerRef = useRef<HTMLDivElement>(null);
@@ -269,25 +405,31 @@ export default function Home() {
         <br />
         <span id="dir-txt">&#9204;</span> <br /><br />
       </button>
-      <div id="rightInfoBar" className="rightInfoBarBorder">
-        <div className="infoLayerElem" id="infoLayerGrantLots"></div>
-        <div className="infoLayerElem" id="infoLayerDutchGrants"></div>
-        <div className="infoLayerElem" id="infoLayerNativeGroups"></div>
-        <div className="infoLayerElem" id="infoLayerCastello"></div>
-        <div className="infoLayerElem" id="demoLayerInfo"></div>
-      </div>
+      
+       
+      {popUp && <CSSTransition
+        in={popUpVisible}
+        timeout={500}
+        classNames="popup"
+        unmountOnExit>
+          <SliderPopUp popUpProps={popUp}/>
+      </CSSTransition>}
 
-      <div id="studioMenu">
+      {layerPanelVisible && (<div id="studioMenu">
         <FontAwesomeIcon id="mobi-hide-sidebar" icon={faArrowCircleLeft} />
         <p className="title">LAYERS</p>
         <br />
         <SectionLayerComponent layersHeader={manhattaLayer.label} layer={manhattaLayer} />
-      </div>
+        
+        <MapFilterWrapperComponent beforeMapCallback={() => {}} afterMapCallback={() => {}} defaultMap={defaultMap} mapGroups={mapFilterGroups} />
+      </div>)}
 
       <MapComparisonComponent
         comparisonContainerRef={comparisonContainerRef}
         beforeMapContainerRef={beforeMapContainerRef}
         afterMapContainerRef={afterMapContainerRef}
+        beforeMap={beforeMapItem} 
+        afterMap={afterMapItem}
       ></MapComparisonComponent>
 
       <div id="mobi-view-sidebar"><i className="fa fa-bars fa-2x"></i></div>

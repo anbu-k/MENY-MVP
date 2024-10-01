@@ -1173,5 +1173,26 @@ label#close:active {
 
 #infoLayerNativeGroups .node__title{
   font-size: 1em;
+} 
+
+.popup-enter {
+  transform: scaleY(0);
 }
 
+.popup-enter-active {
+  height: auto;
+  transform: scaleY(1);
+  transition: transform 0.3s ease-out;
+  transform-origin: top;
+}
+
+.popup-exit {
+  transform: scaleY(1);
+}
+
+.popup-exit-active {
+  height: auto;
+  transform: scaleY(0);
+  transition: transform 0.3s ease-out;
+  transform-origin: top;
+}

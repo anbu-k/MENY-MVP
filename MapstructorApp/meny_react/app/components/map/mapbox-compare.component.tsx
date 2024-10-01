@@ -3,6 +3,7 @@ import mapboxgl, { Map } from 'mapbox-gl';
 import { RefObject, useEffect, useRef, useState } from "react";
 import { addBeforeLayers } from '../maps/beforemap';  
 import '../../compare.css';  
+import { MapItem } from '@/app/models/maps/map.model';
 
 mapboxgl.accessToken = 'pk.eyJ1IjoibWFwbnkiLCJhIjoiY2xtMG93amk4MnBrZTNnczUzY2VvYjg0ciJ9.MDMHYBlVbG14TJD120t6NQ';
 
@@ -10,6 +11,8 @@ interface MapboxCompareWrapperProps {
   comparisonContainerRef: RefObject<HTMLDivElement>;
   beforeMapContainerRef: RefObject<HTMLDivElement>;
   afterMapContainerRef: RefObject<HTMLDivElement>;
+  afterMap: MapItem,
+  beforeMap: MapItem,
 }
 
 export default function MapboxCompareWrapper(props: MapboxCompareWrapperProps) {
