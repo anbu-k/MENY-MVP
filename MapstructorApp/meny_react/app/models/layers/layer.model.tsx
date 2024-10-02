@@ -13,6 +13,7 @@ export type SectionLayerItem = {
     iconColor: IconColors,
     iconType: FontAwesomeLayerIcons,
     isSolid: boolean,
+    layerId?: string,
 }
 
 export type SectionLayerGroup = {

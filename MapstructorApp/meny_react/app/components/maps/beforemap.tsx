@@ -51,7 +51,14 @@ const sourceLayers: SourceLayer[] = [
       type: "vector",
       url: "mapbox://mapny.9s9s67wu",
     }
-  }
+  },
+  {
+    id: "places",
+    source: {
+      type: "vector",
+      url: "mapbox://mapny.cvcg7wo0",
+    },
+  },
 ]
 
 const layerData: AnyLayer[] = [
@@ -158,6 +165,32 @@ const layerData: AnyLayer[] = [
         property: "TAXLOT",
         stops: [["C7", 9]],
       },
+    },
+  },
+  {
+    id: "places",
+    type: "circle",
+    source: "places",
+    layout: {
+      visibility: "none"
+    },
+    "source-layer": "taxlots-cpwvol",
+    paint: {
+      "circle-color": "#FF0000",
+      "circle-opacity": [
+        "case",
+        ["boolean", ["feature-state", "hover"], false],
+        0.5,
+        1,
+      ],
+      "circle-stroke-width": 2,
+      "circle-stroke-color": "#FF0000",
+      "circle-stroke-opacity": [
+        "case",
+        ["boolean", ["feature-state", "hover"], false],
+        1,
+        0,
+      ],
     },
   },
 ];

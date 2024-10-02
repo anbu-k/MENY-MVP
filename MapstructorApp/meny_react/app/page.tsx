@@ -27,6 +27,7 @@ const manhattaLayerSections: SectionLayerItem[] = [
     label: "Information",
     iconType: FontAwesomeLayerIcons.SQUARE,
     isSolid: true,
+    layerId: "dutch_grants-5ehfqe",
   },
   {
     id: 1,
@@ -34,13 +35,15 @@ const manhattaLayerSections: SectionLayerItem[] = [
     label: "Lines",
     iconType: FontAwesomeLayerIcons.SQUARE,
     isSolid: false,
+    layerId: "grant-lots-lines",
   },
   {
     id: 2,
     label: "1643-75 | Lot Events",
     iconColor: IconColors.GREEN,
     iconType: FontAwesomeLayerIcons.SQUARE,
-    isSolid: true
+    isSolid: true,
+    layerId: "lot_events-bf43eb",
   },
   {
     id: 3,
@@ -48,6 +51,7 @@ const manhattaLayerSections: SectionLayerItem[] = [
     isSolid: true,
     label: "1660 | Castello Taxlots",
     iconColor: IconColors.RED,
+    layerId: "places",
   },
 ];
 
@@ -292,18 +296,18 @@ export default function Home() {
   }, [MapboxCompare]);
 
   useEffect(() => {
-    if(!mapLoaded) return;
+    if(!mapLoaded) return; 
 
-    const allLayerIds: string[] = ['dutch_grants-5ehfqe', 'grant-lots-lines', 'dutch_grants-5ehfqe-highlighted', 'lot_events-bf43eb'];
+    const allLayerIds: string[] = ['dutch_grants-5ehfqe', 'grant-lots-lines', 'dutch_grants-5ehfqe-highlighted', 'lot_events-bf43eb', "places"];
     // for each layerId, check whether it is included in activeLayerIds,
     // show and hide accordingly by setting layer visibility
     allLayerIds.forEach((layerId) => {
       if (activeLayerIds.includes(layerId)) {
-        beforeMap.current.setLayoutProperty(layerId, 'visibility', 'visible');
-        afterMap.current.setLayoutProperty(layerId, 'visibility', 'visible');
+        beforeMap.current!.setLayoutProperty(layerId, 'visibility', 'visible');
+        afterMap.current!.setLayoutProperty(layerId, 'visibility', 'visible');
       } else {
-        beforeMap.current.setLayoutProperty(layerId, 'visibility', 'none');
-        afterMap.current.setLayoutProperty(layerId, 'visibility', 'none');
+        beforeMap.current!.setLayoutProperty(layerId, 'visibility', 'none');
+        afterMap.current!.setLayoutProperty(layerId, 'visibility', 'none');
       }
     });
   }, [activeLayerIds])
@@ -393,14 +397,7 @@ export default function Home() {
 
       <button id="view-hide-layer-panel" onClick={() => {
         setLayerPanelVisible(!layerPanelVisible);
-        if(layerPanelVisible)
-        {
-          setActiveLayerIds(['dutch_grants-5ehfqe', 'grant-lots-lines', 'dutch_grants-5ehfqe-highlighted', 'lot_events-bf43eb']);
-        }
-        else
-        {
-          setActiveLayerIds([]);
-        }
+        setPopUpVisible(!popUpVisible);
       }}>
         <br />
         <span id="dir-txt">&#9204;</span> <br /><br />
@@ -419,7 +416,7 @@ export default function Home() {
         <FontAwesomeIcon id="mobi-hide-sidebar" icon={faArrowCircleLeft} />
         <p className="title">LAYERS</p>
         <br />
-        <SectionLayerComponent layersHeader={manhattaLayer.label} layer={manhattaLayer} />
+        <SectionLayerComponent activeLayers={activeLayerIds} activeLayerCallback={(newActiveLayers: string[]) => {setActiveLayerIds(newActiveLayers)}} layersHeader={manhattaLayer.label} layer={manhattaLayer} />
         
         <MapFilterWrapperComponent beforeMapCallback={() => {}} afterMapCallback={() => {}} defaultMap={defaultMap} mapGroups={mapFilterGroups} />
       </div>)}
