@@ -427,6 +427,8 @@ export default function Home() {
         afterMapContainerRef={afterMapContainerRef}
         beforeMap={beforeMapItem} 
         afterMap={afterMapItem}
+        beforeMapRef={beforeMap}
+        afterMapRef={afterMap}
       ></MapComparisonComponent>
 
       <div id="mobi-view-sidebar"><i className="fa fa-bars fa-2x"></i></div>

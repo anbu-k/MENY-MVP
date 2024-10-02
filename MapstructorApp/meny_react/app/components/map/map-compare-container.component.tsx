@@ -1,14 +1,8 @@
 'use client';
 import React, { DetailedHTMLProps, HTMLAttributes, RefObject, useEffect, useRef } from 'react';
-import mapboxgl from 'mapbox-gl';
+import mapboxgl, { Map } from 'mapbox-gl'; 
 import MapboxCompareWrapper from './mapbox-compare.component';
 import { MapItem } from '@/app/models/maps/map.model';
-
-interface MapboxCompareProps {
-  comparisonContainerRef: RefObject<HTMLDivElement>;
-  beforeMapContainerRef: RefObject<HTMLDivElement>;
-  afterMapContainerRef: RefObject<HTMLDivElement>;
-}
 
 const isClient = typeof window !== 'undefined'
 
@@ -17,7 +11,9 @@ type MapComparisonComponentProps = {
   beforeMapContainerRef: RefObject<HTMLDivElement>,
   afterMapContainerRef: RefObject<HTMLDivElement>,
   afterMap: MapItem,
-  beforeMap: MapItem
+  beforeMap: MapItem,
+  beforeMapRef: RefObject<Map | null>,
+  afterMapRef: RefObject<Map | null>,
 }
 
 const MapComparisonComponent = (props: MapComparisonComponentProps) => {  
@@ -29,6 +25,8 @@ const MapComparisonComponent = (props: MapComparisonComponentProps) => {
       comparisonContainerRef={props.comparisonContainerRef}
       beforeMapContainerRef={props.beforeMapContainerRef}
       afterMapContainerRef={props.afterMapContainerRef}
+      beforeMapRef={props.beforeMapRef}
+      afterMapRef={props.afterMapRef}
       ></MapboxCompareWrapper>
       </>
     );
