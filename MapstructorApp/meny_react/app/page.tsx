@@ -13,7 +13,7 @@ import { FontAwesomeLayerIcons } from "./models/font-awesome.model";
 import {CSSTransition} from 'react-transition-group';
 "./global.css";
 import MapComparisonComponent from "./components/map/map-compare-container.component";
-import mapboxgl, { Map } from 'mapbox-gl'; 
+import mapboxgl, { FilterSpecification, Map } from 'mapbox-gl'; 
 import { addBeforeLayers } from "./components/maps/beforemap";
 import { MapFiltersGroup, MapFiltersItem } from './models/maps/map-filters.model';
 import MapFilterWrapperComponent from './components/map-filters/map-filter-wrapper.component';
@@ -310,7 +310,22 @@ export default function Home() {
         afterMap.current!.setLayoutProperty(layerId, 'visibility', 'none');
       }
     });
-  }, [activeLayerIds])
+  }, [activeLayerIds]);
+
+  useEffect(() => {
+    if(!mapLoaded) return; 
+    var date = parseInt(currDate!.format("YYYYMMDD"));
+    const dateFilter: FilterSpecification = ["all", ["<=", "DayStart", date], [">=", "DayEnd", date]];
+
+  //LAYERS FOR FILTERING
+  ["dutch_grants-5ehfqe", "dutch_grants-5ehfqe-highlighted", "grant-lots-lines"].forEach(id => {
+    beforeMap.current!.setFilter(id, dateFilter)
+    afterMap.current!.setFilter(id, dateFilter)
+  })
+
+  beforeMap.current!.setFilter("lot_events-bf43eb", dateFilter);
+  afterMap.current!.setFilter("lot_events-bf43eb", dateFilter);
+  }, [currDate]);
 
   return (
     <>
