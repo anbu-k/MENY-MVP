@@ -10,7 +10,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowCircleLeft } from "@fortawesome/free-solid-svg-icons";
 import SectionLayerComponent from "./components/layers/section-layer.component";
 import { FontAwesomeLayerIcons } from "./models/font-awesome.model";
-import {CSSTransition} from 'react-transition-group'; //VsCode gets mad at this import but works fine -Zak
+import {CSSTransition} from 'react-transition-group';
 "./global.css";
 import MapComparisonComponent from "./components/map/map-compare-container.component";
 import mapboxgl, { Map } from 'mapbox-gl'; 
