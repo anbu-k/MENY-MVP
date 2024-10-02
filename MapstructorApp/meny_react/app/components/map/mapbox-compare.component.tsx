@@ -13,10 +13,29 @@ interface MapboxCompareWrapperProps {
   afterMapContainerRef: RefObject<HTMLDivElement>;
   afterMap: MapItem,
   beforeMap: MapItem,
+  beforeMapRef: RefObject<Map | null>,
+  afterMapRef: RefObject<Map | null>,
 }
 
 export default function MapboxCompareWrapper(props: MapboxCompareWrapperProps) {
   const footerHeight = 74;
+
+  // Zoom controls for both before and after maps
+  const handleZoomIn = () => {
+    props.beforeMapRef.current?.zoomIn();
+    props.afterMapRef.current?.zoomIn();
+  };
+
+  const handleZoomOut = () => {
+    props.beforeMapRef.current?.zoomOut();
+    props.afterMapRef.current?.zoomOut();
+  };
+
+  const handleResetNorth = () => {
+    props.beforeMapRef.current?.resetNorth();
+    props.afterMapRef.current?.resetNorth();
+  };
+
   return (
     <div
       id="comparison-container"
@@ -29,6 +48,13 @@ export default function MapboxCompareWrapper(props: MapboxCompareWrapperProps) {
 
       {/* Compare Swiper */}
       <div className="compare-swiper"></div>
+
+      {/* Zoom and North Reset Controls */}
+      <div className="map-controls">
+        <button className="zoom-btn" onClick={handleZoomIn}>+</button>
+        <button className="zoom-btn" onClick={handleZoomOut}>-</button>
+        <button className="north-btn" onClick={handleResetNorth}>⭮</button>
+      </div>
     </div>
   );
 }
