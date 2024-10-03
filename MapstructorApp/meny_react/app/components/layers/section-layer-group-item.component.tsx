@@ -7,10 +7,24 @@ import { getFontawesomeIcon } from "@/app/helpers/font-awesome.helper";
 import { FontAwesomeLayerIcons } from "@/app/models/font-awesome.model";
 
 type SectionLayerGroupItemProps = {
-    item: SectionLayerItem
+    item: SectionLayerItem,
+    activeLayerCallback: (activeLayers: string[]) => void,
+    activeLayers: string[],
 }
 
 const SectionLayerGroupItemComponent = (props: SectionLayerGroupItemProps) => {
+
+    const handleLayerChange = () => {
+        if(props.item.layerId)
+        {
+            if (props.activeLayers.includes(props.item.layerId)) {
+                props.activeLayerCallback(props.activeLayers.filter((d) => d !== props.item.layerId));
+              } else {
+                props.activeLayerCallback([...props.activeLayers, props.item.layerId]);
+              }
+        }
+    }
+
     return (
         <>
             <div className="layer-list-row">
@@ -21,6 +35,7 @@ const SectionLayerGroupItemComponent = (props: SectionLayerGroupItemProps) => {
                     marginLeft: "20px",
                     marginRight: "5px"
                 }}
+                onChange={handleLayerChange}
                 />
 
                 <label htmlFor={`section-layer-group-item-${props.item?.id ?? ""}`}>
