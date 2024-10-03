@@ -8,7 +8,7 @@ export default function LayerForm() {
       initialValues:{
         layerName: "",
         sourceUrl: "",
-        id: "",
+        sourceId: "",
         type: "",
       },
       
@@ -72,7 +72,7 @@ export default function LayerForm() {
             
             <div style={{ marginBottom: '15px' }}>
                 <label htmlFor="id" style={labelStyling}>Source Id:</label>
-                <input type="text" id="id" name="id" onChange={formik.handleChange} value={formik.values.id} style={boxStyling} />
+                <input type="text" id="sourceId" name="sourceId" onChange={formik.handleChange} value={formik.values.sourceId} style={boxStyling} />
             </div>
             
             <div style={{ marginBottom: '15px' }}>

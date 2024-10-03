@@ -49,11 +49,12 @@ model LayerGroup {
 }
 
 model Layer {
-  id               String            @id @map("_id") @db.ObjectId
+  id               String            @id @default(auto()) @map("_id") @db.ObjectId
   layerName        String
   type             String
   LayerSectionData LayerSectionData? @relation(fields: [sectionName], references: [name])
   sectionName      String?           @db.ObjectId
+  sourceId         String
   sourceType       String?
   sourceUrl        String
   visibility       Boolean?
