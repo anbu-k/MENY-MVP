@@ -1,6 +1,6 @@
 'use client'
 import moment from 'moment';
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import SliderWithDatePanel from "./components/slider/slider-with-date-panel.component";
 import { GenericPopUpProps } from "./models/popups/generic-pop-up.model";
 import SliderPopUp from "./components/right-info-bar/popups/pop-up";
@@ -10,9 +10,11 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowCircleLeft } from "@fortawesome/free-solid-svg-icons";
 import SectionLayerComponent from "./components/layers/section-layer.component";
 import { FontAwesomeLayerIcons } from "./models/font-awesome.model";
-import {CSSTransition} from 'react-transition-group'; //VsCode gets mad at this import but works fine -Zak
+import {CSSTransition} from 'react-transition-group';
 "./global.css";
 import MapComparisonComponent from "./components/map/map-compare-container.component";
+import mapboxgl, { FilterSpecification, Map } from 'mapbox-gl'; 
+import { addBeforeLayers } from "./components/maps/beforemap";
 import { MapFiltersGroup, MapFiltersItem } from './models/maps/map-filters.model';
 import MapFilterWrapperComponent from './components/map-filters/map-filter-wrapper.component';
 import { MapItem } from './models/maps/map.model';
@@ -25,6 +27,7 @@ const manhattaLayerSections: SectionLayerItem[] = [
     label: "Information",
     iconType: FontAwesomeLayerIcons.SQUARE,
     isSolid: true,
+    layerId: "dutch_grants-5ehfqe",
   },
   {
     id: 1,
@@ -32,13 +35,15 @@ const manhattaLayerSections: SectionLayerItem[] = [
     label: "Lines",
     iconType: FontAwesomeLayerIcons.SQUARE,
     isSolid: false,
+    layerId: "grant-lots-lines",
   },
   {
     id: 2,
     label: "1643-75 | Lot Events",
     iconColor: IconColors.GREEN,
     iconType: FontAwesomeLayerIcons.SQUARE,
-    isSolid: true
+    isSolid: true,
+    layerId: "lot_events-bf43eb",
   },
   {
     id: 3,
@@ -46,6 +51,7 @@ const manhattaLayerSections: SectionLayerItem[] = [
     isSolid: true,
     label: "1660 | Castello Taxlots",
     iconColor: IconColors.RED,
+    layerId: "places",
   },
 ];
 
@@ -65,7 +71,6 @@ const manhattaLayer: SectionLayer = {
   label: "MANHATTAN",
   groups: manhattaSectionGroups
 }
-
 //Test Popup Props
 const dutchGrantPopupTest: GenericPopUpProps = {
   DayEnd: 17000102,
@@ -181,7 +186,7 @@ const mapFilterGroups: MapFiltersGroup[] = [
   }
 ]
 
-const beforeMap: MapItem = {
+const beforeMapItem: MapItem = {
   mapId: 'cjooubzup2kx52sqdf9zmmv2j',
   center: [-74.01454, 40.70024],
   zoom: 15.09,
@@ -189,7 +194,7 @@ const beforeMap: MapItem = {
   attributionControl: false,
 }
 
-const afterMap: MapItem = {
+const afterMapItem: MapItem = {
   mapId: 'cjowjzrig5pje2rmmnjb5b0y2',
   center: [-74.01454, 40.70024],
   zoom: 15.09,
@@ -197,11 +202,130 @@ const afterMap: MapItem = {
   attributionControl: false,
 }
 
+mapboxgl.accessToken = 'pk.eyJ1IjoibWFwbnkiLCJhIjoiY2xtMG93amk4MnBrZTNnczUzY2VvYjg0ciJ9.MDMHYBlVbG14TJD120t6NQ';
 export default function Home() {
   const [currDate, setCurrDate] = useState<moment.Moment | null>(null);
   const [popUp, setPopUp] = useState<GenericPopUpProps | null>(dutchGrantPopupTest);
   const [popUpVisible, setPopUpVisible] = useState(true);
   const [layerPanelVisible, setLayerPanelVisible] = useState(true);
+  const [MapboxCompare, setMapboxCompare] = useState<any>(null);
+  const beforeMapContainerRef = useRef<HTMLDivElement>(null);
+  const afterMapContainerRef = useRef<HTMLDivElement>(null);
+  const comparisonContainerRef = useRef<HTMLDivElement>(null);
+  const beforeMap = useRef<Map | null>(null);
+  const afterMap = useRef<Map | null>(null);
+  const [activeLayerIds, setActiveLayerIds] = useState<string[]>([]);
+  const [mapLoaded, setMapLoaded] = useState(false);
+
+
+  useEffect(() => {
+    import('mapbox-gl-compare').then((mod) => {
+      setMapboxCompare(() => mod.default);
+    });
+  }, []);
+
+  useEffect(() => {
+    if (!MapboxCompare || !comparisonContainerRef.current) return;
+    setMapLoaded(true);
+
+    beforeMap.current = new mapboxgl.Map({
+      container: beforeMapContainerRef.current as HTMLElement,
+      style: 'mapbox://styles/nittyjee/cjooubzup2kx52sqdf9zmmv2j',
+      center: [-74.01454, 40.70024],
+      zoom: 15.09,
+      bearing: -51.3,
+      attributionControl: false,
+    });
+
+    afterMap.current = new mapboxgl.Map({
+      container: afterMapContainerRef.current as HTMLElement,
+      style: 'mapbox://styles/nittyjee/cjowjzrig5pje2rmmnjb5b0y2',
+      center: [-74.01454, 40.70024],
+      zoom: 15.09,
+      bearing: -51.3,
+      attributionControl: false,
+    });
+
+    const mapboxCompare = new MapboxCompare(beforeMap.current, afterMap.current, comparisonContainerRef.current as HTMLElement);
+
+    beforeMap.current.on('load', () => {
+      if(beforeMap.current)
+      {
+        addBeforeLayers(beforeMap.current, '2024-09-16');
+      }
+    });
+
+    afterMap.current.on('load', () => {
+      if(afterMap.current)
+      {
+        addBeforeLayers(afterMap.current, '2024-09-16');
+      }
+    });
+
+    const compareSwiper = document.querySelector('.compare-swiper') as HTMLElement;
+    if (compareSwiper) {
+      compareSwiper.innerHTML = ''; 
+
+      const circleHandle = document.createElement('div');
+      circleHandle.classList.add('compare-circle');  
+      circleHandle.innerHTML = '<span>⏴⏵</span>';  
+
+      compareSwiper.appendChild(circleHandle);
+
+      circleHandle.onmousedown = function (e: MouseEvent) {
+        e.preventDefault();
+
+        const containerWidth = comparisonContainerRef.current?.offsetWidth || 1;
+
+        document.onmousemove = function (e) {
+          let newLeft = e.clientX;
+
+          newLeft = Math.max(0, Math.min(newLeft, containerWidth));
+
+          compareSwiper.style.left = `${newLeft}px`;
+
+          const swiperPosition = newLeft / containerWidth;  
+          mapboxCompare.setSlider(swiperPosition * containerWidth);  
+        };
+
+          document.onmouseup = function () {
+          document.onmousemove = null;
+        };
+      };
+    }
+  }, [MapboxCompare]);
+
+  useEffect(() => {
+    if(!mapLoaded) return; 
+
+    const allLayerIds: string[] = ['dutch_grants-5ehfqe', 'grant-lots-lines', 'dutch_grants-5ehfqe-highlighted', 'lot_events-bf43eb', "places"];
+    // for each layerId, check whether it is included in activeLayerIds,
+    // show and hide accordingly by setting layer visibility
+    allLayerIds.forEach((layerId) => {
+      if (activeLayerIds.includes(layerId)) {
+        beforeMap.current!.setLayoutProperty(layerId, 'visibility', 'visible');
+        afterMap.current!.setLayoutProperty(layerId, 'visibility', 'visible');
+      } else {
+        beforeMap.current!.setLayoutProperty(layerId, 'visibility', 'none');
+        afterMap.current!.setLayoutProperty(layerId, 'visibility', 'none');
+      }
+    });
+  }, [activeLayerIds]);
+
+  useEffect(() => {
+    if(!mapLoaded) return; 
+    var date = parseInt(currDate!.format("YYYYMMDD"));
+    const dateFilter: FilterSpecification = ["all", ["<=", "DayStart", date], [">=", "DayEnd", date]];
+
+  //LAYERS FOR FILTERING
+  ["dutch_grants-5ehfqe", "dutch_grants-5ehfqe-highlighted", "grant-lots-lines"].forEach(id => {
+    beforeMap.current!.setFilter(id, dateFilter)
+    afterMap.current!.setFilter(id, dateFilter)
+  })
+
+  beforeMap.current!.setFilter("lot_events-bf43eb", dateFilter);
+  afterMap.current!.setFilter("lot_events-bf43eb", dateFilter);
+  }, [currDate]);
 
   return (
     <>
@@ -286,7 +410,10 @@ export default function Home() {
         </div>
       </div>
 
-      <button id="view-hide-layer-panel" onClick={() => {setLayerPanelVisible(!layerPanelVisible)}}>
+      <button id="view-hide-layer-panel" onClick={() => {
+        setLayerPanelVisible(!layerPanelVisible);
+        setPopUpVisible(!popUpVisible);
+      }}>
         <br />
         <span id="dir-txt">&#9204;</span> <br /><br />
       </button>
@@ -304,12 +431,20 @@ export default function Home() {
         <FontAwesomeIcon id="mobi-hide-sidebar" icon={faArrowCircleLeft} />
         <p className="title">LAYERS</p>
         <br />
-        <SectionLayerComponent layersHeader={manhattaLayer.label} layer={manhattaLayer} />
+        <SectionLayerComponent activeLayers={activeLayerIds} activeLayerCallback={(newActiveLayers: string[]) => {setActiveLayerIds(newActiveLayers)}} layersHeader={manhattaLayer.label} layer={manhattaLayer} />
         
         <MapFilterWrapperComponent beforeMapCallback={() => {}} afterMapCallback={() => {}} defaultMap={defaultMap} mapGroups={mapFilterGroups} />
       </div>)}
 
-      <MapComparisonComponent beforeMap={beforeMap} afterMap={afterMap}></MapComparisonComponent>
+      <MapComparisonComponent
+        comparisonContainerRef={comparisonContainerRef}
+        beforeMapContainerRef={beforeMapContainerRef}
+        afterMapContainerRef={afterMapContainerRef}
+        beforeMap={beforeMapItem} 
+        afterMap={afterMapItem}
+        beforeMapRef={beforeMap}
+        afterMapRef={afterMap}
+      ></MapComparisonComponent>
 
       <div id="mobi-view-sidebar"><i className="fa fa-bars fa-2x"></i></div>
 

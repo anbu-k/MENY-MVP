@@ -1,6 +1,6 @@
 "use client";
 import mapboxgl, { Map } from 'mapbox-gl'; 
-import { useEffect, useRef, useState } from "react";
+import { RefObject, useEffect, useRef, useState } from "react";
 import { addBeforeLayers } from '../maps/beforemap';  
 import '../../compare.css';  
 import { MapItem } from '@/app/models/maps/map.model';
@@ -8,113 +8,43 @@ import { MapItem } from '@/app/models/maps/map.model';
 mapboxgl.accessToken = 'pk.eyJ1IjoibWFwbnkiLCJhIjoiY2xtMG93amk4MnBrZTNnczUzY2VvYjg0ciJ9.MDMHYBlVbG14TJD120t6NQ';
 
 interface MapboxCompareWrapperProps {
+  comparisonContainerRef: RefObject<HTMLDivElement>;
+  beforeMapContainerRef: RefObject<HTMLDivElement>;
+  afterMapContainerRef: RefObject<HTMLDivElement>;
   afterMap: MapItem,
-  beforeMap: MapItem
+  beforeMap: MapItem,
+  beforeMapRef: RefObject<Map | null>,
+  afterMapRef: RefObject<Map | null>,
 }
 
 export default function MapboxCompareWrapper(props: MapboxCompareWrapperProps) {
-  const [MapboxCompare, setMapboxCompare] = useState<any>(null);
-  const beforeMapContainerRef = useRef<HTMLDivElement>(null);
-  const afterMapContainerRef = useRef<HTMLDivElement>(null);
-  const comparisonContainerRef = useRef<HTMLDivElement>(null);
   const footerHeight = 74;
-  const beforeMapRef = useRef<Map | null>(null);
-  const afterMapRef = useRef<Map | null>(null);
-
-  useEffect(() => {
-    import('mapbox-gl-compare').then((mod) => {
-      setMapboxCompare(() => mod.default);
-    });
-  }, []);
-
-  useEffect(() => {
-    if (!MapboxCompare || !comparisonContainerRef.current) return;
-
-    const beforeMap: Map = new mapboxgl.Map({
-      container: beforeMapContainerRef.current as HTMLElement,
-      style: `mapbox://styles/nittyjee/${props.beforeMap.mapId.trim()}`,
-      center: props.beforeMap.center,
-      zoom: props.beforeMap.zoom,
-      bearing: props.beforeMap.bearing,
-      attributionControl: props.beforeMap.attributionControl,
-    });
-
-    const afterMap: Map = new mapboxgl.Map({
-      container: afterMapContainerRef.current as HTMLElement,
-      style: `mapbox://styles/nittyjee/${props.afterMap.mapId.trim()}`,
-      center: props.afterMap.center,
-      zoom: props.afterMap.zoom,
-      bearing: props.afterMap.bearing,
-      attributionControl: props.afterMap.attributionControl,
-    });
-
-    beforeMapRef.current = beforeMap;
-    afterMapRef.current = afterMap;
-
-    const mapboxCompare = new MapboxCompare(beforeMap, afterMap, comparisonContainerRef.current as HTMLElement);
-
-    beforeMap.on('load', () => {
-      addBeforeLayers(beforeMap, '2024-09-16');
-    });
-
-    const compareSwiper = document.querySelector('.compare-swiper') as HTMLElement;
-    if (compareSwiper) {
-      compareSwiper.innerHTML = ''; 
-
-      const circleHandle = document.createElement('div');
-      circleHandle.classList.add('compare-circle');  
-      circleHandle.innerHTML = '<span>⏴⏵</span>';  
-
-      compareSwiper.appendChild(circleHandle);
-
-      circleHandle.onmousedown = function (e: MouseEvent) {
-        e.preventDefault();
-
-        const containerWidth = comparisonContainerRef.current?.offsetWidth || 1;
-
-        document.onmousemove = function (e) {
-          let newLeft = e.clientX;
-
-          newLeft = Math.max(0, Math.min(newLeft, containerWidth));
-
-          compareSwiper.style.left = `${newLeft}px`;
-
-          const swiperPosition = newLeft / containerWidth;  
-          mapboxCompare.setSlider(swiperPosition * containerWidth);  
-        };
-
-        document.onmouseup = function () {
-          document.onmousemove = null;
-        };
-      };
-    }
-  }, [MapboxCompare]);
 
   // Zoom controls for both before and after maps
   const handleZoomIn = () => {
-    beforeMapRef.current?.zoomIn();
-    afterMapRef.current?.zoomIn();
+    props.beforeMapRef.current?.zoomIn();
+    props.afterMapRef.current?.zoomIn();
   };
 
   const handleZoomOut = () => {
-    beforeMapRef.current?.zoomOut();
-    afterMapRef.current?.zoomOut();
+    props.beforeMapRef.current?.zoomOut();
+    props.afterMapRef.current?.zoomOut();
   };
 
   const handleResetNorth = () => {
-    beforeMapRef.current?.resetNorth();
-    afterMapRef.current?.resetNorth();
+    props.beforeMapRef.current?.resetNorth();
+    props.afterMapRef.current?.resetNorth();
   };
 
   return (
     <div
       id="comparison-container"
-      ref={comparisonContainerRef}
+      ref={props.comparisonContainerRef}
       style={{ height: `calc(100vh - ${footerHeight}px)`, width: '100vw', position: 'relative' }} 
     >
       {/* Before and After Maps */}
-      <div id="before" ref={beforeMapContainerRef} className="map-style"></div>
-      <div id="after" ref={afterMapContainerRef} className="map-style"></div>
+      <div id="before" ref={props.beforeMapContainerRef} className="map-style"></div>
+      <div id="after" ref={props.afterMapContainerRef} className="map-style"></div>
 
       {/* Compare Swiper */}
       <div className="compare-swiper"></div>
