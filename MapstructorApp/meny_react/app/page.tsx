@@ -18,6 +18,9 @@ import { addBeforeLayers } from "./components/maps/beforemap";
 import { MapFiltersGroup, MapFiltersItem } from './models/maps/map-filters.model';
 import MapFilterWrapperComponent from './components/map-filters/map-filter-wrapper.component';
 import { MapItem } from './models/maps/map.model';
+import LayerFormButton from './components/forms/buttons/layer-form-button.component';
+import Modal from 'react-modal';
+import MapFormButton from './components/forms/buttons/map-form-button.component';
 
 // Remove this when we have a way to get layers correctly
 const manhattaLayerSections: SectionLayerItem[] = [
@@ -216,6 +219,7 @@ export default function Home() {
   const afterMap = useRef<Map | null>(null);
   const [activeLayerIds, setActiveLayerIds] = useState<string[]>([]);
   const [mapLoaded, setMapLoaded] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
 
 
   useEffect(() => {
@@ -263,7 +267,7 @@ export default function Home() {
     });
 
     const compareSwiper = document.querySelector('.compare-swiper') as HTMLElement;
-    if (compareSwiper) {
+    if (compareSwiper && !modalOpen) {
       compareSwiper.innerHTML = ''; 
 
       const circleHandle = document.createElement('div');
@@ -327,8 +331,11 @@ export default function Home() {
   afterMap.current!.setFilter("lot_events-bf43eb", dateFilter);
   }, [currDate]);
 
+  Modal.setAppElement('#app-body');
+
   return (
     <>
+    <div id='app-body'>
       <input className="checker" type="checkbox" id="o" hidden />
       <div className="modal">
         <div className="modal-body">
@@ -404,19 +411,49 @@ export default function Home() {
               width="18"
           /></a>
 
+          <LayerFormButton
+          beforeOpen={() => {
+            setLayerPanelVisible(false);
+            setPopUpVisible(false);
+            setModalOpen(true);
+          }}
+          afterClose={() => {
+            setLayerPanelVisible(true);
+            setPopUpVisible(true);
+            setModalOpen(false);
+          }}
+          ></LayerFormButton>
+
+          <MapFormButton
+          beforeOpen={() => {
+            setLayerPanelVisible(false);
+            setPopUpVisible(false);
+            setModalOpen(true);
+          }}
+          afterClose={() => {
+            setLayerPanelVisible(true);
+            setPopUpVisible(true);
+            setModalOpen(false);
+          }}
+          ></MapFormButton>
+
           <label htmlFor="o" id="open-popup" style={{display: "none"}}>Open PopUp</label>
           <label id="about" className="trigger-popup" title="Open">ABOUT</label>
           <i className="fa fa-2x fa-info-circle trigger-popup" id="info"></i>
         </div>
       </div>
 
-      <button id="view-hide-layer-panel" onClick={() => {
-        setLayerPanelVisible(!layerPanelVisible);
-        setPopUpVisible(!popUpVisible);
-      }}>
-        <br />
-        <span id="dir-txt">&#9204;</span> <br /><br />
-      </button>
+      {
+        !modalOpen && (
+          <button id={modalOpen ? "" : "view-hide-layer-panel"} onClick={() => {
+            setLayerPanelVisible(!layerPanelVisible);
+            setPopUpVisible(!popUpVisible);
+          }}>
+            <br />
+            <span id="dir-txt">&#9204;</span> <br /><br />
+          </button>
+        )
+      }
       
        
       {popUp && <CSSTransition
@@ -452,6 +489,7 @@ export default function Home() {
 
       <div id="loading">
         <i className="fa fa-sync fa-10x fa-spin" id="loading-icon"></i>
+      </div>
       </div>
     </>
   );

@@ -66,6 +66,7 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-status-bar-style" content="black" />
       </head>
       <body
+        id='app-body'
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         {children}
