@@ -1,59 +1,16 @@
-import { Prisma, PrismaClient } from "@prisma/client";
-import { NextResponse } from 'next/server';
-import { Map } from "@prisma/client";
+import { NextApiRequest, NextApiHandler, NextApiResponse } from "next";
+import { PrismaClient } from "@prisma/client";
+import {Map}  from "@prisma/client"
+import { NextResponse } from "next/server";
 
-const prisma = new PrismaClient();
 
-/*
-//  export async function GET(request: Request) {
-//     console.clear();//DEBUG
-//     console.log("Request body:", await request.text());
-//     console.log("<============== GET REQUEST: ==============>");
+export async function GET() {
+    const prisma = new PrismaClient();
+    const maps = (await prisma.map.findMany());
 
-//     try {
-//         const m: Map = await request.json();
-
-//         if (m.id) {
-//             const tmp  = GETONE(m);
-//             return NextResponse.json({ //send only one map
-//                 message: "Success",
-//                 data: tmp
-//                 });
-//         } else {
-//             const tmp  = GETALL();
-//             return NextResponse.json({ //send all maps
-//                 message: "Success",
-//                 data: tmp
-//                 });
-//         }
-//     } catch (error) {
-//         console.error("Error parsing request JSON:", error);
-//         return new Response("Invalid JSON", { status: 400 });
-//     }
-// }
-
-// async function GETONE(m:Map)
-// {
-//     const map : Map = await prisma.map.findFirst({
-//     where: {
-//         id: m.id
-//     }
-//   }); //find map m
-
-//    console.log("GET REQUSET:", m);
-
-//     return map;
-// }*/
-
-export async function GET(){//get all maps
-    console.log("<================== GET ALL ==================>:");
-
-    const all_maps : Map = await prisma.map.findMany(); //find all maps
-    console.log("<================== GET COMPELETE ==================>");
-    return NextResponse.json({ //send all maps
-        message: "Success",
-        data: all_maps
-    });
+    return NextResponse.json({
+        maps
+    })
 }
 
 

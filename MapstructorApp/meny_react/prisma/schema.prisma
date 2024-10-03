@@ -10,7 +10,7 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
+  provider = "mongodb"
   url      = env("DATABASE_URL")
 }
 
@@ -26,34 +26,34 @@ model Map {
 }
 
 model LayerSection {
-  name   String             @id
+  name   String             @id @map("_id") @db.ObjectId
   layers LayerSectionData[]
 }
 
 model LayerSectionData {
-  name          String       @id
+  name          String       @id @map("_id") @db.ObjectId
   section       LayerSection @relation(fields: [sectionName], references: [name])
-  sectionName   String
+  sectionName   String       @db.ObjectId
   iconColor     String
   label         String
   zoomTo        String
   groupName     LayerGroup?  @relation(fields: [topLayerClass], references: [name])
-  topLayerClass String
+  topLayerClass String       @db.ObjectId
   infoId        String?
   layers        Layer[]
 }
 
 model LayerGroup {
-  name        String             @id
+  name        String             @id @map("_id") @db.ObjectId
   childLayers LayerSectionData[]
 }
 
 model Layer {
-  id               String            @id
+  id               String            @id @map("_id") @db.ObjectId
   layerName        String
   type             String
   LayerSectionData LayerSectionData? @relation(fields: [sectionName], references: [name])
-  sectionName      String?
+  sectionName      String?           @db.ObjectId
   sourceType       String?
   sourceUrl        String
   visibility       Boolean?
