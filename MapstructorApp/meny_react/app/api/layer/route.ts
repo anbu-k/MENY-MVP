@@ -17,14 +17,14 @@ export async function POST(request: Request) {
     const prisma = new PrismaClient();
     await prisma.layer.create({
         data: {
-            id: Layer.id,
             layerName: Layer.layerName,
             sectionName: Layer.sectionName,
             sourceUrl: Layer.sourceUrl,
             type:Layer.type,
             paint:Layer.paint,
             sourceType:Layer.sourceType,
-            visibility:Layer.visibility
+            visibility:Layer.visibility,
+            sourceId:Layer.sourceId
         },
     })
     return NextResponse.json({
