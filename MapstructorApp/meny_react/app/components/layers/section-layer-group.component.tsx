@@ -11,7 +11,9 @@ import { IconColors } from "@/app/models/colors.model";
 
 type SectionLayerGroupsProps = {
     layersHeader: string,
-    group: SectionLayerGroup
+    group: SectionLayerGroup,
+    activeLayerCallback: (activeLayers: string[]) => void,
+    activeLayers: string[],
 }
 
 const SectionLayerGroupComponent = (props: SectionLayerGroupsProps) => {
@@ -64,7 +66,7 @@ const SectionLayerGroupComponent = (props: SectionLayerGroupsProps) => {
                 layerIsOpen && props.group.items.map(item => {
                     return (
                         <>
-                            <SectionLayerGroupItemComponent item={item} />
+                            <SectionLayerGroupItemComponent activeLayers={props.activeLayers} activeLayerCallback={props.activeLayerCallback} item={item} />
                         </>
                     )
                 })

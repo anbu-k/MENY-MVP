@@ -7,7 +7,9 @@ import SectionLayerGroupComponent from "./section-layer-group.component";
 
 type SectionLayerProps = {
     layersHeader: string,
-    layer: SectionLayer
+    layer: SectionLayer,
+    activeLayerCallback: (activeLayers: string[]) => void,
+    activeLayers: string[],
 }
 
 const SectionLayerComponent = (props: SectionLayerProps) => {
@@ -26,7 +28,7 @@ const SectionLayerComponent = (props: SectionLayerProps) => {
             {
                 layerIsOpen &&
                 props.layer.groups.map(grp => (
-                    <SectionLayerGroupComponent layersHeader={props.layersHeader} group={grp} />
+                    <SectionLayerGroupComponent activeLayers={props.activeLayers} activeLayerCallback={props.activeLayerCallback} layersHeader={props.layersHeader} group={grp} />
                 ))
             }
         </>
