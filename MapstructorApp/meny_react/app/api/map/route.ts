@@ -3,9 +3,9 @@ import { PrismaClient } from "@prisma/client";
 import {Map}  from "@prisma/client"
 import { NextResponse } from "next/server";
 
+const prisma = new PrismaClient();
 
 export async function GET() {
-    const prisma = new PrismaClient();
     const maps = (await prisma.map.findMany());
 
     return NextResponse.json({
@@ -82,7 +82,7 @@ export async function DELETE(request: Request){ //delete
 
     
     try{
-        if (m.id < 0 || m.id == undefined) { //check to see if the JSON is vaild
+        if (m.id == undefined) { //check to see if the JSON is vaild
             console.log("ERROR: MISSING ID DATA -- SENDING 400");
             console.error("Validation error: Missing required fields", m);
             return NextResponse.json({ //sends error and 400 (Bad Request) if not

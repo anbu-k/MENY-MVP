@@ -15,13 +15,13 @@ datasource db {
 }
 
 model Map {
-  id                      Int  @id @unique @default(autoincrement())
-  name                    String @unique
-  longitude               Decimal
-  latitude                Decimal
+  id                      String  @id @default(auto()) @map("_id") @db.ObjectId
+  name                    String
+  longitude               Float
+  latitude                Float
   infoId                  String
-  zoom                    Decimal
-  bearing                 Decimal
+  zoom                    Float
+  bearing                 Float
   attributionControl      Boolean
 }
 
