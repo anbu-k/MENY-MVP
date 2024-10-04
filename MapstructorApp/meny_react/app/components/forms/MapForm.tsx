@@ -14,7 +14,7 @@ const POSTMapForm = () => {
       infoId:                  '',
       zoom:                    0,
       bearing:                 0,
-      attributionControl:      false
+      styleId:                 ''
     },
     
     onSubmit: async (values) => {
@@ -109,8 +109,8 @@ return (
         </div>
 
         <div style={{ marginBottom: '15px' }}>
-            <label htmlFor="attributionControl" style={labelStyling}>Attribution Control:</label>
-            <input type="checkbox" id="attributionControl" name="attributionControl" onChange={formik.handleChange} value={formik.values.attributionControl} style={boxStyling} />
+            <label htmlFor="styleId" style={labelStyling}>StyleId:</label>
+            <input type="text" id="styleId" name="styleId" onChange={formik.handleChange} value={formik.values.styleId} style={boxStyling} />
         </div>
         
         <button style={buttonStyling} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = buttonHoverStyling.backgroundColor!}

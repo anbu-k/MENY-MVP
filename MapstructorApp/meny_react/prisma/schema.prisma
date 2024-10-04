@@ -15,14 +15,14 @@ datasource db {
 }
 
 model Map {
-  id                      String  @id @default(auto()) @map("_id") @db.ObjectId
-  name                    String
-  longitude               Float
-  latitude                Float
-  infoId                  String
-  zoom                    Float
-  bearing                 Float
-  attributionControl      Boolean
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  mapId     String
+  longitude Float
+  latitude  Float
+  name      String
+  zoom      Float
+  bearing   Float
+  styleId   String
 }
 
 model LayerSection {
@@ -54,7 +54,6 @@ model Layer {
   type             String
   LayerSectionData LayerSectionData? @relation(fields: [sectionName], references: [name])
   sectionName      String?           @db.ObjectId
-  sourceId         String
   sourceType       String?
   sourceUrl        String
   visibility       Boolean?
