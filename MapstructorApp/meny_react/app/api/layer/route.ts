@@ -23,8 +23,8 @@ export async function POST(request: Request) {
             type:Layer.type,
             paint:Layer.paint,
             sourceType:Layer.sourceType,
-            visibility:Layer.visibility,
-            sourceId:Layer.sourceId
+            sourceId:Layer.sourceId,
+            sourceLayer:Layer.sourceLayer
         },
     })
     return NextResponse.json({

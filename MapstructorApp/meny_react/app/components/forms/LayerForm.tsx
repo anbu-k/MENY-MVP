@@ -7,9 +7,13 @@ export default function LayerForm() {
     const formik = useFormik({
       initialValues:{
         layerName: "",
+        type: "",
+        sectionName: "",
+        sourceType: "",
         sourceUrl: "",
         sourceId: "",
-        type: "",
+        paint: "",
+        sourceLayer: "",
       },
       
       onSubmit: async (values) => {
@@ -64,20 +68,30 @@ export default function LayerForm() {
                 <label htmlFor="layerName" style={labelStyling}>Name:</label>
                 <input type="text" id="layerName" name="layerName" onChange={formik.handleChange} value={formik.values.layerName} style={boxStyling} />
             </div>
+
+            <div style={{ marginBottom: '15px' }}>
+                <label htmlFor="type" style={labelStyling}>Type:</label>
+                <input type="text" id="type" name="type" onChange={formik.handleChange} value={formik.values.type} style={boxStyling} />
+            </div>
+
+            <div style={{ marginBottom: '15px' }}>
+                <label htmlFor="sourceType" style={labelStyling}>Source Type:</label>
+                <input type="text" id="sourceType" name="sourceType" onChange={formik.handleChange} value={formik.values.sourceType} style={boxStyling} />
+            </div>
             
             <div style={{ marginBottom: '15px' }}>
                 <label htmlFor="sourceUrl" style={labelStyling}>Source Url:</label>
                 <input type="text" id="sourceUrl" name="sourceUrl" onChange={formik.handleChange} value={formik.values.sourceUrl} style={boxStyling} />
             </div>
-            
+
             <div style={{ marginBottom: '15px' }}>
-                <label htmlFor="id" style={labelStyling}>Source Id:</label>
+                <label htmlFor="sourceId" style={labelStyling}>Source Id:</label>
                 <input type="text" id="sourceId" name="sourceId" onChange={formik.handleChange} value={formik.values.sourceId} style={boxStyling} />
             </div>
             
             <div style={{ marginBottom: '15px' }}>
-                <label htmlFor="type" style={labelStyling}>Type:</label>
-                <input type="text" id="type" name="type" onChange={formik.handleChange} value={formik.values.type} style={boxStyling} />
+                <label htmlFor="sourceLayer" style={labelStyling}>Source Layer:</label>
+                <input type="text" id="sourceLayer" name="sourceLayer" onChange={formik.handleChange} value={formik.values.sourceLayer} style={boxStyling} />
             </div>
             
             <button style={buttonStyling} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = buttonHoverStyling.backgroundColor!}
