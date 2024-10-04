@@ -15,14 +15,14 @@ datasource db {
 }
 
 model Map {
-  id                 String  @id @default(auto()) @map("_id") @db.ObjectId
-  mapId              String
-  longitude          Float
-  latitude           Float
-  name               String
-  zoom               Float
-  bearing            Float
-  attributionControl Boolean
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  mapId     String
+  longitude Float
+  latitude  Float
+  name      String
+  zoom      Float
+  bearing   Float
+  styleId   String
 }
 
 model LayerSection {
