@@ -11,7 +11,7 @@ const POSTMapForm = () => {
       name: '',
       longitude: 0,
       latitude:                0,
-      infoId:                  '',
+      mapId:                  '',
       zoom:                    0,
       bearing:                 0,
       styleId:                 ''
@@ -94,8 +94,8 @@ return (
         </div>
         
         <div style={{ marginBottom: '15px' }}>
-            <label htmlFor="infoId" style={labelStyling}>Info ID:</label>
-            <input type="text" id="infoId" name="infoId" onChange={formik.handleChange} value={formik.values.infoId} style={boxStyling} />
+            <label htmlFor="mapId" style={labelStyling}>Info ID:</label>
+            <input type="text" id="mapId" name="mapId" onChange={formik.handleChange} value={formik.values.mapId} style={boxStyling} />
         </div>
 
         <div style={{ marginBottom: '15px' }}>
