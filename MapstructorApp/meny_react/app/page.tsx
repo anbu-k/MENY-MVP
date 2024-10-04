@@ -511,6 +511,8 @@ export default function Home() {
         <br />
         <SectionLayerComponent activeLayers={activeLayerIds} activeLayerCallback={(newActiveLayers: string[]) => {setActiveLayerIds(newActiveLayers)}} layersHeader={manhattaLayer.label} layer={manhattaLayer} />
         
+        
+
         <MapFilterWrapperComponent beforeMapCallback={() => {}} afterMapCallback={() => {}} defaultMap={beforeMapItem} mapGroups={mappedFilterItemGroups} />
       </div>)}
 
