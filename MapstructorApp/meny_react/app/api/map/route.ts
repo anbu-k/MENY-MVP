@@ -23,8 +23,7 @@ export async function POST(request: Request) { //create
 
         console.log("<================== POST ==================>: ", m);
 
-        if (!m.name || m.attributionControl === undefined || !m.longitude || !m.latitude ||
-            !m.infoId || !m.zoom || !m.bearing
+        if (!m.name || m.styleId === undefined || !m.longitude || !m.latitude || !m.zoom || !m.bearing
         ) { //check to see if the JSON is vaild
             console.log("ERROR: MISSING DATA -- SENDING 400");
             console.error("Validation error: Missing required fields", m);
@@ -51,8 +50,8 @@ export async function POST(request: Request) { //create
         const newMap = await prisma.map.create({ //create the new map in DB 
             data: {
                 name: m.name,
-                attributionControl: m.attributionControl,
-                infoId: m.infoId,
+                mapId: m.mapId,
+                styleId: m.styleId,
                 longitude: m.longitude,
                 latitude: m.latitude,
                 zoom: m.zoom,
@@ -120,8 +119,7 @@ export async function PUT(request: Request){ //modify
     console.log("<================== PUT ==================>: ",m.id);
 
     try{
-        if (!m.id || !m.name || m.attributionControl === undefined || !m.longitude || !m.latitude ||
-            !m.infoId || !m.zoom || !m.bearing
+        if (!m.id || !m.name || m.styleId == '' || !m.longitude || !m.latitude || !m.zoom || !m.bearing
         ){ //check to see if the JSON is vaild
             console.log("ERROR: MISSING DATA -- SENDING 400");
             console.error("Validation error: Missing required fields", m);
@@ -149,8 +147,7 @@ export async function PUT(request: Request){ //modify
                 where: { id: m.id },
                 data: {
                     name: m.name,
-                    attributionControl: m.attributionControl,
-                    infoId: m.infoId,
+                    styleId: m.styleId,
                     longitude: m.longitude,
                     latitude: m.latitude,
                     zoom: m.zoom,

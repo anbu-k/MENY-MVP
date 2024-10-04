@@ -24,7 +24,6 @@ export async function POST(request: Request) {
             paint:Layer.paint,
             sourceType:Layer.sourceType,
             visibility:Layer.visibility,
-            sourceId:Layer.sourceId
         },
     })
     return NextResponse.json({

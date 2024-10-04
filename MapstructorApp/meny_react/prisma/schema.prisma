@@ -49,7 +49,7 @@ model LayerGroup {
 }
 
 model Layer {
-  id               String            @id @map("_id") @db.ObjectId
+  id               String            @id @default(auto()) @map("_id") @db.ObjectId
   layerName        String
   type             String
   LayerSectionData LayerSectionData? @relation(fields: [sectionName], references: [name])
