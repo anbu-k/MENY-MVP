@@ -23,7 +23,7 @@ import Modal from 'react-modal';
 import MapFormButton from './components/forms/buttons/map-form-button.component';
 import { Prisma, PrismaClient } from '@prisma/client';
 import MapFilterComponent from './components/map-filters/map-filter.component';
-import {Map as PrismaMap} from '@prisma/client';
+import {Map as PrismaMap, Layer as PrismaLayer} from '@prisma/client';
  
 // Remove this when we have a way to get layers correctly
 const manhattaLayerSections: SectionLayerItem[] = [
@@ -194,6 +194,9 @@ export default function Home() {
   const [mapLoaded, setMapLoaded] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [mappedFilterItemGroups, setMappedFilterItemGroups] = useState<MapFiltersGroup[]>([]);
+  const [extraLayers, setExtraLayers] = useState<SectionLayerItem[]>([]);
+  const [currMaps, setCurrMaps] = useState<PrismaMap[]>([]);
+  const [currLayers, setCurrLayers] = useState<PrismaLayer[]>([]);
 
   useEffect(() => {
     fetch('http://localhost:3000/api/map', {
@@ -205,6 +208,7 @@ export default function Home() {
         maps.json().then(parsed => {
           console.log('parsed from fetch:', parsed);
           if(!!parsed && !!parsed.maps && parsed.maps.length) {
+            setCurrMaps(parsed.maps);
             let mapFilterGroups: MapFiltersGroup[] = [
               {
                 id: 0,
@@ -237,22 +241,21 @@ export default function Home() {
       headers: {
           'Content-Type': 'application/json',
       }
-    }).then(maps => {
-        maps.json().then(parsed => {
+    }).then(layers => {
+        layers?.json()?.then(parsed => {
           console.log('parsed labels from fetch:', parsed);
-          // if(!!parsed && !!parsed.maps && parsed.maps.length) {
-          //   setMappedFilterItems(parsed.maps.map(x => {
-          //     let newDBMap: MapItem = {
-          //       mapId: x.infoId,
-          //       center: [x.longitude, x.latitude],
-          //       zoom: x.zoom,
-          //       bearing: x.bearing,
-          //       attributionControl: x.attributionControl,
-          //       name: x.name
-          //     }
-          //     return newDBMap
-          //   }))
-          // }
+          if(!!parsed && !!parsed.layers && parsed.layers.length) {
+            setCurrLayers(parsed.layers);
+            let mappedLayerItems: SectionLayerItem[] = parsed.layers.map((x: PrismaLayer) => {
+              let sectionItem: SectionLayerItem = {
+                id: 0,
+                label: x.layerName,
+                iconColor: IconColors.BLUE,
+                iconType: FontAwesomeLayerIcons.PLUS_SQUARE,
+                isSolid: false
+              }
+            })
+          }
         })
     }).catch(err => {
       console.error(err);
@@ -511,7 +514,7 @@ export default function Home() {
         <br />
         <SectionLayerComponent activeLayers={activeLayerIds} activeLayerCallback={(newActiveLayers: string[]) => {setActiveLayerIds(newActiveLayers)}} layersHeader={manhattaLayer.label} layer={manhattaLayer} />
         
-        
+
 
         <MapFilterWrapperComponent beforeMapCallback={() => {}} afterMapCallback={() => {}} defaultMap={beforeMapItem} mapGroups={mappedFilterItemGroups} />
       </div>)}
