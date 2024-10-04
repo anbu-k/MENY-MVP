@@ -17,8 +17,8 @@ datasource db {
 model Map {
   id                 String  @id @default(auto()) @map("_id") @db.ObjectId
   mapId              String
-  long               Float
-  lat                Float
+  longitude          Float
+  latitude           Float
   name               String
   zoom               Float
   bearing            Float
