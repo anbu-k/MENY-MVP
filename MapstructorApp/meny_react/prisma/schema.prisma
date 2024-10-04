@@ -31,20 +31,22 @@ model LayerSection {
 }
 
 model LayerSectionData {
-  name          String       @id @map("_id") @db.ObjectId
+  id            String       @id @map("_id") @db.ObjectId
+  name          String       @unique @db.ObjectId
   section       LayerSection @relation(fields: [sectionName], references: [name])
   sectionName   String       @db.ObjectId
   iconColor     String
   label         String
-  zoomTo        String
+  zoomTo        String?
   groupName     LayerGroup?  @relation(fields: [topLayerClass], references: [name])
-  topLayerClass String       @db.ObjectId
+  topLayerClass String?      @db.ObjectId
   infoId        String?
   layers        Layer[]
 }
 
 model LayerGroup {
-  name        String             @id @map("_id") @db.ObjectId
+  id          String             @id @default(auto()) @map("_id") @db.ObjectId
+  name        String             @unique @db.ObjectId
   childLayers LayerSectionData[]
 }
 
@@ -56,6 +58,7 @@ model Layer {
   sectionName      String?           @db.ObjectId
   sourceType       String?
   sourceUrl        String
+  sourceId         String
   visibility       Boolean?
   paint            String?
 }
