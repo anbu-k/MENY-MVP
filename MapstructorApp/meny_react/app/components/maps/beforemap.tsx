@@ -1,4 +1,4 @@
-import mapboxgl, { CustomLayerInterface, SourceSpecification } from 'mapbox-gl';
+import mapboxgl, { CustomLayerInterface, LayerSpecification, SourceSpecification } from 'mapbox-gl';
 import { AnyLayer } from 'mapbox-gl';
 
 // Layer and event data structures
@@ -215,7 +215,7 @@ function addMapSourceLayers(map: mapboxgl.Map, sourceLayerData: SourceLayer[])
   });
 }
 
-function addMapLayers(map: mapboxgl.Map, layers: AnyLayer[], date: string) {
+function addMapLayers(map: mapboxgl.Map, layers: LayerSpecification[], date: string) {
   layers.forEach(layer => {
     map.addLayer(layer);
   });
