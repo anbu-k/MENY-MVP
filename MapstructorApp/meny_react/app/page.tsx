@@ -23,8 +23,8 @@ import Modal from 'react-modal';
 import MapFormButton from './components/forms/buttons/map-form-button.component';
 import { Prisma, PrismaClient } from '@prisma/client';
 import MapFilterComponent from './components/map-filters/map-filter.component';
-import {Map as PrismaMap} from '@prisma/client'
-
+import {Map as PrismaMap} from '@prisma/client';
+ 
 // Remove this when we have a way to get layers correctly
 const manhattaLayerSections: SectionLayerItem[] = [
   {
@@ -166,7 +166,7 @@ const beforeMapItem: MapItem = {
   center: [-74.01454, 40.70024],
   zoom: 15.09,
   bearing: -51.3,
-  attributionControl: false,
+  styleId: '',
 }
 
 const afterMapItem: MapItem = {
@@ -175,7 +175,7 @@ const afterMapItem: MapItem = {
   center: [-74.01454, 40.70024],
   zoom: 15.09,
   bearing: -51.3,
-  attributionControl: false,
+  styleId: '',
 }
 
 mapboxgl.accessToken = 'pk.eyJ1IjoibWFwbnkiLCJhIjoiY2xtMG93amk4MnBrZTNnczUzY2VvYjg0ciJ9.MDMHYBlVbG14TJD120t6NQ';
@@ -213,10 +213,10 @@ export default function Home() {
                 maps: parsed.maps.map((x: PrismaMap) => {
                   let newDBMap: MapItem = {
                     mapId: x.mapId,
-                    center: [x.long, x.lat],
+                    center: [x.longitude, x.latitude],
                     zoom: x.zoom,
                     bearing: x.bearing,
-                    attributionControl: x.attributionControl,
+                    styleId: x.styleId,
                     name: x.name
                   }
                   return newDBMap
