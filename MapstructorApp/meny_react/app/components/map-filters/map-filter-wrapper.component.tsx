@@ -1,16 +1,18 @@
 import { getFontawesomeIcon } from "@/app/helpers/font-awesome.helper";
 import { FontAwesomeLayerIcons } from "@/app/models/font-awesome.model";
-import { MapFiltersGroup, MapFiltersItem } from "@/app/models/maps/map-filters.model";
+import { MapFiltersGroup } from "@/app/models/maps/map-filters.model";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import MapFilterComponent from "./map-filter.component";
 import MapFiltersGroupComponent from "./map-filters-group.component";
+import { useEffect } from "react";
+import { MapItem } from "@/app/models/maps/map.model";
 
 
 export type MapFilterWrapperProps = {
-    defaultMap: MapFiltersItem,
+    defaultMap: MapItem,
     mapGroups: MapFiltersGroup[],
-    beforeMapCallback: (map: MapFiltersItem) => void,
-    afterMapCallback: (map: MapFiltersItem) => void,
+    beforeMapCallback: (map: MapItem) => void,
+    afterMapCallback: (map: MapItem) => void,
 }
 
 const MapFilterWrapperComponent = (props: MapFilterWrapperProps) => {

@@ -1,6 +1,6 @@
 import { getFontawesomeIcon } from "@/app/helpers/font-awesome.helper";
 import { FontAwesomeLayerIcons } from "@/app/models/font-awesome.model";
-import { MapFiltersGroup, MapFiltersItem } from "@/app/models/maps/map-filters.model";
+import { MapFiltersGroup } from "@/app/models/maps/map-filters.model";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useState } from "react";
 import MapFilterComponent from "./map-filter.component";
@@ -26,8 +26,8 @@ const MapFiltersGroupComponent = (props: MapFiltersGroupComponentProps) => {
             </center>
             {
                 layerIsOpen &&
-                props.group.maps.map(map => (
-                    <MapFilterComponent map={map} displayInfoButton displayZoomButton/>
+                props.group.maps.map((map, idx) => (
+                    <MapFilterComponent key={`map-filter-component-${idx}`} map={map} displayInfoButton displayZoomButton/>
                 ))
             }
         </>

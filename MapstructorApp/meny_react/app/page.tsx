@@ -15,12 +15,15 @@ import {CSSTransition} from 'react-transition-group';
 import MapComparisonComponent from "./components/map/map-compare-container.component";
 import mapboxgl, { FilterSpecification, Map } from 'mapbox-gl'; 
 import { addBeforeLayers } from "./components/maps/beforemap";
-import { MapFiltersGroup, MapFiltersItem } from './models/maps/map-filters.model';
+import { MapFiltersGroup } from './models/maps/map-filters.model';
 import MapFilterWrapperComponent from './components/map-filters/map-filter-wrapper.component';
 import { MapItem } from './models/maps/map.model';
 import LayerFormButton from './components/forms/buttons/layer-form-button.component';
 import Modal from 'react-modal';
 import MapFormButton from './components/forms/buttons/map-form-button.component';
+import { Prisma, PrismaClient } from '@prisma/client';
+import MapFilterComponent from './components/map-filters/map-filter.component';
+import {Map as PrismaMap} from '@prisma/client'
 
 // Remove this when we have a way to get layers correctly
 const manhattaLayerSections: SectionLayerItem[] = [
@@ -156,40 +159,9 @@ styling1: "knownfull",
 year1: "1654",
 type: "dutch-grant",
 }
-const defaultMap: MapFiltersItem = {
-  id: 0,
-  name: 'clm2yrx1y025401p93v26bhyl',
-  label: 'Current Satellite',
-  defaultCheckedForBeforeMap: true,
-  defaultCheckedForAfterMap: false,
-  showInfoButton: true,
-  showZoomButton: false,
-  mapId: 'clm2yrx1y025401p93v26bhyl'
-}
-
-const displayedMaps: MapFiltersItem[] = [
-  {
-    id: 0,
-    name: 'clm2yu5fg022801phfh479c8x',
-    label: '1660 Original Castello Plan',
-    defaultCheckedForBeforeMap: false,
-    defaultCheckedForAfterMap: false,
-    showInfoButton: true,
-    showZoomButton: true,
-    mapId: 'clm2yu5fg022801phfh479c8x'
-  }
-]
-
-const mapFilterGroups: MapFiltersGroup[] = [
-  {
-    id: 0,
-    name: '1660 | Castello Plans',
-    label: '1660 | Castello Plans',
-    maps: displayedMaps
-  }
-]
 
 const beforeMapItem: MapItem = {
+  name: '1660 Original Castello Plan',
   mapId: 'cjooubzup2kx52sqdf9zmmv2j',
   center: [-74.01454, 40.70024],
   zoom: 15.09,
@@ -198,6 +170,7 @@ const beforeMapItem: MapItem = {
 }
 
 const afterMapItem: MapItem = {
+  name: 'Castello Plan',
   mapId: 'cjowjzrig5pje2rmmnjb5b0y2',
   center: [-74.01454, 40.70024],
   zoom: 15.09,
@@ -220,7 +193,75 @@ export default function Home() {
   const [activeLayerIds, setActiveLayerIds] = useState<string[]>([]);
   const [mapLoaded, setMapLoaded] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
+  const [mappedFilterItemGroups, setMappedFilterItemGroups] = useState<MapFiltersGroup[]>([]);
 
+  useEffect(() => {
+    fetch('http://localhost:3000/api/map', {
+      method: 'GET',
+      headers: {
+          'Content-Type': 'application/json',
+      }
+    }).then(maps => {
+        maps.json().then(parsed => {
+          console.log('parsed from fetch:', parsed);
+          if(!!parsed && !!parsed.maps && parsed.maps.length) {
+            let mapFilterGroups: MapFiltersGroup[] = [
+              {
+                id: 0,
+                name: '1660 | Castello Plans',
+                label: '1660 | Castello Plans',
+                maps: parsed.maps.map((x: PrismaMap) => {
+                  let newDBMap: MapItem = {
+                    mapId: x.mapId,
+                    center: [x.long, x.lat],
+                    zoom: x.zoom,
+                    bearing: x.bearing,
+                    attributionControl: x.attributionControl,
+                    name: x.name
+                  }
+                  return newDBMap
+                })
+              }
+            ]
+            setMappedFilterItemGroups(mapFilterGroups)
+          }
+        })
+    }).catch(err => {
+      console.error(err);
+    })
+  }, [])
+
+  useEffect(() => {
+    fetch('http://localhost:3000/api/layer', {
+      method: 'GET',
+      headers: {
+          'Content-Type': 'application/json',
+      }
+    }).then(maps => {
+        maps.json().then(parsed => {
+          console.log('parsed labels from fetch:', parsed);
+          // if(!!parsed && !!parsed.maps && parsed.maps.length) {
+          //   setMappedFilterItems(parsed.maps.map(x => {
+          //     let newDBMap: MapItem = {
+          //       mapId: x.infoId,
+          //       center: [x.longitude, x.latitude],
+          //       zoom: x.zoom,
+          //       bearing: x.bearing,
+          //       attributionControl: x.attributionControl,
+          //       name: x.name
+          //     }
+          //     return newDBMap
+          //   }))
+          // }
+        })
+    }).catch(err => {
+      console.error(err);
+    })
+  }, [])
+
+  useEffect(() => {
+    console.log(mappedFilterItemGroups)
+  }, [mappedFilterItemGroups])
 
   useEffect(() => {
     import('mapbox-gl-compare').then((mod) => {
@@ -470,7 +511,7 @@ export default function Home() {
         <br />
         <SectionLayerComponent activeLayers={activeLayerIds} activeLayerCallback={(newActiveLayers: string[]) => {setActiveLayerIds(newActiveLayers)}} layersHeader={manhattaLayer.label} layer={manhattaLayer} />
         
-        <MapFilterWrapperComponent beforeMapCallback={() => {}} afterMapCallback={() => {}} defaultMap={defaultMap} mapGroups={mapFilterGroups} />
+        <MapFilterWrapperComponent beforeMapCallback={() => {}} afterMapCallback={() => {}} defaultMap={beforeMapItem} mapGroups={mappedFilterItemGroups} />
       </div>)}
 
       <MapComparisonComponent
