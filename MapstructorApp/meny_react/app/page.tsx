@@ -24,6 +24,7 @@ import MapFormButton from './components/forms/buttons/map-form-button.component'
 import { Prisma, PrismaClient } from '@prisma/client';
 import MapFilterComponent from './components/map-filters/map-filter.component';
 import {Map as PrismaMap, Layer as PrismaLayer} from '@prisma/client';
+import { MapCompareFilters } from './models/all-filters/all-filters.model';
  
 // Remove this when we have a way to get layers correctly
 const manhattaLayerSections: SectionLayerItem[] = [
@@ -197,6 +198,31 @@ export default function Home() {
   const [extraLayers, setExtraLayers] = useState<SectionLayerItem[]>([]);
   const [currMaps, setCurrMaps] = useState<PrismaMap[]>([]);
   const [currLayers, setCurrLayers] = useState<PrismaLayer[]>([]);
+  const [currFilters, setCurrFilters] = useState<MapCompareFilters>();
+
+  const getMapFromMapItem = (mapItem: MapItem): mapboxgl.Map => {
+    return new mapboxgl.Map({
+      container: beforeMapContainerRef.current as HTMLElement,
+      style: `mapbox://styles/nittyjee/${mapItem.styleId.trim()}`,
+      center: mapItem.center,
+      zoom: mapItem.zoom,
+      bearing: mapItem.bearing,
+      attributionControl: true,
+    });
+  }
+
+  useEffect(() => {
+    let compareFilters: MapCompareFilters = {
+      beforeMap: currMaps[0],
+      afterMap: currMaps[1],
+      selectedLayers: currLayers,
+      date: currDate ?? moment()
+    }
+    setCurrFilters(compareFilters)
+    console.log(compareFilters)
+  }, [currDate, currLayers, currMaps])
+
+
 
   useEffect(() => {
     fetch('http://localhost:3000/api/map', {
@@ -242,9 +268,10 @@ export default function Home() {
           'Content-Type': 'application/json',
       }
     }).then(layers => {
-        layers?.json()?.then(parsed => {
+        layers.json().then(parsed => {
           console.log('parsed labels from fetch:', parsed);
           if(!!parsed && !!parsed.layers && parsed.layers.length) {
+            console.log(parsed.layers)
             setCurrLayers(parsed.layers);
             let mappedLayerItems: SectionLayerItem[] = parsed.layers.map((x: PrismaLayer) => {
               let sectionItem: SectionLayerItem = {
@@ -341,7 +368,7 @@ export default function Home() {
         };
       };
     }
-  }, [MapboxCompare]);
+  }, [MapboxCompare, beforeMap, afterMap]);
 
   useEffect(() => {
     if(!mapLoaded) return; 
@@ -513,10 +540,18 @@ export default function Home() {
         <p className="title">LAYERS</p>
         <br />
         <SectionLayerComponent activeLayers={activeLayerIds} activeLayerCallback={(newActiveLayers: string[]) => {setActiveLayerIds(newActiveLayers)}} layersHeader={manhattaLayer.label} layer={manhattaLayer} />
-        
 
-
-        <MapFilterWrapperComponent beforeMapCallback={() => {}} afterMapCallback={() => {}} defaultMap={beforeMapItem} mapGroups={mappedFilterItemGroups} />
+        <MapFilterWrapperComponent beforeMapCallback={(map) => {
+          let parsedMap = getMapFromMapItem(map);
+          if(!!parsedMap) {
+            beforeMap.current = parsedMap
+          }
+        }} afterMapCallback={(map) => {
+          let parsedMap = getMapFromMapItem(map);
+          if(!!parsedMap) {
+            afterMap.current = parsedMap
+          }
+        }} defaultMap={beforeMapItem} mapGroups={mappedFilterItemGroups} />
       </div>)}
 
       <MapComparisonComponent

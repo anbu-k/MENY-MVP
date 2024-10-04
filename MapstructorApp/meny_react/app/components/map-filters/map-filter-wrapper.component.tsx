@@ -21,12 +21,12 @@ const MapFilterWrapperComponent = (props: MapFilterWrapperProps) => {
         <>
         <div>
             <p className="title">MAPS</p>
-            <MapFilterComponent map={props.defaultMap} displayZoomButton={false} displayInfoButton></MapFilterComponent>
+            <MapFilterComponent beforeMapCallback={props.beforeMapCallback} afterMapCallback={props.afterMapCallback} map={props.defaultMap} displayZoomButton={false} displayInfoButton></MapFilterComponent>
             <br />
             <div id="maps-group">
                 {
                     props.mapGroups.map(m => (
-                        <MapFiltersGroupComponent group={m}></MapFiltersGroupComponent>
+                        <MapFiltersGroupComponent beforeMapCallback={props.beforeMapCallback} afterMapCallback={props.afterMapCallback} group={m}></MapFiltersGroupComponent>
                     ))
                 }
             </div>

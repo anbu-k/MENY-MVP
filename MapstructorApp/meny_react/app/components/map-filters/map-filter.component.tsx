@@ -7,7 +7,9 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 type MapFilterComponentProps = {
     map: MapItem,
     displayZoomButton: boolean,
-    displayInfoButton: boolean
+    displayInfoButton: boolean,
+    beforeMapCallback: (map: MapItem) => void,
+    afterMapCallback: (map: MapItem) => void
 }
 
 const MapFilterComponent = (props: MapFilterComponentProps) => {
@@ -19,6 +21,7 @@ const MapFilterComponent = (props: MapFilterComponentProps) => {
                     className={props.map.mapId}
                     type="radio"
                     name="ltoggle"
+                    onClick={() => props.beforeMapCallback(props.map)}
                     value={props.map.mapId}
                     style={{
                         margin: "2px"
@@ -28,6 +31,7 @@ const MapFilterComponent = (props: MapFilterComponentProps) => {
                     className={props.map.mapId}
                     type="radio"
                     name="rtoggle"
+                    onClick={() => props.afterMapCallback(props.map)}
                     value={props.map.mapId}
                 />
                 &nbsp;

@@ -8,7 +8,6 @@ export default function LayerForm() {
       initialValues:{
         layerName: "",
         type: "",
-        sectionName: "",
         sourceType: "",
         sourceUrl: "",
         sourceId: "",
