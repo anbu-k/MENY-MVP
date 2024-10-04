@@ -56,9 +56,9 @@ model Layer {
   type             String
   LayerSectionData LayerSectionData? @relation(fields: [sectionName], references: [name])
   sectionName      String?           @db.ObjectId
-  sourceType       String?
+  sourceType       String
   sourceUrl        String
   sourceId         String
-  visibility       Boolean?
   paint            String?
+  sourceLayer      String
 }
