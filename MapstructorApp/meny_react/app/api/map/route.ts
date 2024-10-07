@@ -5,6 +5,11 @@ import { NextResponse } from "next/server";
 
 const prisma = new PrismaClient();
 
+/*
+    - update POST methods for new model
+    - test
+*/
+
 export async function GET() {
     const maps = (await prisma.map.findMany());
 
@@ -23,7 +28,7 @@ export async function POST(request: Request) { //create
 
         console.log("<================== POST ==================>: ", m);
 
-        if (!m.name || m.styleId === undefined || !m.longitude || !m.latitude || !m.zoom || !m.bearing
+        if (!m.name || !m.styleId || !m.longitude || !m.latitude || !m.zoom || !m.bearing || !m.mapId
         ) { //check to see if the JSON is vaild
             console.log("ERROR: MISSING DATA -- SENDING 400");
             console.error("Validation error: Missing required fields", m);
