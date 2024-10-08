@@ -36,14 +36,14 @@ model MapFilterItem{
     showInfoButton             Boolean
     showZoomButton             Boolean
     mapId                      String @unique
-    mapfiltergroup             MapFilterGroup @relation(fields: [mapId], references: [mapId])
+    mapfiltergroup             MapFilterGroup? @relation(fields: [mapId], references: [mapId])
 }
 
 model MapFilterGroup{
   id             String @id @default(auto()) @map("_id") @db.ObjectId 
   name           String
   label          String
-  map            Map @relation(fields: [mapId], references: [mapId])
+  map            Map? @relation(fields: [mapId], references: [mapId])
   mapId          String @unique
   MapFilterItemp MapFilterItem[]
 }

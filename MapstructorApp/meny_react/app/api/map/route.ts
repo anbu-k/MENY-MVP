@@ -63,6 +63,7 @@ export async function POST(request: Request) { //create
                 bearing: m.bearing
             },
         });
+
         console.log("<================== POST COMPELETE ==================>: ", newMap.id);
         return NextResponse.json({ //send success and the newmap data back 
             message: "Success",
