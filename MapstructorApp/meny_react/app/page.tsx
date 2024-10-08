@@ -13,7 +13,7 @@ import { FontAwesomeLayerIcons } from "./models/font-awesome.model";
 import {CSSTransition} from 'react-transition-group';
 "./global.css";
 import MapComparisonComponent from "./components/map/map-compare-container.component";
-import mapboxgl, { FilterSpecification, Map } from 'mapbox-gl'; 
+import mapboxgl, { FilterSpecification, Layer, Map } from 'mapbox-gl'; 
 import { addBeforeLayers } from "./components/maps/beforemap";
 import { MapFiltersGroup, MapFiltersItem } from './models/maps/map-filters.model';
 import MapFilterWrapperComponent from './components/map-filters/map-filter-wrapper.component';
@@ -209,7 +209,7 @@ mapboxgl.accessToken = 'pk.eyJ1IjoibWFwbnkiLCJhIjoiY2xtMG93amk4MnBrZTNnczUzY2VvY
 export default function Home() {
   const [currDate, setCurrDate] = useState<moment.Moment | null>(null);
   const [popUp, setPopUp] = useState<GenericPopUpProps | null>(dutchGrantPopupTest);
-  const [popUpVisible, setPopUpVisible] = useState(true);
+  const [popUpVisible, setPopUpVisible] = useState(false);
   const [layerPanelVisible, setLayerPanelVisible] = useState(true);
   const [MapboxCompare, setMapboxCompare] = useState<any>(null);
   const beforeMapContainerRef = useRef<HTMLDivElement>(null);
@@ -221,6 +221,98 @@ export default function Home() {
   const [mapLoaded, setMapLoaded] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
 
+  const getMapFromMapItem = (mapItem: MapItem): mapboxgl.Map => {
+    return new mapboxgl.Map({
+      container: beforeMapContainerRef.current as HTMLElement,
+      style: `mapbox://styles/nittyjee/${mapItem.styleId.trim()}`,
+      center: mapItem.center,
+      zoom: mapItem.zoom,
+      bearing: mapItem.bearing,
+      attributionControl: true,
+    });
+  }
+
+  // useEffect(() => {
+  //   let compareFilters: MapCompareFilters = {
+  //     beforeMap: currMaps[0],
+  //     afterMap: currMaps[1],
+  //     selectedLayers: currLayers,
+  //     date: currDate ?? moment()
+  //   }
+  //   setCurrFilters(compareFilters)
+  //   console.log(compareFilters)
+  // }, [currDate, currLayers, currMaps])
+
+
+
+  // useEffect(() => {
+  //   fetch('http://localhost:3000/api/map', {
+  //     method: 'GET',
+  //     headers: {
+  //         'Content-Type': 'application/json',
+  //     }
+  //   }).then(maps => {
+  //       maps.json().then(parsed => {
+  //         console.log('parsed from fetch:', parsed);
+  //         if(!!parsed && !!parsed.maps && parsed.maps.length) {
+  //           setCurrMaps(parsed.maps);
+  //           let mapFilterGroups: MapFiltersGroup[] = [
+  //             {
+  //               id: 0,
+  //               name: '1660 | Castello Plans',
+  //               label: '1660 | Castello Plans',
+  //               maps: parsed.maps.map((x: PrismaMap) => {
+  //                 let newDBMap: MapItem = {
+  //                   mapId: x.mapId,
+  //                   center: [x.longitude, x.latitude],
+  //                   zoom: x.zoom,
+  //                   bearing: x.bearing,
+  //                   styleId: x.styleId,
+  //                   name: x.name
+  //                 }
+  //                 return newDBMap
+  //               })
+  //             }
+  //           ]
+  //           setMappedFilterItemGroups(mapFilterGroups)
+  //         }
+  //       })
+  //   }).catch(err => {
+  //     console.error(err);
+  //   })
+  // }, [])
+
+  // useEffect(() => {
+  //   fetch('http://localhost:3000/api/layer', {
+  //     method: 'GET',
+  //     headers: {
+  //         'Content-Type': 'application/json',
+  //     }
+  //   }).then(layers => {
+  //       layers.json().then(parsed => {
+  //         console.log('parsed labels from fetch:', parsed);
+  //         if(!!parsed && !!parsed.layers && parsed.layers.length) {
+  //           console.log(parsed.layers)
+  //           setCurrLayers(parsed.layers);
+  //           let mappedLayerItems: SectionLayerItem[] = parsed.layers.map((x: PrismaLayer) => {
+  //             let sectionItem: SectionLayerItem = {
+  //               id: 0,
+  //               label: x.layerName,
+  //               iconColor: IconColors.BLUE,
+  //               iconType: FontAwesomeLayerIcons.PLUS_SQUARE,
+  //               isSolid: false
+  //             }
+  //           })
+  //         }
+  //       })
+  //   }).catch(err => {
+  //     console.error(err);
+  //   })
+  // }, [])
+
+  // useEffect(() => {
+  //   console.log(mappedFilterItemGroups)
+  // }, [mappedFilterItemGroups])
 
   useEffect(() => {
     import('mapbox-gl-compare').then((mod) => {
@@ -255,14 +347,14 @@ export default function Home() {
     beforeMap.current.on('load', () => {
       if(beforeMap.current)
       {
-        addBeforeLayers(beforeMap.current, '2024-09-16');
+        addBeforeLayers(beforeMap.current, currDate!);
       }
     });
 
     afterMap.current.on('load', () => {
       if(afterMap.current)
       {
-        addBeforeLayers(afterMap.current, '2024-09-16');
+        addBeforeLayers(afterMap.current, currDate!);
       }
     });
 
@@ -297,7 +389,86 @@ export default function Home() {
         };
       };
     }
-  }, [MapboxCompare]);
+     //Following lines set hover functionality for dutch grants 
+    // const popup = new mapboxgl.Popup({
+    //   closeButton: false,
+    //   closeOnClick: false,
+    //   offset: 5,
+      
+    // });
+    // let hoveredPolygonId: any = null;
+    // beforeMap.current!.on('mousemove', 'dutch_grants-5ehfqe', (e) => {
+    //   if (e.features!.length > 0) {
+    //     if (hoveredPolygonId !== null) {
+    //       beforeMap.current!.setFeatureState(
+    //         { source: "dutch_grants-5ehfqe", sourceLayer: "dutch_grants-5ehfqe", id: hoveredPolygonId },
+    //         { hover: false }
+    //       );
+    //     }
+    //     hoveredPolygonId = e.features![0].id;
+    //     console.log(e.features![0].id);
+    //     beforeMap.current!.setFeatureState(
+    //       { source: "dutch_grants-5ehfqe", sourceLayer: "dutch_grants-5ehfqe", id: hoveredPolygonId },
+    //       { hover: true }
+    //     );
+    //   }
+    // });
+
+    // beforeMap.current!.on('mouseleave', 'dutch_grants-5ehfqe', () => {
+    //   if (hoveredPolygonId !== null) {
+    //     beforeMap.current!.setFeatureState(
+    //       { source: "dutch_grants-5ehfqe", sourceLayer: "dutch_grants-5ehfqe", id: hoveredPolygonId },
+    //       { hover: false }
+    //     );
+    //   }
+    //   hoveredPolygonId = null;
+    // });
+
+    // afterMap.current!.on('mousemove', 'dutch_grants-5ehfqe', (e) => {
+    //   if (e.features!.length > 0) {
+    //     if (hoveredPolygonId !== null) {
+    //       afterMap.current!.setFeatureState(
+    //         { source: "dutch_grants-5ehfqe", sourceLayer: "dutch_grants-5ehfqe", id: hoveredPolygonId },
+    //         { hover: false }
+    //       );
+    //     }
+    //     hoveredPolygonId = e.features![0].id;
+    //     console.log("e.features![0]: ");
+    //     console.log(e.features![0]);
+    //     console.log("e.features[0].id: ");
+    //     console.log(e.features![0].id);
+    //     afterMap.current!.setFeatureState(
+    //       { source: "dutch_grants-5ehfqe", sourceLayer: "dutch_grants-5ehfqe", id: hoveredPolygonId },
+    //       { hover: true }
+    //     );
+        
+    //   }
+    // });
+
+    // afterMap.current!.on('mouseleave', 'dutch_grants-5ehfqe', () => {
+    //   if (hoveredPolygonId !== null) {
+    //     afterMap.current!.setFeatureState(
+    //       { source: "dutch_grants-5ehfqe", sourceLayer: "dutch_grants-5ehfqe", id: hoveredPolygonId },
+    //       { hover: false }
+    //     );
+    //   }
+    //   hoveredPolygonId = null;
+    // });
+    // //Popup functionality for dutch grants
+    
+    // afterMap.current.on('mouseover', 'dutch_grants-5ehfqe', (e) => {
+    //   afterMap.current!.getCanvas().style.cursor = 'pointer';
+    //   let popupHtml: string = `<div class='infoLayerDutchGrantsPopUp'><b>Name:</b> ${e.features![0].properties!.name}<br><b>Dutch Grant Lot:</b> ${e.features![0].properties!.Lot}</div>`;
+    //   popup.setLngLat(e.lngLat).setHTML(popupHtml).addTo(afterMap.current!);
+    //   console.log("Popup: ");
+    //   console.log(popup);
+    // });
+
+    // afterMap.current.on('mouseleave', 'dutch_grants-5ehfqe', () => {
+    //   afterMap.current!.getCanvas().style.cursor = '';
+    //   popup.remove();
+    // });
+}, [MapboxCompare, beforeMap, afterMap]);
 
   useEffect(() => {
     if(!mapLoaded) return; 
