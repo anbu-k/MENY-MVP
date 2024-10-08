@@ -2,8 +2,8 @@ import { Layer, Map } from "@prisma/client"
 import { Moment } from "moment"
 
 export type MapCompareFilters = {
-    beforeMap: Map,
-    afterMap: Map,
+    beforeMap?: mapboxgl.Map,
+    afterMap?: mapboxgl.Map,
     selectedLayers: Layer[],
     date: Moment
 }

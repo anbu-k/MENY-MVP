@@ -1,6 +1,6 @@
 'use client'
 import moment from 'moment';
-import { useEffect, useRef, useState } from "react";
+import { MutableRefObject, useEffect, useRef, useState } from "react";
 import SliderWithDatePanel from "./components/slider/slider-with-date-panel.component";
 import { GenericPopUpProps } from "./models/popups/generic-pop-up.model";
 import SliderPopUp from "./components/right-info-bar/popups/pop-up";
@@ -13,8 +13,7 @@ import { FontAwesomeLayerIcons } from "./models/font-awesome.model";
 import {CSSTransition} from 'react-transition-group';
 "./global.css";
 import MapComparisonComponent from "./components/map/map-compare-container.component";
-import mapboxgl, { FilterSpecification, Map } from 'mapbox-gl'; 
-import { addBeforeLayers } from "./components/maps/beforemap";
+import mapboxgl, { FilterSpecification, Map } from 'mapbox-gl';
 import { MapFiltersGroup } from './models/maps/map-filters.model';
 import MapFilterWrapperComponent from './components/map-filters/map-filter-wrapper.component';
 import { MapItem } from './models/maps/map.model';
@@ -189,8 +188,6 @@ export default function Home() {
   const beforeMapContainerRef = useRef<HTMLDivElement>(null);
   const afterMapContainerRef = useRef<HTMLDivElement>(null);
   const comparisonContainerRef = useRef<HTMLDivElement>(null);
-  const beforeMap = useRef<Map | null>(null);
-  const afterMap = useRef<Map | null>(null);
   const [activeLayerIds, setActiveLayerIds] = useState<string[]>([]);
   const [mapLoaded, setMapLoaded] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
@@ -199,31 +196,49 @@ export default function Home() {
   const [currMaps, setCurrMaps] = useState<PrismaMap[]>([]);
   const [currLayers, setCurrLayers] = useState<PrismaLayer[]>([]);
   const [currFilters, setCurrFilters] = useState<MapCompareFilters>();
+  const [defaultBeforeMap, setDefaultBeforeMap] = useState<mapboxgl.Map>();
+  const [defaultAfterMap, setDefaultAfterMap] = useState<mapboxgl.Map>();
+  const currBeforeMap = useRef<mapboxgl.Map | null>(null);
+  const currAfterMap = useRef<mapboxgl.Map | null>(null);
 
   const getMapFromMapItem = (mapItem: MapItem): mapboxgl.Map => {
-    return new mapboxgl.Map({
+    console.log(mapItem);
+    const returnMap = new mapboxgl.Map({
       container: beforeMapContainerRef.current as HTMLElement,
-      style: `mapbox://styles/nittyjee/${mapItem.styleId.trim()}`,
+      style: `mapbox://styles/nittyjee/${mapItem.mapId.trim()}`,
       center: mapItem.center,
       zoom: mapItem.zoom,
       bearing: mapItem.bearing,
       attributionControl: true,
     });
+    console.log(returnMap);
+    return returnMap;
   }
 
+  const setMapStyle = (map: MutableRefObject<mapboxgl.Map | null>, mapId: string) => {
+    if(map?.current) {
+      map.current.setStyle(`mapbox://styles/nittyjee/${mapId.trim()}`)
+    }
+  }
+
+  /**
+   * Every time the Before Map, After Map, Selected Layers, or Date is selected, update the global variables.
+   */
   useEffect(() => {
     let compareFilters: MapCompareFilters = {
-      beforeMap: currMaps[0],
-      afterMap: currMaps[1],
+      beforeMap: currBeforeMap.current ?? defaultBeforeMap ?? undefined,
+      afterMap: currAfterMap.current ?? defaultAfterMap ?? undefined,
       selectedLayers: currLayers,
       date: currDate ?? moment()
     }
     setCurrFilters(compareFilters)
-    console.log(compareFilters)
-  }, [currDate, currLayers, currMaps])
+    console.log('filters: ', compareFilters)
+  }, [currDate, currLayers, currBeforeMap, currAfterMap])
 
 
-
+  /**
+   * When the page is loaded, get all maps / layers from the API, parse these to work with our frontend models.
+   */
   useEffect(() => {
     fetch('http://localhost:3000/api/map', {
       method: 'GET',
@@ -231,7 +246,8 @@ export default function Home() {
           'Content-Type': 'application/json',
       }
     }).then(maps => {
-        maps.json().then(parsed => {
+      console.log(maps)
+        maps.json()?.then(parsed => {
           console.log('parsed from fetch:', parsed);
           if(!!parsed && !!parsed.maps && parsed.maps.length) {
             setCurrMaps(parsed.maps);
@@ -255,6 +271,8 @@ export default function Home() {
             ]
             setMappedFilterItemGroups(mapFilterGroups)
           }
+        }).catch(err => {
+          console.error('failed to convert to json: ', err)
         })
     }).catch(err => {
       console.error(err);
@@ -283,27 +301,32 @@ export default function Home() {
               }
             })
           }
+        }).catch(err => {
+          console.error('failed to convert to json: ', err)
         })
     }).catch(err => {
       console.error(err);
     })
   }, [])
 
-  useEffect(() => {
-    console.log(mappedFilterItemGroups)
-  }, [mappedFilterItemGroups])
-
+  /**
+   * Dynamic import for mapbox-gl-compare package to allow it to be imported. Once they release a TS package, that can be added to NPM and this can be removed.
+   */
   useEffect(() => {
     import('mapbox-gl-compare').then((mod) => {
       setMapboxCompare(() => mod.default);
     });
   }, []);
 
+  /**
+   * On first load (When Mapbox defaults haven't been loaded yet, but the dynamic import is complete), create defaults for the before/after map and initialize everything
+   */
   useEffect(() => {
     if (!MapboxCompare || !comparisonContainerRef.current) return;
+    if (defaultBeforeMap === null || defaultAfterMap === null) return;
     setMapLoaded(true);
 
-    beforeMap.current = new mapboxgl.Map({
+    const defBeforeMap = new mapboxgl.Map({
       container: beforeMapContainerRef.current as HTMLElement,
       style: 'mapbox://styles/nittyjee/cjooubzup2kx52sqdf9zmmv2j',
       center: [-74.01454, 40.70024],
@@ -311,8 +334,8 @@ export default function Home() {
       bearing: -51.3,
       attributionControl: false,
     });
-
-    afterMap.current = new mapboxgl.Map({
+  
+    const defAfterMap = new mapboxgl.Map({
       container: afterMapContainerRef.current as HTMLElement,
       style: 'mapbox://styles/nittyjee/cjowjzrig5pje2rmmnjb5b0y2',
       center: [-74.01454, 40.70024],
@@ -321,21 +344,26 @@ export default function Home() {
       attributionControl: false,
     });
 
-    const mapboxCompare = new MapboxCompare(beforeMap.current, afterMap.current, comparisonContainerRef.current as HTMLElement);
+    setDefaultBeforeMap(defBeforeMap);
+    setDefaultAfterMap(defAfterMap);
 
-    beforeMap.current.on('load', () => {
-      if(beforeMap.current)
-      {
-        addBeforeLayers(beforeMap.current, '2024-09-16');
-      }
-    });
+    currBeforeMap.current = defBeforeMap;
+    currAfterMap.current = defAfterMap;
+    const mapboxCompare = new MapboxCompare(currBeforeMap.current, currAfterMap.current, comparisonContainerRef.current as HTMLElement);
 
-    afterMap.current.on('load', () => {
-      if(afterMap.current)
-      {
-        addBeforeLayers(afterMap.current, '2024-09-16');
-      }
-    });
+    // if(currBeforeMap.current)
+    // {
+    //   currBeforeMap.current.on('load', () => {
+    //       addBeforeLayers(currBeforeMap.current!, '2024-09-16');
+    //   });
+    // }
+
+    // if(currAfterMap.current)
+    // {
+    //   currAfterMap.current!.on('load', () => {
+    //       addBeforeLayers(currAfterMap.current!, '2024-09-16');
+    //   });
+    // }
 
     const compareSwiper = document.querySelector('.compare-swiper') as HTMLElement;
     if (compareSwiper && !modalOpen) {
@@ -368,7 +396,44 @@ export default function Home() {
         };
       };
     }
-  }, [MapboxCompare, beforeMap, afterMap]);
+  }, [MapboxCompare]);
+
+  useEffect(() => {
+    if (!MapboxCompare || !comparisonContainerRef.current) return;
+    const mapboxCompare = new MapboxCompare(currBeforeMap.current, currAfterMap.current, comparisonContainerRef.current as HTMLElement);
+
+    const compareSwiper = document.querySelector('.compare-swiper') as HTMLElement;
+    if (compareSwiper && !modalOpen) {
+      compareSwiper.innerHTML = ''; 
+
+      const circleHandle = document.createElement('div');
+      circleHandle.classList.add('compare-circle');  
+      circleHandle.innerHTML = '<span>⏴⏵</span>';  
+
+      compareSwiper.appendChild(circleHandle);
+
+      circleHandle.onmousedown = function (e: MouseEvent) {
+        e.preventDefault();
+
+        const containerWidth = comparisonContainerRef.current?.offsetWidth || 1;
+
+        document.onmousemove = function (e) {
+          let newLeft = e.clientX;
+
+          newLeft = Math.max(0, Math.min(newLeft, containerWidth));
+
+          compareSwiper.style.left = `${newLeft}px`;
+
+          const swiperPosition = newLeft / containerWidth;  
+          mapboxCompare.setSlider(swiperPosition * containerWidth);  
+        };
+
+          document.onmouseup = function () {
+          document.onmousemove = null;
+        };
+      };
+    }
+  }, [currBeforeMap, currAfterMap])
 
   useEffect(() => {
     if(!mapLoaded) return; 
@@ -378,11 +443,11 @@ export default function Home() {
     // show and hide accordingly by setting layer visibility
     allLayerIds.forEach((layerId) => {
       if (activeLayerIds.includes(layerId)) {
-        beforeMap.current!.setLayoutProperty(layerId, 'visibility', 'visible');
-        afterMap.current!.setLayoutProperty(layerId, 'visibility', 'visible');
+        currBeforeMap.current!.setLayoutProperty(layerId, 'visibility', 'visible');
+        currAfterMap.current!.setLayoutProperty(layerId, 'visibility', 'visible');
       } else {
-        beforeMap.current!.setLayoutProperty(layerId, 'visibility', 'none');
-        afterMap.current!.setLayoutProperty(layerId, 'visibility', 'none');
+        currBeforeMap.current!.setLayoutProperty(layerId, 'visibility', 'none');
+        currAfterMap.current!.setLayoutProperty(layerId, 'visibility', 'none');
       }
     });
   }, [activeLayerIds]);
@@ -394,12 +459,12 @@ export default function Home() {
 
   //LAYERS FOR FILTERING
   ["dutch_grants-5ehfqe", "dutch_grants-5ehfqe-highlighted", "grant-lots-lines"].forEach(id => {
-    beforeMap.current!.setFilter(id, dateFilter)
-    afterMap.current!.setFilter(id, dateFilter)
+    currBeforeMap.current!.setFilter(id, dateFilter)
+    currAfterMap.current!.setFilter(id, dateFilter)
   })
 
-  beforeMap.current!.setFilter("lot_events-bf43eb", dateFilter);
-  afterMap.current!.setFilter("lot_events-bf43eb", dateFilter);
+  currBeforeMap.current!.setFilter("lot_events-bf43eb", dateFilter);
+  currAfterMap.current!.setFilter("lot_events-bf43eb", dateFilter);
   }, [currDate]);
 
   Modal.setAppElement('#app-body');
@@ -543,14 +608,19 @@ export default function Home() {
 
         <MapFilterWrapperComponent beforeMapCallback={(map) => {
           let parsedMap = getMapFromMapItem(map);
-          if(!!parsedMap) {
-            beforeMap.current = parsedMap
-          }
+          console.log('got map for beforeMap', map, parsedMap)
+          setMapStyle(currBeforeMap, map.mapId);
+          // if(parsedMap !== null) {
+          //   currBeforeMap.current = parsedMap
+          // }
         }} afterMapCallback={(map) => {
           let parsedMap = getMapFromMapItem(map);
-          if(!!parsedMap) {
-            afterMap.current = parsedMap
-          }
+          console.log('got map for afterMap', map, parsedMap)
+          setMapStyle(currAfterMap, map.mapId);
+
+          // if(parsedMap !== null) {
+          //   currAfterMap.current = parsedMap
+          // }
         }} defaultMap={beforeMapItem} mapGroups={mappedFilterItemGroups} />
       </div>)}
 
@@ -560,8 +630,8 @@ export default function Home() {
         afterMapContainerRef={afterMapContainerRef}
         beforeMap={beforeMapItem} 
         afterMap={afterMapItem}
-        beforeMapRef={beforeMap}
-        afterMapRef={afterMap}
+        beforeMapRef={currBeforeMap}
+        afterMapRef={currAfterMap}
       ></MapComparisonComponent>
 
       <div id="mobi-view-sidebar"><i className="fa fa-bars fa-2x"></i></div>
