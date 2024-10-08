@@ -13,7 +13,7 @@ import { FontAwesomeLayerIcons } from "./models/font-awesome.model";
 import {CSSTransition} from 'react-transition-group';
 "./global.css";
 import MapComparisonComponent from "./components/map/map-compare-container.component";
-import mapboxgl, { FilterSpecification, Map } from 'mapbox-gl';
+import mapboxgl, { FilterSpecification, Map, Layer, FillLayerSpecification, LayerSpecification } from 'mapbox-gl';
 import { MapFiltersGroup } from './models/maps/map-filters.model';
 import MapFilterWrapperComponent from './components/map-filters/map-filter-wrapper.component';
 import { MapItem } from './models/maps/map.model';
@@ -24,6 +24,8 @@ import { Prisma, PrismaClient } from '@prisma/client';
 import MapFilterComponent from './components/map-filters/map-filter.component';
 import {Map as PrismaMap, Layer as PrismaLayer} from '@prisma/client';
 import { MapCompareFilters } from './models/all-filters/all-filters.model';
+import { AnyLayer } from 'mapbox-gl';
+import { FillLayer } from 'mapbox-gl';
  
 // Remove this when we have a way to get layers correctly
 const manhattaLayerSections: SectionLayerItem[] = [
@@ -202,7 +204,6 @@ export default function Home() {
   const currAfterMap = useRef<mapboxgl.Map | null>(null);
 
   const getMapFromMapItem = (mapItem: MapItem): mapboxgl.Map => {
-    console.log(mapItem);
     const returnMap = new mapboxgl.Map({
       container: beforeMapContainerRef.current as HTMLElement,
       style: `mapbox://styles/nittyjee/${mapItem.mapId.trim()}`,
@@ -211,7 +212,6 @@ export default function Home() {
       bearing: mapItem.bearing,
       attributionControl: true,
     });
-    console.log(returnMap);
     return returnMap;
   }
 
@@ -219,6 +219,37 @@ export default function Home() {
     if(map?.current) {
       map.current.setStyle(`mapbox://styles/nittyjee/${mapId.trim()}`)
     }
+  }
+
+  const addMapLayer = (map: MutableRefObject<mapboxgl.Map | null>, layerConfig: PrismaLayer, layerDate: Date) => {
+    if(map?.current == null) return;
+
+    map.current.addLayer(
+      {
+        //ID: CHANGE THIS, 1 OF 3
+        id: layerConfig.id,
+        type: "fill",
+        source: {
+          type: 'vector',
+          //URL: CHANGE THIS, 2 OF 3
+          url: layerConfig.sourceUrl,
+        },
+        layout: {
+          visibility: "visible"
+        },
+        "source-layer": layerConfig.sourceLayer,
+        paint: {
+          "fill-color": "#e3ed58",
+          "fill-opacity": [
+            "case",
+            ["boolean", ["feature-state", "hover"], false],
+            0.8,
+            0.45,
+          ],
+          "fill-outline-color": "#FF0000",
+        },
+      }
+    );
   }
 
   /**
@@ -232,7 +263,6 @@ export default function Home() {
       date: currDate ?? moment()
     }
     setCurrFilters(compareFilters)
-    console.log('filters: ', compareFilters)
   }, [currDate, currLayers, currBeforeMap, currAfterMap])
 
 
@@ -246,9 +276,7 @@ export default function Home() {
           'Content-Type': 'application/json',
       }
     }).then(maps => {
-      console.log(maps)
         maps.json()?.then(parsed => {
-          console.log('parsed from fetch:', parsed);
           if(!!parsed && !!parsed.maps && parsed.maps.length) {
             setCurrMaps(parsed.maps);
             let mapFilterGroups: MapFiltersGroup[] = [
@@ -287,11 +315,11 @@ export default function Home() {
       }
     }).then(layers => {
         layers.json().then(parsed => {
-          console.log('parsed labels from fetch:', parsed);
-          if(!!parsed && !!parsed.layers && parsed.layers.length) {
-            console.log(parsed.layers)
-            setCurrLayers(parsed.layers);
-            let mappedLayerItems: SectionLayerItem[] = parsed.layers.map((x: PrismaLayer) => {
+          console.log('parsed response: ', parsed, parsed?.layer, parsed?.layer?.length);
+          if(parsed !== null && parsed.layer !== null && parsed.layer.length > 0) {
+            console.log('parsed layers: ', parsed.layer);
+            setCurrLayers(parsed.layer);
+            let mappedLayerItems: SectionLayerItem[] = parsed.layer.map((x: PrismaLayer) => {
               let sectionItem: SectionLayerItem = {
                 id: 0,
                 label: x.layerName,
@@ -347,8 +375,10 @@ export default function Home() {
     setDefaultBeforeMap(defBeforeMap);
     setDefaultAfterMap(defAfterMap);
 
+
     currBeforeMap.current = defBeforeMap;
     currAfterMap.current = defAfterMap;
+
     const mapboxCompare = new MapboxCompare(currBeforeMap.current, currAfterMap.current, comparisonContainerRef.current as HTMLElement);
 
     // if(currBeforeMap.current)
@@ -453,6 +483,41 @@ export default function Home() {
   }, [activeLayerIds]);
 
   useEffect(() => {
+    console.log('inside currLayers useEffect')
+    if(currLayers !== null && currBeforeMap !== null && currAfterMap !== null) {
+      currLayers.forEach((x: PrismaLayer) => {
+        console.log('found layer: ', x);
+        if(currBeforeMap.current?.getSource(x.sourceId) === null) {
+          currBeforeMap.current.addSource(x.sourceId, {
+            type: 'vector',
+            url: 'mapbox://mapny.7q2vs9ar'
+          })
+        } 
+        let testLayer: Layer = {
+          id: x.id,
+          type: x.type as "symbol" | "slot" | "fill" | "line" | "circle" | "heatmap" | "fill-extrusion" | "raster" | "raster-particle" | "hillshade" | "model" | "background" | "sky" | "clip",          
+          paint: {
+            "fill-color": "#e3ed58",
+            "fill-opacity": [
+              "case",
+              ["boolean", ["feature-state", "hover"], false],
+              0.8,
+              0.45,
+            ],
+            "fill-outline-color": "#FF0000",
+          },
+          source: x.sourceId,
+          layout: {
+            visibility: "visible"
+          },
+          "source-layer": x.sourceId,
+        }
+        addMapLayer(currBeforeMap, x, new Date())
+      })
+    }
+  }, [currLayers, currBeforeMap, currAfterMap]);
+
+  useEffect(() => {
     if(!mapLoaded) return; 
     var date = parseInt(currDate!.format("YYYYMMDD"));
     const dateFilter: FilterSpecification = ["all", ["<=", "DayStart", date], [">=", "DayEnd", date]];
@@ -467,6 +532,7 @@ export default function Home() {
   currAfterMap.current!.setFilter("lot_events-bf43eb", dateFilter);
   }, [currDate]);
 
+  // Necessary for the Modal to know what to hide
   Modal.setAppElement('#app-body');
 
   return (
@@ -608,14 +674,12 @@ export default function Home() {
 
         <MapFilterWrapperComponent beforeMapCallback={(map) => {
           let parsedMap = getMapFromMapItem(map);
-          console.log('got map for beforeMap', map, parsedMap)
           setMapStyle(currBeforeMap, map.mapId);
           // if(parsedMap !== null) {
           //   currBeforeMap.current = parsedMap
           // }
         }} afterMapCallback={(map) => {
           let parsedMap = getMapFromMapItem(map);
-          console.log('got map for afterMap', map, parsedMap)
           setMapStyle(currAfterMap, map.mapId);
 
           // if(parsedMap !== null) {

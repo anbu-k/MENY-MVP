@@ -36,11 +36,6 @@ export default function MapboxCompareWrapper(props: MapboxCompareWrapperProps) {
     props.afterMapRef.current?.resetNorth();
   };
 
-  useEffect(() => {
-    console.log(props.beforeMapRef.current)
-    console.log(props.afterMapRef.current)
-  })
-
   return (
     <div
       id="comparison-container"
