@@ -15,38 +15,48 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+//switch around the models to
+//          MapFilterGroup
+//               |
+//          list of maps
+//               |
+//        list of mapFilterItems
+
+model MapFilterGroup{
+  id             String @id @default(auto()) @map("_id") @db.ObjectId 
+  groupName      String
+  label          String
+  maps            Map[]
+  mapId          String @unique
+  mapfilteritems MapFilterItem[]
+}
 model Map {
   id             String @id @default(auto()) @map("_id") @db.ObjectId
-  mapId          String @unique
+  mapId          String 
   longitude      Float
   latitude       Float
-  name           String
+  mapName        String
   zoom           Float
   bearing        Float
   styleId        String
-  MapFilterGroup MapFilterGroup[]
+
+  MapFilterGroup MapFilterGroup @relation(fields: [mapId], references: [mapId])
 }
 
 model MapFilterItem{
     id                         String @id @default(auto()) @map("_id") @db.ObjectId
-    name                       String
+    itemName                   String
     label                      String
     defaultCheckedForBeforeMap Boolean
     defaultCheckedForAfterMap  Boolean
     showInfoButton             Boolean
     showZoomButton             Boolean
-    mapId                      String @unique
+    mapId                      String 
+
     mapfiltergroup             MapFilterGroup? @relation(fields: [mapId], references: [mapId])
 }
 
-model MapFilterGroup{
-  id             String @id @default(auto()) @map("_id") @db.ObjectId 
-  name           String
-  label          String
-  map            Map? @relation(fields: [mapId], references: [mapId])
-  mapId          String @unique
-  MapFilterItemp MapFilterItem[]
-}
+
 
 model LayerSection {
   name   String             @id @map("_id") @db.ObjectId

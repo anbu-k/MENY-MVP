@@ -1,7 +1,7 @@
 import { NextApiRequest, NextApiHandler, NextApiResponse } from "next";
-import { PrismaClient } from "@prisma/client";
-import {Map}  from "@prisma/client"
+import {Map, MapFilterGroup, MapFilterItem, PrismaClient } from "@prisma/client";
 import { NextResponse } from "next/server";
+import { create } from "domain";
 
 const prisma = new PrismaClient();
 
@@ -11,74 +11,81 @@ const prisma = new PrismaClient();
 */
 
 export async function GET() {
-    const maps = (await prisma.map.findMany());
+  const groups = await prisma.mapFilterGroup.findMany({
+    include: {
+        maps: true,             // Include associated maps
+        MapFilterItems: true,   // Include associated MapFilterItems
+    },
+});
 
     return NextResponse.json({
-        maps
+      groups
     })
 }
 
+export async function POST(request: Request) { // create
+  try {
+      const group: MapFilterGroup = await request.json(); // parse the JSON
 
-export async function POST(request: Request) { //create
-    try {
-        const m: Map = await request.json(); //parsars the JSON
+      const existingGroup = await prisma.mapFilterGroup.findFirst({
+          where: {
+              mapId: group.mapId,
+          },
+      });
 
-        //console.log("Request Headers:", request.headers);  //DEBUG
-        //console.log("Incoming data:", m);
+      if (existingGroup) {
+          console.log("ERROR: ATTEMPTED REPEATED RECORDS -- SENDING 400");
+          console.error("REPEATED RECORD ERROR: Missing required fields");
+          return NextResponse.json({
+              message: "Already exists",
+              error: "REPEATED RECORDS ARE NOT ALLOWED",
+          }, { status: 400 });
+      }
 
-        console.log("<================== POST ==================>: ", m);
-
-        if (!m.name || !m.styleId || !m.longitude || !m.latitude || !m.zoom || !m.bearing || !m.mapId
-        ) { //check to see if the JSON is vaild
-            console.log("ERROR: MISSING DATA -- SENDING 400");
-            console.error("Validation error: Missing required fields", m);
-            return NextResponse.json({ //sends error and 400 (Bad Request) if not
-                message: "Invalid data: ",
-                error: "Missing required fields",
-            }, { status: 400 });
-        }
-
-        if(await prisma.map.findFirst({// check if already in DB
-                where:{
-                    id: m.id,
-                    name: m.name
-                }
-            }) != undefined){
-                console.log("ERROR: ATTEMPED REPEATED RECORDS -- SENDING 400");
-                console.error("Validation error: Missing required fields", m);
-                return NextResponse.json({ //sends error and 400 (Bad Request) if not
-                    message: "Already exist",
-                    error: "REPEATED RECORDS ARE NOT ALLOWED",
-                }, { status: 400 });
-        }
-
-        const newMap = await prisma.map.create({ //create the new map in DB 
-            data: {
-                name: m.name,
-                mapId: m.mapId,
-                styleId: m.styleId,
-                longitude: m.longitude,
-                latitude: m.latitude,
-                zoom: m.zoom,
-                bearing: m.bearing
+      const newMap = await prisma.mapFilterGroup.create({
+        data: {
+            groupName: group.groupName,
+            label: group.label,
+            mapId: group.mapId,
+            maps: {
+                create: group.maps?.map(m => ({
+                    mapId: m.mapId,
+                    longitude: m.longitude,
+                    latitude: m.latitude,
+                    mapName: m.mapName,
+                    zoom: m.zoom,
+                    bearing: m.bearing,
+                    styleId: m.styleId,
+                })) || [],
             },
-        });
+            MapFilterItems: {
+                create: group.MapFilterItems?.map(item => ({
+                    itemName: item.itemName,
+                    label: item.label,
+                    defaultCheckedForBeforeMap: item.defaultCheckedForBeforeMap,
+                    defaultCheckedForAfterMap: item.defaultCheckedForAfterMap,
+                    showInfoButton: item.showInfoButton,
+                    showZoomButton: item.showZoomButton,
+                    mapId: item.mapId, // Use the mapId of the group for the connection
+                })) || [],
+            },
+        },
+    });
 
-        console.log("<================== POST COMPELETE ==================>: ", newMap.id);
-        return NextResponse.json({ //send success and the newmap data back 
-            message: "Success",
-            map_id: newMap.id
-        });
-    } 
-    
-    catch (error) { //catch error if try fails
-        console.error("Error creating map:", error); //log to server
-        return NextResponse.json({ //send 500 (Internal Server Error) and what the error is to frontend
-            message: "Failed to create map",
-            error: error.message,
-        }, { status: 500 });
-    } 
+      return NextResponse.json({ // send success and the new map data back 
+          message: "Success",
+          map_id: newMap.id,
+      });
+      
+  } catch (error) { // catch error if try fails
+      console.error("Error creating map:", error); // log to server
+      return NextResponse.json({ // send 500 (Internal Server Error) and what the error is to frontend
+          message: "Failed to create map",
+          error: error.message,
+      }, { status: 500 });
+  }
 }
+
 
 export async function DELETE(request: Request){ //delete 
     const m: Map = await request.json();
