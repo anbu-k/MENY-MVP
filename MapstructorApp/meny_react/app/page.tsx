@@ -97,70 +97,6 @@ const dutchGrantPopupTest: GenericPopUpProps = {
   year2: "1655",
   type: "dutch-grant",
 }
-const lotEventPopupTest: GenericPopUpProps = {
-  DayEnd: 16750703,
-  DayStart: 16621201,
-  TAXLOT: "C7",
-  color: "2",
-  color_num: 2,
-  end_date: "1675-07-03",
-  nid: 1550,
-  num: 6,
-  start_date: "1662-12-01",
-  title: "C7_12-1662",
-  type: "lot-event"
-}
-const castelloTaxlotPopupTest: GenericPopUpProps = {
-  block: "L",
-  id: 173,
-  lot: "5",
-  lot2: "L5",
-  new_link: "https://nahc-mapping.org/mappingNY/encyclopedia/taxlot/L5",
-  nid: 18691,
-  old_link_2: "http://thenittygritty.org/nahc/encyclopedia/taxlot/L5",
-  tax_lots_1: "House",
-  tax_lots_2: "----------",
-  tax_lots_3: "http://nahc.simcenterdev.org/taxlot/l5",
-  type: "castello-taxlot",
-}
-const longIslandNativeGroupsPopupTest: GenericPopUpProps = {  
-  FID_1: 220,
-  name: "Unkechaugs",
-  nid: "10021",
-  type: "long-island-native-groups",
-}
-const fortAmsterdamDutchGrantPopUpTest: GenericPopUpProps = {
-  Aligned: "added",
-  DayEnd: 17000102,
-  DayEnd1: 17900101,
-  DayStart: 16250101,
-  Lot: "Fort Amsterdam",
-  day1: "",
-  day2: "",
-  descriptio: "N/A",
-  lot2: "",
-  name: "Fort Amsterdam",
-  notes: "Wooden fort built, then a much larger stone fort in same location built 1633-35. Demolished after the American Revolution.",
-  styling1: "knownfull",
-  year1: "1625",
-  year2: "1790",
-  type: "dutch-grant",
-}
-const noNidPopUpTest: GenericPopUpProps = {
-Aligned: "added",
-DayEnd: 17000102,
-DayStart: 16540511,
-Lot: "A14.2",
-day1: "May 11",
-day2: "",
-descriptio: "See A14 desc.",
-lot2: "",
-name: "Paulus Leendersen Van Der Grift",
-notes: "Using date on map which is of conf. Using end date of adjacent lot.",
-styling1: "knownfull",
-year1: "1654",
-type: "dutch-grant",
-}
 
 const beforeMapItem: MapItem = {
   name: '1660 Original Castello Plan',
@@ -194,26 +130,12 @@ export default function Home() {
   const [mapLoaded, setMapLoaded] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [mappedFilterItemGroups, setMappedFilterItemGroups] = useState<MapFiltersGroup[]>([]);
-  const [extraLayers, setExtraLayers] = useState<SectionLayerItem[]>([]);
   const [currMaps, setCurrMaps] = useState<PrismaMap[]>([]);
   const [currLayers, setCurrLayers] = useState<PrismaLayer[]>([]);
-  const [currFilters, setCurrFilters] = useState<MapCompareFilters>();
   const [defaultBeforeMap, setDefaultBeforeMap] = useState<mapboxgl.Map>();
   const [defaultAfterMap, setDefaultAfterMap] = useState<mapboxgl.Map>();
   const currBeforeMap = useRef<mapboxgl.Map | null>(null);
   const currAfterMap = useRef<mapboxgl.Map | null>(null);
-
-  const getMapFromMapItem = (mapItem: MapItem): mapboxgl.Map => {
-    const returnMap = new mapboxgl.Map({
-      container: beforeMapContainerRef.current as HTMLElement,
-      style: `mapbox://styles/nittyjee/${mapItem.mapId.trim()}`,
-      center: mapItem.center,
-      zoom: mapItem.zoom,
-      bearing: mapItem.bearing,
-      attributionControl: true,
-    });
-    return returnMap;
-  }
 
   const setMapStyle = (map: MutableRefObject<mapboxgl.Map | null>, mapId: string) => {
     if(map?.current) {
@@ -221,52 +143,58 @@ export default function Home() {
     }
   }
 
-  const addMapLayer = (map: MutableRefObject<mapboxgl.Map | null>, layerConfig: PrismaLayer, layerDate: Date) => {
+  const addMapLayer = (map: MutableRefObject<mapboxgl.Map | null>, layerConfig: PrismaLayer) => {
     if(map?.current == null) return;
 
     let layerTypes: string[] = ["symbol", "fill", "line", "circle", "heatmap", "fill-extrusion", "raster", "raster-particle", "hillshade", "model", "background", "sky", "slot", "clip"]
     if(layerTypes.includes(layerConfig.type)) {
-      map.current.addLayer(
-        {
-          //ID: CHANGE THIS, 1 OF 3
-          id: layerConfig.id,
-          type: layerConfig.type as unknown as any,
-          source: {
-            type: 'vector',
-            //URL: CHANGE THIS, 2 OF 3
-            url: layerConfig.sourceUrl,
-          },
-          layout: {
-            visibility: "visible"
-          },
-          "source-layer": layerConfig.sourceLayer,
-          paint: {
-            "fill-color": "#e3ed58",
-            "fill-opacity": [
-              "case",
-              ["boolean", ["feature-state", "hover"], false],
-              0.8,
-              0.45,
-            ],
-            "fill-outline-color": "#FF0000",
-          },
+      let layerStuff =         {
+        //ID: CHANGE THIS, 1 OF 3
+        id: layerConfig.id,
+        type: layerConfig.type as unknown as any,
+        source: {
+          type: 'vector',
+          //URL: CHANGE THIS, 2 OF 3
+          url: layerConfig.sourceUrl,
+        },
+        layout: {
+          visibility: "visible"
+        },
+        "source-layer": layerConfig.sourceLayer,
+        paint: {
+          "fill-color": "#e3ed58",
+          "fill-opacity": [
+            "case",
+            ["boolean", ["feature-state", "hover"], false],
+            0.8,
+            0.45,
+          ],
+          "fill-outline-color": "#FF0000",
         }
-      );
+      }
+
+      var date = parseInt(currDate!.format("YYYYMMDD"));
+      var dateFilter: FilterSpecification = [
+        "all", 
+        ["<=", ["get", "DayStart"], date], 
+        [">=", ["get", "DayEnd"], date]
+      ];
+
+      if(!map.current?.getLayer(layerConfig.id)) {
+        if(currDate) {
+          map.current.addLayer(
+            {
+              ...layerStuff as any,
+              filter: dateFilter
+            }
+          );
+          // map.current.getLayer(layerConfig.id)!.filter = ["all", ["<=", "DayStart", parseInt(currDate.format("YYYYMMDD"))], [">=", "DayEnd", parseInt(currDate.format("YYYYMMDD"))]]
+        } else {
+          map.current.addLayer(layerStuff as any)
+        }
+      }
     }
   }
-
-  /**
-   * Every time the Before Map, After Map, Selected Layers, or Date is selected, update the global variables.
-   */
-  useEffect(() => {
-    let compareFilters: MapCompareFilters = {
-      beforeMap: currBeforeMap.current ?? defaultBeforeMap ?? undefined,
-      afterMap: currAfterMap.current ?? defaultAfterMap ?? undefined,
-      selectedLayers: currLayers,
-      date: currDate ?? moment()
-    }
-    setCurrFilters(compareFilters)
-  }, [currDate, currLayers, currBeforeMap, currAfterMap])
 
 
   /**
@@ -384,20 +312,6 @@ export default function Home() {
 
     const mapboxCompare = new MapboxCompare(currBeforeMap.current, currAfterMap.current, comparisonContainerRef.current as HTMLElement);
 
-    // if(currBeforeMap.current)
-    // {
-    //   currBeforeMap.current.on('load', () => {
-    //       addBeforeLayers(currBeforeMap.current!, '2024-09-16');
-    //   });
-    // }
-
-    // if(currAfterMap.current)
-    // {
-    //   currAfterMap.current!.on('load', () => {
-    //       addBeforeLayers(currAfterMap.current!, '2024-09-16');
-    //   });
-    // }
-
     const compareSwiper = document.querySelector('.compare-swiper') as HTMLElement;
     if (compareSwiper && !modalOpen) {
       compareSwiper.innerHTML = ''; 
@@ -469,53 +383,56 @@ export default function Home() {
   }, [currBeforeMap, currAfterMap])
 
   useEffect(() => {
-    if(!mapLoaded) return; 
-
-    const allLayerIds: string[] = ['dutch_grants-5ehfqe', 'grant-lots-lines', 'dutch_grants-5ehfqe-highlighted', 'lot_events-bf43eb', "places"];
-    // for each layerId, check whether it is included in activeLayerIds,
-    // show and hide accordingly by setting layer visibility
-    allLayerIds.forEach((layerId) => {
-      if (activeLayerIds.includes(layerId)) {
-        currBeforeMap.current!.setLayoutProperty(layerId, 'visibility', 'visible');
-        currAfterMap.current!.setLayoutProperty(layerId, 'visibility', 'visible');
-      } else {
-        currBeforeMap.current!.setLayoutProperty(layerId, 'visibility', 'none');
-        currAfterMap.current!.setLayoutProperty(layerId, 'visibility', 'none');
-      }
-    });
-  }, [activeLayerIds]);
-
-  useEffect(() => {
-    console.log('inside currLayers useEffect')
     if(currLayers !== null && currBeforeMap !== null && currAfterMap !== null) {
       currLayers.forEach((x: PrismaLayer) => {
-        console.log('found layer: ', x);
         if(currBeforeMap.current?.getSource(x.sourceId) === null) {
           currBeforeMap.current.addSource(x.sourceId, {
             type: 'vector',
             url: 'mapbox://mapny.7q2vs9ar'
+          });
+          currAfterMap.current?.addSource(x.sourceId, {
+            type: 'vector',
+            url: 'mapbox://mapny.7q2vs9ar'
           })
-        } 
-        addMapLayer(currBeforeMap, x, new Date())
-        addMapLayer(currAfterMap, x, new Date())
+        }
+
+        addMapLayer(currBeforeMap, x)
+        addMapLayer(currAfterMap, x)
       })
     }
   }, [currLayers, currBeforeMap, currAfterMap]);
 
   useEffect(() => {
-    if(!mapLoaded) return; 
-    var date = parseInt(currDate!.format("YYYYMMDD"));
-    const dateFilter: FilterSpecification = ["all", ["<=", "DayStart", date], [">=", "DayEnd", date]];
+    if(!mapLoaded) return;
+    if(currBeforeMap === null || currAfterMap === null) return;
 
-  //LAYERS FOR FILTERING
-  ["dutch_grants-5ehfqe", "dutch_grants-5ehfqe-highlighted", "grant-lots-lines"].forEach(id => {
-    currBeforeMap.current!.setFilter(id, dateFilter)
-    currAfterMap.current!.setFilter(id, dateFilter)
-  })
+    currLayers.forEach((layer) => {
+      if (activeLayerIds.includes(layer.id) && currBeforeMap.current?.getLayer(layer.id)) {
+        currBeforeMap.current!.setLayoutProperty(layer.id, 'visibility', 'visible');
+        currAfterMap.current!.setLayoutProperty(layer.id, 'visibility', 'visible');
+      } else {
+        currBeforeMap.current!.setLayoutProperty(layer.id, 'visibility', 'none');
+        currAfterMap.current!.setLayoutProperty(layer.id, 'visibility', 'none');
+      }
+    });
+  }, [activeLayerIds])
 
-  currBeforeMap.current!.setFilter("lot_events-bf43eb", dateFilter);
-  currAfterMap.current!.setFilter("lot_events-bf43eb", dateFilter);
-  }, [currDate]);
+  useEffect(() => {
+    if(!currDate) return;
+
+    var date = parseInt(currDate.format("YYYYMMDD"));
+    var dateFilter: FilterSpecification = [
+      "all", 
+      ["<=", ["get", "DayStart"], date], 
+      [">=", ["get", "DayEnd"], date]
+    ];
+
+    activeLayerIds.forEach(lid => {
+      if(currBeforeMap.current?.getLayer(lid) !== null) {
+        currBeforeMap.current?.setFilter(lid, dateFilter);
+      }
+    })
+  }, [currDate, activeLayerIds])
 
   // Necessary for the Modal to know what to hide
   Modal.setAppElement('#app-body');
@@ -655,7 +572,32 @@ export default function Home() {
         <FontAwesomeIcon id="mobi-hide-sidebar" icon={faArrowCircleLeft} />
         <p className="title">LAYERS</p>
         <br />
-        <SectionLayerComponent activeLayers={activeLayerIds} activeLayerCallback={(newActiveLayers: string[]) => {setActiveLayerIds(newActiveLayers)}} layersHeader={manhattaLayer.label} layer={manhattaLayer} />
+        <SectionLayerComponent activeLayers={activeLayerIds} activeLayerCallback={(newActiveLayers: string[]) => {
+          console.log(newActiveLayers)
+          setActiveLayerIds(newActiveLayers)
+        }} layersHeader={manhattaLayer.label} layer={{
+          ...manhattaLayer,
+          groups: [
+            {
+              id: 0,
+              label: "1609 | Manhatta",
+              iconColor: IconColors.YELLOW,
+              iconType: FontAwesomeLayerIcons.PLUS_SQUARE,
+              isSolid: true,
+              items: currLayers.map((x, idx) => {
+                let returnedLayer: SectionLayerItem =  {
+                  id: idx,
+                  label: x.layerName,
+                  iconColor: IconColors.YELLOW, // Change this once we store Icon stats in DB
+                  iconType: FontAwesomeLayerIcons.PLUS_SQUARE, // Change this once we store Icon stats in DB
+                  isSolid: false, // Change this once we store Icon stats in DB
+                  layerId: x.id
+                }
+                return returnedLayer;
+              })
+            }
+          ]
+          }} />
 
         <MapFilterWrapperComponent beforeMapCallback={(map) => {
           // Set beforeMap to selected map by changing the mapId
