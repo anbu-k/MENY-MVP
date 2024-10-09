@@ -27,8 +27,8 @@ const SectionLayerComponent = (props: SectionLayerProps) => {
             </center>
             {
                 layerIsOpen &&
-                props.layer.groups.map(grp => (
-                    <SectionLayerGroupComponent activeLayers={props.activeLayers} activeLayerCallback={props.activeLayerCallback} layersHeader={props.layersHeader} group={grp} />
+                props.layer.groups.map((grp, idx) => (
+                    <SectionLayerGroupComponent key={`section-layer-component-${idx}`} activeLayers={props.activeLayers} activeLayerCallback={props.activeLayerCallback} layersHeader={props.layersHeader} group={grp} />
                 ))
             }
         </>

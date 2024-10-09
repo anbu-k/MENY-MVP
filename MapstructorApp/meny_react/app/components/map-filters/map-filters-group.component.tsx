@@ -1,14 +1,17 @@
 import { getFontawesomeIcon } from "@/app/helpers/font-awesome.helper";
 import { FontAwesomeLayerIcons } from "@/app/models/font-awesome.model";
-import { MapFiltersGroup, MapFiltersItem } from "@/app/models/maps/map-filters.model";
+import { MapFiltersGroup } from "@/app/models/maps/map-filters.model";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useState } from "react";
 import MapFilterComponent from "./map-filter.component";
 import { IconColors } from "@/app/models/colors.model";
+import { MapItem } from "@/app/models/maps/map.model";
 
 
 type MapFiltersGroupComponentProps = {
-    group: MapFiltersGroup
+    group: MapFiltersGroup,
+    beforeMapCallback: (map: MapItem) => void,
+    afterMapCallback: (map: MapItem) => void
 }
 
 const MapFiltersGroupComponent = (props: MapFiltersGroupComponentProps) => {
@@ -26,8 +29,8 @@ const MapFiltersGroupComponent = (props: MapFiltersGroupComponentProps) => {
             </center>
             {
                 layerIsOpen &&
-                props.group.maps.map(map => (
-                    <MapFilterComponent map={map} displayInfoButton displayZoomButton/>
+                props.group.maps.map((map, idx) => (
+                    <MapFilterComponent beforeMapCallback={props.beforeMapCallback} afterMapCallback={props.afterMapCallback} key={`map-filter-component-${idx}`} map={map} displayInfoButton displayZoomButton/>
                 ))
             }
         </>
