@@ -1,7 +1,6 @@
 "use client";
 import mapboxgl, { Map } from 'mapbox-gl'; 
 import { RefObject, useEffect, useRef, useState } from "react";
-import { addBeforeLayers } from '../maps/beforemap';  
 import '../../compare.css';  
 import { MapItem } from '@/app/models/maps/map.model';
 
