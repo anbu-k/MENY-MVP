@@ -26,36 +26,38 @@ model Map {
 }
 
 model LayerSection {
-  name   String             @id @map("_id") @db.ObjectId
+  id     String             @id @default(auto()) @map("_id") @db.ObjectId
+  name   String             @unique
   layers LayerSectionData[]
 }
 
 model LayerSectionData {
-  id            String       @id @map("_id") @db.ObjectId
-  name          String       @unique @db.ObjectId
+  id            String       @id @default(auto()) @map("_id") @db.ObjectId
+  name          String       @unique
   section       LayerSection @relation(fields: [sectionName], references: [name])
-  sectionName   String       @db.ObjectId
+  sectionName   String
   iconColor     String
   label         String
   zoomTo        String?
   groupName     LayerGroup?  @relation(fields: [topLayerClass], references: [name])
-  topLayerClass String?      @db.ObjectId
+  topLayerClass String?
   infoId        String?
   layers        Layer[]
 }
 
+//groups the layers under the Section
 model LayerGroup {
   id          String             @id @default(auto()) @map("_id") @db.ObjectId
-  name        String             @unique @db.ObjectId
+  name        String             @unique
   childLayers LayerSectionData[]
 }
 
 model Layer {
   id               String            @id @default(auto()) @map("_id") @db.ObjectId
-  layerName        String
+  layerName        String            @unique
   type             String
   LayerSectionData LayerSectionData? @relation(fields: [sectionName], references: [name])
-  sectionName      String?           @db.ObjectId
+  sectionName      String?
   sourceType       String
   sourceUrl        String
   sourceId         String

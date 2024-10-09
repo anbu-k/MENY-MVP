@@ -1,13 +1,15 @@
 import { getFontawesomeIcon } from "@/app/helpers/font-awesome.helper"
 import { FontAwesomeLayerIcons } from "@/app/models/font-awesome.model"
-import { MapFiltersItem } from "@/app/models/maps/map-filters.model"
+import { MapItem } from "@/app/models/maps/map.model"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 
 
 type MapFilterComponentProps = {
-    map: MapFiltersItem,
+    map: MapItem,
     displayZoomButton: boolean,
-    displayInfoButton: boolean
+    displayInfoButton: boolean,
+    beforeMapCallback: (map: MapItem) => void,
+    afterMapCallback: (map: MapItem) => void
 }
 
 const MapFilterComponent = (props: MapFilterComponentProps) => {
@@ -19,8 +21,8 @@ const MapFilterComponent = (props: MapFilterComponentProps) => {
                     className={props.map.mapId}
                     type="radio"
                     name="ltoggle"
+                    onClick={() => props.beforeMapCallback(props.map)}
                     value={props.map.mapId}
-                    defaultChecked = { props.map.defaultCheckedForBeforeMap }
                     style={{
                         margin: "2px"
                     }}
@@ -29,12 +31,12 @@ const MapFilterComponent = (props: MapFilterComponentProps) => {
                     className={props.map.mapId}
                     type="radio"
                     name="rtoggle"
+                    onClick={() => props.afterMapCallback(props.map)}
                     value={props.map.mapId}
-                    defaultChecked = { props.map.defaultCheckedForAfterMap }
                 />
                 &nbsp;
                 <label htmlFor={props.map.mapId}>
-                    { props.map.label }
+                    { props.map.name }
                     <div className="dummy-label-layer-space"></div></label>
                 <div className="layer-buttons-block">
                     <div className="layer-buttons-list">
