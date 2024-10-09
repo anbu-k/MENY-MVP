@@ -13,7 +13,7 @@ import { FontAwesomeLayerIcons } from "./models/font-awesome.model";
 import {CSSTransition} from 'react-transition-group';
 "./global.css";
 import MapComparisonComponent from "./components/map/map-compare-container.component";
-import mapboxgl, { FilterSpecification, Map, Layer, FillLayerSpecification, LayerSpecification } from 'mapbox-gl';
+import mapboxgl, { FilterSpecification, Map, Layer, FillLayerSpecification, LayerSpecification, SourceSpecification } from 'mapbox-gl';
 import { MapFiltersGroup } from './models/maps/map-filters.model';
 import MapFilterWrapperComponent from './components/map-filters/map-filter-wrapper.component';
 import { MapItem } from './models/maps/map.model';
@@ -224,32 +224,35 @@ export default function Home() {
   const addMapLayer = (map: MutableRefObject<mapboxgl.Map | null>, layerConfig: PrismaLayer, layerDate: Date) => {
     if(map?.current == null) return;
 
-    map.current.addLayer(
-      {
-        //ID: CHANGE THIS, 1 OF 3
-        id: layerConfig.id,
-        type: "fill",
-        source: {
-          type: 'vector',
-          //URL: CHANGE THIS, 2 OF 3
-          url: layerConfig.sourceUrl,
-        },
-        layout: {
-          visibility: "visible"
-        },
-        "source-layer": layerConfig.sourceLayer,
-        paint: {
-          "fill-color": "#e3ed58",
-          "fill-opacity": [
-            "case",
-            ["boolean", ["feature-state", "hover"], false],
-            0.8,
-            0.45,
-          ],
-          "fill-outline-color": "#FF0000",
-        },
-      }
-    );
+    let layerTypes: string[] = ["symbol", "fill", "line", "circle", "heatmap", "fill-extrusion", "raster", "raster-particle", "hillshade", "model", "background", "sky", "slot", "clip"]
+    if(layerTypes.includes(layerConfig.type)) {
+      map.current.addLayer(
+        {
+          //ID: CHANGE THIS, 1 OF 3
+          id: layerConfig.id,
+          type: layerConfig.type as unknown as any,
+          source: {
+            type: 'vector',
+            //URL: CHANGE THIS, 2 OF 3
+            url: layerConfig.sourceUrl,
+          },
+          layout: {
+            visibility: "visible"
+          },
+          "source-layer": layerConfig.sourceLayer,
+          paint: {
+            "fill-color": "#e3ed58",
+            "fill-opacity": [
+              "case",
+              ["boolean", ["feature-state", "hover"], false],
+              0.8,
+              0.45,
+            ],
+            "fill-outline-color": "#FF0000",
+          },
+        }
+      );
+    }
   }
 
   /**
@@ -493,26 +496,8 @@ export default function Home() {
             url: 'mapbox://mapny.7q2vs9ar'
           })
         } 
-        let testLayer: Layer = {
-          id: x.id,
-          type: x.type as "symbol" | "slot" | "fill" | "line" | "circle" | "heatmap" | "fill-extrusion" | "raster" | "raster-particle" | "hillshade" | "model" | "background" | "sky" | "clip",          
-          paint: {
-            "fill-color": "#e3ed58",
-            "fill-opacity": [
-              "case",
-              ["boolean", ["feature-state", "hover"], false],
-              0.8,
-              0.45,
-            ],
-            "fill-outline-color": "#FF0000",
-          },
-          source: x.sourceId,
-          layout: {
-            visibility: "visible"
-          },
-          "source-layer": x.sourceId,
-        }
         addMapLayer(currBeforeMap, x, new Date())
+        addMapLayer(currAfterMap, x, new Date())
       })
     }
   }, [currLayers, currBeforeMap, currAfterMap]);
@@ -673,18 +658,11 @@ export default function Home() {
         <SectionLayerComponent activeLayers={activeLayerIds} activeLayerCallback={(newActiveLayers: string[]) => {setActiveLayerIds(newActiveLayers)}} layersHeader={manhattaLayer.label} layer={manhattaLayer} />
 
         <MapFilterWrapperComponent beforeMapCallback={(map) => {
-          let parsedMap = getMapFromMapItem(map);
+          // Set beforeMap to selected map by changing the mapId
           setMapStyle(currBeforeMap, map.mapId);
-          // if(parsedMap !== null) {
-          //   currBeforeMap.current = parsedMap
-          // }
         }} afterMapCallback={(map) => {
-          let parsedMap = getMapFromMapItem(map);
+          // Set afterMap to selected map by changing the mapId
           setMapStyle(currAfterMap, map.mapId);
-
-          // if(parsedMap !== null) {
-          //   currAfterMap.current = parsedMap
-          // }
         }} defaultMap={beforeMapItem} mapGroups={mappedFilterItemGroups} />
       </div>)}
 
