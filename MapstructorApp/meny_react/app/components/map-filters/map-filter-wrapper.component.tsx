@@ -25,8 +25,8 @@ const MapFilterWrapperComponent = (props: MapFilterWrapperProps) => {
             <br />
             <div id="maps-group">
                 {
-                    props.mapGroups.map(m => (
-                        <MapFiltersGroupComponent beforeMapCallback={props.beforeMapCallback} afterMapCallback={props.afterMapCallback} group={m}></MapFiltersGroupComponent>
+                    props.mapGroups.map((m, idx) => (
+                        <MapFiltersGroupComponent key={`map-filters-group-${idx}`} beforeMapCallback={props.beforeMapCallback} afterMapCallback={props.afterMapCallback} group={m}></MapFiltersGroupComponent>
                     ))
                 }
             </div>
