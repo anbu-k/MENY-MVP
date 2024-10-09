@@ -13,19 +13,15 @@ import { FontAwesomeLayerIcons } from "./models/font-awesome.model";
 import {CSSTransition} from 'react-transition-group';
 "./global.css";
 import MapComparisonComponent from "./components/map/map-compare-container.component";
-import mapboxgl, { FilterSpecification, Map, Layer, FillLayerSpecification, LayerSpecification, SourceSpecification } from 'mapbox-gl';
+import mapboxgl, { FilterSpecification } from 'mapbox-gl';
 import { MapFiltersGroup } from './models/maps/map-filters.model';
 import MapFilterWrapperComponent from './components/map-filters/map-filter-wrapper.component';
 import { MapItem } from './models/maps/map.model';
 import LayerFormButton from './components/forms/buttons/layer-form-button.component';
 import Modal from 'react-modal';
 import MapFormButton from './components/forms/buttons/map-form-button.component';
-import { Prisma, PrismaClient } from '@prisma/client';
-import MapFilterComponent from './components/map-filters/map-filter.component';
 import {Map as PrismaMap, Layer as PrismaLayer} from '@prisma/client';
 import { MapCompareFilters } from './models/all-filters/all-filters.model';
-import { AnyLayer } from 'mapbox-gl';
-import { FillLayer } from 'mapbox-gl';
  
 // Remove this when we have a way to get layers correctly
 const manhattaLayerSections: SectionLayerItem[] = [
@@ -226,32 +222,34 @@ export default function Home() {
 
     let layerTypes: string[] = ["symbol", "fill", "line", "circle", "heatmap", "fill-extrusion", "raster", "raster-particle", "hillshade", "model", "background", "sky", "slot", "clip"]
     if(layerTypes.includes(layerConfig.type)) {
-      map.current.addLayer(
-        {
-          //ID: CHANGE THIS, 1 OF 3
-          id: layerConfig.id,
-          type: layerConfig.type as unknown as any,
-          source: {
-            type: 'vector',
-            //URL: CHANGE THIS, 2 OF 3
-            url: layerConfig.sourceUrl,
-          },
-          layout: {
-            visibility: "visible"
-          },
-          "source-layer": layerConfig.sourceLayer,
-          paint: {
-            "fill-color": "#e3ed58",
-            "fill-opacity": [
-              "case",
-              ["boolean", ["feature-state", "hover"], false],
-              0.8,
-              0.45,
-            ],
-            "fill-outline-color": "#FF0000",
-          },
-        }
-      );
+      if(map.current.getLayer(layerConfig.id) === null) {
+        map.current.addLayer(
+          {
+            //ID: CHANGE THIS, 1 OF 3
+            id: layerConfig.id,
+            type: layerConfig.type as unknown as any,
+            source: {
+              type: 'vector',
+              //URL: CHANGE THIS, 2 OF 3
+              url: layerConfig.sourceUrl,
+            },
+            layout: {
+              visibility: "visible"
+            },
+            "source-layer": layerConfig.sourceLayer,
+            paint: {
+              "fill-color": "#e3ed58",
+              "fill-opacity": [
+                "case",
+                ["boolean", ["feature-state", "hover"], false],
+                0.8,
+                0.45,
+              ],
+              "fill-outline-color": "#FF0000",
+            },
+          }
+        );
+      }
     }
   }
 
