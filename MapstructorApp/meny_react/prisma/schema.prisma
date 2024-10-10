@@ -59,20 +59,21 @@ model MapFilterItem{
 
 
 model LayerSection {
-  id     String             @id @default(auto()) @map("_id") @db.ObjectId
-  name   String             @unique
-  layers LayerSectionData[]
+  id          String             @id @default(auto()) @map("_id") @db.ObjectId
+  name        String             @unique
+  layerGroups LayerGroup[]
+  layers      LayerSectionData[]
 }
 
 model LayerSectionData {
-  id            String       @id @default(auto()) @map("_id") @db.ObjectId
-  name          String       @unique
-  section       LayerSection @relation(fields: [sectionName], references: [name])
+  id            String        @id @default(auto()) @map("_id") @db.ObjectId
+  name          String        @unique
+  section       LayerSection? @relation(fields: [sectionName], references: [name])
   sectionName   String
   iconColor     String
   label         String
   zoomTo        String?
-  groupName     LayerGroup?  @relation(fields: [topLayerClass], references: [name])
+  groupName     LayerGroup?   @relation(fields: [topLayerClass], references: [name])
   topLayerClass String?
   infoId        String?
   layers        Layer[]
@@ -80,9 +81,11 @@ model LayerSectionData {
 
 //groups the layers under the Section
 model LayerGroup {
-  id          String             @id @default(auto()) @map("_id") @db.ObjectId
-  name        String             @unique
-  childLayers LayerSectionData[]
+  id               String             @id @default(auto()) @map("_id") @db.ObjectId
+  name             String             @unique
+  childLayers      LayerSectionData[]
+  layerSection     LayerSection       @relation(fields: [layerSectionName], references: [name])
+  layerSectionName String
 }
 
 model Layer {
