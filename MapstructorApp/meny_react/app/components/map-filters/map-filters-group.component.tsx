@@ -16,7 +16,8 @@ type MapFiltersGroupComponentProps = {
 
 const MapFiltersGroupComponent = (props: MapFiltersGroupComponentProps) => {
     const [layerIsOpen, setLayerIsOpen] = useState<boolean>(false);
-    
+    console.log('GROUPPPPP: ', props.group);
+
     return (
         <>
             <center>
