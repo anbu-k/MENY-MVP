@@ -101,7 +101,12 @@ export default function Home() {
 
   const setMapStyle = (map: MutableRefObject<mapboxgl.Map | null>, mapId: string) => {
     if(map?.current) {
-      map.current.setStyle(`mapbox://styles/nittyjee/${mapId.trim()}`)
+      map.current.setStyle(`mapbox://styles/nittyjee/${mapId.trim()}`);
+
+      // Replace this later
+      setTimeout(() => {
+        addAllMapLayers();
+      }, 1000)
     }
   }
 
@@ -158,11 +163,57 @@ export default function Home() {
     }
   }
 
+  const addAllMapLayers = () => {
+    if(currLayers !== null) {
+      currLayers.forEach((x: PrismaLayer) => {
+        if(currBeforeMap.current?.getSource(x.sourceId) === null) {
+          currBeforeMap.current.addSource(x.sourceId, {
+            type: 'vector',
+            url: 'mapbox://mapny.7q2vs9ar'
+          });
+          currAfterMap.current?.addSource(x.sourceId, {
+            type: 'vector',
+            url: 'mapbox://mapny.7q2vs9ar'
+          })
+        }
 
-  /**
-   * When the page is loaded, get all maps / layers from the API, parse these to work with our frontend models.
-   */
-  useEffect(() => {
+        addMapLayer(currBeforeMap, x)
+        addMapLayer(currAfterMap, x)
+      })
+    }
+  }
+
+  const getLayers = () => {
+    fetch('http://localhost:3000/api/layer', {
+      method: 'GET',
+      headers: {
+          'Content-Type': 'application/json',
+      }
+    }).then(layers => {
+        layers.json().then(parsed => {
+          console.log('parsed response: ', parsed, parsed?.layer, parsed?.layer?.length);
+          if(parsed !== null && parsed.layer !== null && parsed.layer.length > 0) {
+            console.log('parsed layers: ', parsed.layer);
+            setCurrLayers(parsed.layer);
+            let mappedLayerItems: SectionLayerItem[] = parsed.layer.map((x: PrismaLayer) => {
+              let sectionItem: SectionLayerItem = {
+                id: 0,
+                label: x.layerName,
+                iconColor: IconColors.BLUE,
+                iconType: FontAwesomeLayerIcons.PLUS_SQUARE,
+                isSolid: false
+              }
+            })
+          }
+        }).catch(err => {
+          console.error('failed to convert to json: ', err)
+        })
+    }).catch(err => {
+      console.error(err);
+    })
+  }
+
+  const getMaps = () => {
     fetch('http://localhost:3000/api/map', {
       method: 'GET',
       headers: {
@@ -198,36 +249,15 @@ export default function Home() {
     }).catch(err => {
       console.error(err);
     })
-  }, [])
+  }
 
+
+  /**
+   * When the page is loaded, get all maps / layers from the API, parse these to work with our frontend models.
+   */
   useEffect(() => {
-    fetch('http://localhost:3000/api/layer', {
-      method: 'GET',
-      headers: {
-          'Content-Type': 'application/json',
-      }
-    }).then(layers => {
-        layers.json().then(parsed => {
-          console.log('parsed response: ', parsed, parsed?.layer, parsed?.layer?.length);
-          if(parsed !== null && parsed.layer !== null && parsed.layer.length > 0) {
-            console.log('parsed layers: ', parsed.layer);
-            setCurrLayers(parsed.layer);
-            let mappedLayerItems: SectionLayerItem[] = parsed.layer.map((x: PrismaLayer) => {
-              let sectionItem: SectionLayerItem = {
-                id: 0,
-                label: x.layerName,
-                iconColor: IconColors.BLUE,
-                iconType: FontAwesomeLayerIcons.PLUS_SQUARE,
-                isSolid: false
-              }
-            })
-          }
-        }).catch(err => {
-          console.error('failed to convert to json: ', err)
-        })
-    }).catch(err => {
-      console.error(err);
-    })
+    getMaps();
+    getLayers();
   }, [])
 
   /**
@@ -345,22 +375,8 @@ export default function Home() {
   }, [currBeforeMap, currAfterMap])
 
   useEffect(() => {
-    if(currLayers !== null && currBeforeMap !== null && currAfterMap !== null) {
-      currLayers.forEach((x: PrismaLayer) => {
-        if(currBeforeMap.current?.getSource(x.sourceId) === null) {
-          currBeforeMap.current.addSource(x.sourceId, {
-            type: 'vector',
-            url: 'mapbox://mapny.7q2vs9ar'
-          });
-          currAfterMap.current?.addSource(x.sourceId, {
-            type: 'vector',
-            url: 'mapbox://mapny.7q2vs9ar'
-          })
-        }
-
-        addMapLayer(currBeforeMap, x)
-        addMapLayer(currAfterMap, x)
-      })
+    if(currBeforeMap !== null && currAfterMap !== null) {
+      addAllMapLayers();
     }
   }, [currLayers, currBeforeMap, currAfterMap]);
 
@@ -487,6 +503,7 @@ export default function Home() {
             setLayerPanelVisible(true);
             setPopUpVisible(true);
             setModalOpen(false);
+            getLayers();
           }}
           ></LayerFormButton>
 
@@ -500,6 +517,7 @@ export default function Home() {
             setLayerPanelVisible(true);
             setPopUpVisible(true);
             setModalOpen(false);
+            getMaps();
           }}
           ></MapFormButton>
 
