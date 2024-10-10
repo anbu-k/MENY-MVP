@@ -4,7 +4,13 @@ import { NextResponse } from "next/server";
 
 export async function GET() {
     const prisma = new PrismaClient();
-    const LayerSections = (await prisma.layerSection.findMany());
+    const LayerSections = (await prisma.layerSection.findMany({
+        include: {layers: {
+            include: {
+                layers: true
+            }
+        }}
+    }));
 
     return NextResponse.json({
         LayerSections
