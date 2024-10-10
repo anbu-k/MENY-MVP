@@ -5,6 +5,7 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 // Command for refreashing the db: 
 //        npx prisma generate; npx prisma db push
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -14,16 +15,48 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Map {
-  id        String @id @default(auto()) @map("_id") @db.ObjectId
-  mapId     String
-  longitude Float
-  latitude  Float
-  name      String
-  zoom      Float
-  bearing   Float
-  styleId   String
+//switch around the models to
+//          MapFilterGroup
+//               |
+//          list of maps
+//               |
+//        list of mapFilterItems
+
+model MapFilterGroup{
+  id             String @id @default(auto()) @map("_id") @db.ObjectId 
+  groupName      String
+  label          String
+  maps            Map[]
+  mapId          String @unique
+  mapfilteritems MapFilterItem[]
 }
+model Map {
+  id             String @id @default(auto()) @map("_id") @db.ObjectId
+  mapId          String 
+  longitude      Float
+  latitude       Float
+  mapName        String
+  zoom           Float
+  bearing        Float
+  styleId        String
+
+  MapFilterGroup MapFilterGroup @relation(fields: [mapId], references: [mapId])
+}
+
+model MapFilterItem{
+    id                         String @id @default(auto()) @map("_id") @db.ObjectId
+    itemName                   String
+    label                      String
+    defaultCheckedForBeforeMap Boolean
+    defaultCheckedForAfterMap  Boolean
+    showInfoButton             Boolean
+    showZoomButton             Boolean
+    mapId                      String 
+
+    mapfiltergroup             MapFilterGroup? @relation(fields: [mapId], references: [mapId])
+}
+
+
 
 model LayerSection {
   id          String             @id @default(auto()) @map("_id") @db.ObjectId
