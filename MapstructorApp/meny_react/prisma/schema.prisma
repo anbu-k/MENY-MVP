@@ -40,7 +40,7 @@ model Map {
   bearing        Float
   styleId        String
 
-  MapFilterGroup MapFilterGroup @relation(fields: [mapId], references: [mapId])
+  MapFilterGroup MapFilterGroup? @relation(fields: [mapId], references: [mapId])
 }
 
 model MapFilterItem{
@@ -53,7 +53,7 @@ model MapFilterItem{
     showZoomButton             Boolean
     mapId                      String 
 
-    mapfiltergroup             MapFilterGroup? @relation(fields: [mapId], references: [mapId])
+    mapfiltergroup MapFilterGroup? @relation(fields: [mapId], references: [mapId])
 }
 
 
