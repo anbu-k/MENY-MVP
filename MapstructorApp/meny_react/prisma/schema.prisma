@@ -5,6 +5,7 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 // Command for refreashing the db: 
 //        npx prisma generate; npx prisma db push
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -14,32 +15,65 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+//switch around the models to
+//          MapFilterGroup
+//               |
+//          list of maps
+//               |
+//        list of mapFilterItems
+
+model MapFilterGroup{
+  id             String @id @default(auto()) @map("_id") @db.ObjectId 
+  groupName      String
+  label          String
+  maps            Map[]
+  mapId          String @unique
+  mapfilteritems MapFilterItem[]
+}
 model Map {
-  id        String @id @default(auto()) @map("_id") @db.ObjectId
-  mapId     String
-  longitude Float
-  latitude  Float
-  name      String
-  zoom      Float
-  bearing   Float
-  styleId   String
+  id             String @id @default(auto()) @map("_id") @db.ObjectId
+  mapId          String 
+  longitude      Float
+  latitude       Float
+  mapName        String
+  zoom           Float
+  bearing        Float
+  styleId        String
+
+  MapFilterGroup MapFilterGroup @relation(fields: [mapId], references: [mapId])
 }
 
+model MapFilterItem{
+    id                         String @id @default(auto()) @map("_id") @db.ObjectId
+    itemName                   String
+    label                      String
+    defaultCheckedForBeforeMap Boolean
+    defaultCheckedForAfterMap  Boolean
+    showInfoButton             Boolean
+    showZoomButton             Boolean
+    mapId                      String 
+
+    mapfiltergroup             MapFilterGroup? @relation(fields: [mapId], references: [mapId])
+}
+
+
+
 model LayerSection {
-  id     String             @id @default(auto()) @map("_id") @db.ObjectId
-  name   String             @unique
-  layers LayerSectionData[]
+  id          String             @id @default(auto()) @map("_id") @db.ObjectId
+  name        String             @unique
+  layerGroups LayerGroup[]
+  layers      LayerSectionData[]
 }
 
 model LayerSectionData {
-  id            String       @id @default(auto()) @map("_id") @db.ObjectId
-  name          String       @unique
-  section       LayerSection @relation(fields: [sectionName], references: [name])
+  id            String        @id @default(auto()) @map("_id") @db.ObjectId
+  name          String        @unique
+  section       LayerSection? @relation(fields: [sectionName], references: [name])
   sectionName   String
   iconColor     String
   label         String
   zoomTo        String?
-  groupName     LayerGroup?  @relation(fields: [topLayerClass], references: [name])
+  groupName     LayerGroup?   @relation(fields: [topLayerClass], references: [name])
   topLayerClass String?
   infoId        String?
   layers        Layer[]
@@ -47,9 +81,11 @@ model LayerSectionData {
 
 //groups the layers under the Section
 model LayerGroup {
-  id          String             @id @default(auto()) @map("_id") @db.ObjectId
-  name        String             @unique
-  childLayers LayerSectionData[]
+  id               String             @id @default(auto()) @map("_id") @db.ObjectId
+  name             String             @unique
+  childLayers      LayerSectionData[]
+  layerSection     LayerSection       @relation(fields: [layerSectionName], references: [name])
+  layerSectionName String
 }
 
 model Layer {
