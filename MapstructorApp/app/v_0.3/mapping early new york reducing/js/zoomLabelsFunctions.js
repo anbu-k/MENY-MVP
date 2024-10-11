@@ -61,19 +61,19 @@ function createLabel(title, coordinates, minZoom = null) {
   function addInteractivityToLabel(map, labelObject, boundsName) {
     const labelId = labelObject.id;
   
-    map.on("mouseenter", labelId, function () {
-      map.setPaintProperty(labelId, "text-color", "#ff0000");
-      map.getCanvas().style.cursor = "pointer";
-    });
+    // map.on("mouseenter", labelId, function () {
+    //   map.setPaintProperty(labelId, "text-color", "#ff0000");
+    //   map.getCanvas().style.cursor = "pointer";
+    // });
   
-    map.on("mouseleave", labelId, function () {
-      map.setPaintProperty(labelId, "text-color", "#482525");
-      map.getCanvas().style.cursor = "";
-    });
+    // map.on("mouseleave", labelId, function () {
+    //   map.setPaintProperty(labelId, "text-color", "#482525");
+    //   map.getCanvas().style.cursor = "";
+    // });
   
-    map.on("click", labelId, function () {
-      zoom_labels_click_ev = true;
-      zoomtobounds(boundsName);
-    });
+    // map.on("click", labelId, function () {
+    //   zoom_labels_click_ev = true;
+    //   zoomtobounds(boundsName);
+    // });
   }
   

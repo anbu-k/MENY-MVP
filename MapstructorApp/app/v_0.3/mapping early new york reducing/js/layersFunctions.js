@@ -14,14 +14,14 @@ function setupLayerEvents(map, layers) {
 
         // Optionally, you might want to show a popup when hovering
         // This depends on how you've structured your popups
-        const popup = getPopupByName(layer.popup);
-        if (popup) {
-          popup.setLngLat(e.lngLat).addTo(map);
-        }
+        // const popup = getPopupByName(layer.popup);
+        // if (popup) {
+        //   popup.setLngLat(e.lngLat).addTo(map);
+        // }
       });
 
     map.on(
-      layer.id === "places-right" ? "mouseenter" : "mousemove",
+      "mousemove",
       layer.id,
       (e) => {
         if (e.features.length > 0) {
@@ -32,7 +32,7 @@ function setupLayerEvents(map, layers) {
               { hover: false }
             );
           }
-
+          console.log(e.features[0]);
           hoveredId = e.features[0].id;
 
           // Set the new feature's state
@@ -40,24 +40,14 @@ function setupLayerEvents(map, layers) {
             { source: layer.id, id: hoveredId, sourceLayer: layer.sourceId },
             { hover: true }
           );
-          if (layer.id === "places-right") {
-            var coordinates = e.features[0].geometry.coordinates.slice();
-
-            while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
-              coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
-            }
-
-            getPopupByName(layer.popup)
-              .setLngLat(coordinates)
-              .setHTML(generatePopupContent(layer.id, e.features))
-              .addTo(map);
-          } else {
-            // Update popup content if needed
-            const popup = getPopupByName(layer.popup);
-            if (popup) {
-              const content = generatePopupContent(layer.id, e.features);
-              popup.setLngLat(e.lngLat).setHTML(content);
-            }
+          const popup = getPopupByName(layer.popup);
+          console.log("Popup before content:");
+          console.log(popup);
+          if (popup) {
+            const content = generatePopupContent(layer.id, e.features);
+            popup.setLngLat(e.lngLat).setHTML(content).addTo(map);
+            console.log("Popup after content:");
+            console.log(popup);
           }
         }
       }

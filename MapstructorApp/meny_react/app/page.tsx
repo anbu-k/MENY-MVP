@@ -13,7 +13,6 @@ import { FontAwesomeLayerIcons } from "./models/font-awesome.model";
 import {CSSTransition} from 'react-transition-group';
 "./global.css";
 import MapComparisonComponent from "./components/map/map-compare-container.component";
-import { addBeforeLayers } from "./components/maps/beforemap";
 import mapboxgl, { FilterSpecification } from 'mapbox-gl';
 import { MapFiltersGroup } from './models/maps/map-filters.model';
 import MapFilterWrapperComponent from './components/map-filters/map-filter-wrapper.component';
@@ -23,7 +22,8 @@ import Modal from 'react-modal';
 import MapFormButton from './components/forms/buttons/map-form-button.component';
 import {Map as PrismaMap, Layer as PrismaLayer} from '@prisma/client';
 import { MapCompareFilters } from './models/all-filters/all-filters.model';
- 
+import { features } from 'process';
+
 // Remove this when we have a way to get layers correctly
 
 const manhattaSectionGroups: SectionLayerGroup[] = [
@@ -102,22 +102,26 @@ export default function Home() {
 
   const setMapStyle = (map: MutableRefObject<mapboxgl.Map | null>, mapId: string) => {
     if(map?.current) {
-      map.current.setStyle(`mapbox://styles/nittyjee/${mapId.trim()}`)
+      map.current.setStyle(`mapbox://styles/nittyjee/${mapId.trim()}`);
+
+      // Replace this later
+      setTimeout(() => {
+        addAllMapLayers();
+      }, 1000)
     }
   }
 
   const addMapLayer = (map: MutableRefObject<mapboxgl.Map | null>, layerConfig: PrismaLayer) => {
     if(map?.current == null) return;
+    let hoveredId: string | number | null = null;
 
     let layerTypes: string[] = ["symbol", "fill", "line", "circle", "heatmap", "fill-extrusion", "raster", "raster-particle", "hillshade", "model", "background", "sky", "slot", "clip"]
     if(layerTypes.includes(layerConfig.type)) {
       let layerStuff =         {
-        //ID: CHANGE THIS, 1 OF 3
         id: layerConfig.id,
         type: layerConfig.type as unknown as any,
         source: {
           type: 'vector',
-          //URL: CHANGE THIS, 2 OF 3
           url: layerConfig.sourceUrl,
         },
         layout: {
@@ -155,107 +159,185 @@ export default function Home() {
         } else {
           map.current.addLayer(layerStuff as any)
         }
+        let hoverPopup = new mapboxgl.Popup({ closeOnClick: false, closeButton: false, offset: 5 });
+        // map.current.on("mouseenter", layerConfig.id, (e) =>{
+        //   var coordinates = e.lngLat;
+        //   new mapboxgl.Popup()
+        //     .setLngLat(coordinates)
+        //     .setHTML('you clicked here: <br/>' + coordinates)
+        //     .addTo(map.current!);
+        // });
+        /**
+         * Mouse move event triggers hover functionality. 
+         * It tracks the hovered id and sets the "hover" field on the map 
+         * layer with specified layerConfig.id to true
+         * Probably need field to determine if layer needs hover functionality
+         */
+        map.current.on("mousemove", layerConfig.id, (e) => {
+          if (e.features?.length) {
+            if (hoveredId !== null) {
+              map.current!.setFeatureState({ source: layerConfig.id, sourceLayer: layerConfig.sourceLayer, id: hoveredId }, { hover: false });
+            }
+    
+            if (e.features[0].id !== undefined) {
+              hoveredId = e.features[0].id;
+              map.current!.setFeatureState({ source: layerConfig.id, sourceLayer: layerConfig.sourceLayer, id: hoveredId }, { hover: true });
+              map.current!.getCanvas().style.cursor = "pointer";
+            }
+          }
+        });
+        /**
+         * Mouse leave event ends hover functionality. 
+         * It tracks the hovered id and sets the "hover" field on the map 
+         * layer with specified layerConfig.id to false
+         * Probably need field to determine if layer needs hover functionality
+         */
+        map.current.on("mouseleave", layerConfig.id, () => {
+          map.current!.getCanvas().style.cursor = "";
+          if (hoveredId) {
+            map.current!.setFeatureState({ source: layerConfig.id, sourceLayer: layerConfig.sourceLayer, id: hoveredId  }, { hover: false });
+            hoveredId = null;
+          }
+        });
+        /**
+         * Code below handles click events
+         * Probably need some sort of field in database that
+         * indicates if a layer needs to have click events or not
+         */
+        var clickVisible: boolean = popUpVisible;
+        var popUpType: "castello-taxlot" | "lot-event" | "long-island-native-groups" | "dutch-grant";
+        var previousNid: number | string | undefined;
+        var previousName: string | undefined;
+        /**
+         * This is gross and needs to be redone
+         * Popups type needs to be reactified
+         * Right now I pass the e event into the popup props
+         * and determine type by the type field
+         */
+        if(layerConfig.layerName === "dutch_grants-5ehfqe")
+        {
+          popUpType = "dutch-grant";
+        }
+        else if (layerConfig.layerName === "lot_events-bf43eb")
+        {
+          popUpType = "lot-event"
+        }
+        else
+        {
+          popUpType = "castello-taxlot"
+        }
+        map.current.on("click", layerConfig.id, (e) => {
+          if(clickVisible && previousNid && (previousNid === e.features![0].properties!.nid))
+          {
+            clickVisible = false;
+            setPopUpVisible(clickVisible);
+          }
+          else if (clickVisible && previousName && (previousName === e.features![0].properties!.name))
+          {
+            clickVisible = false;
+            setPopUpVisible(clickVisible);
+          }
+          else
+          {
+            previousName = e.features![0].properties!.name ?? undefined;
+            previousNid = e.features![0].properties!.nid ?? undefined;
+            setPopUp({
+              Aligned: e.features![0].properties!.Aligned ?? undefined,
+              DayEnd1: e.features![0].properties!.DayEnd1 ?? undefined,
+              notes: e.features![0].properties!.notes ?? undefined,
+              styling1: e.features![0].properties!.styling1 ?? undefined,
+              block: e.features![0].properties!.block ?? undefined,
+              id: e.features![0].properties!.id ?? undefined,
+              lot: e.features![0].properties!.lot ?? undefined,
+              new_link: e.features![0].properties!.new_link ?? undefined,
+              old_link_2: e.features![0].properties!.old_link_2 ?? undefined,
+              tax_lots_2: e.features![0].properties!.tax_lots_2 ?? undefined,
+              tax_lots_3: e.features![0].properties!.tax_lots_3 ?? undefined,
+              DayEnd: e.features![0].properties!.DayEnd ?? undefined,
+              DayStart: e.features![0].properties!.DayStart ?? undefined,
+              TAXLOT: e.features![0].properties!.TAXLOT ?? undefined,
+              color: e.features![0].properties!.color ?? undefined,
+              color_num: e.features![0].properties!.color_num ?? undefined,
+              end_date: e.features![0].properties!.end_date ?? undefined,
+              num: e.features![0].properties!.num ?? undefined,
+              start_date: e.features![0].properties!.start_date ?? undefined,
+              title: e.features![0].properties!.title ?? undefined,
+              FID_1: e.features![0].properties!.FID_1 ?? undefined,
+              lot2: e.features![0].properties!.lot2 ?? undefined,
+              tax_lots_1: e.features![0].properties!.tax_lots_1 ?? undefined,
+              nid: e.features![0].properties!.nid ?? undefined,
+              Lot: e.features![0].properties!.Lot ?? undefined,
+              name: e.features![0].properties!.name ?? undefined,
+              day1: e.features![0].properties!.day1 ?? undefined,
+              day2: e.features![0].properties!.day2 ?? undefined,
+              year1: e.features![0].properties!.year1 ?? undefined,
+              year2: e.features![0].properties!.year2 ?? undefined,
+              descriptio: e.features![0].properties!.descriptio ?? undefined,
+              type: popUpType,
+            });
+            if (e.features![0].id !== undefined) {
+              map.current!.setFeatureState({ source: layerConfig.id, sourceLayer: layerConfig.sourceLayer, id: e.features![0].id }, { hover: true });
+            }
+            clickVisible = true;
+            setPopUpVisible(clickVisible);
+          }
+        });
+    
       }
     }
   }
 
-  const getMapFromMapItem = (mapItem: MapItem): mapboxgl.Map => {
-    return new mapboxgl.Map({
-      container: beforeMapContainerRef.current as HTMLElement,
-      style: `mapbox://styles/nittyjee/${mapItem.styleId.trim()}`,
-      center: mapItem.center,
-      zoom: mapItem.zoom,
-      bearing: mapItem.bearing,
-      attributionControl: true,
-    });
+  const addAllMapLayers = () => {
+    if(currLayers !== null) {
+      currLayers.forEach((x: PrismaLayer) => {
+        if(currBeforeMap.current?.getSource(x.sourceId) === null) {
+          currBeforeMap.current.addSource(x.sourceId, {
+            type: 'vector',
+            url: 'mapbox://mapny.7q2vs9ar'
+          });
+          currAfterMap.current?.addSource(x.sourceId, {
+            type: 'vector',
+            url: 'mapbox://mapny.7q2vs9ar'
+          })
+        }
+
+        addMapLayer(currBeforeMap, x)
+        addMapLayer(currAfterMap, x)
+      })
+    }
   }
 
-  // useEffect(() => {
-  //   let compareFilters: MapCompareFilters = {
-  //     beforeMap: currMaps[0],
-  //     afterMap: currMaps[1],
-  //     selectedLayers: currLayers,
-  //     date: currDate ?? moment()
-  //   }
-  //   setCurrFilters(compareFilters)
-  //   console.log(compareFilters)
-  // }, [currDate, currLayers, currMaps])
+  const getLayers = () => {
+    fetch('http://localhost:3000/api/layer', {
+      method: 'GET',
+      headers: {
+          'Content-Type': 'application/json',
+      }
+    }).then(layers => {
+        layers.json().then(parsed => {
+          console.log('parsed response: ', parsed, parsed?.layer, parsed?.layer?.length);
+          if(parsed !== null && parsed.layer !== null && parsed.layer.length > 0) {
+            console.log('parsed layers: ', parsed.layer);
+            setCurrLayers(parsed.layer);
+            let mappedLayerItems: SectionLayerItem[] = parsed.layer.map((x: PrismaLayer) => {
+              let sectionItem: SectionLayerItem = {
+                id: 0,
+                label: x.layerName,
+                iconColor: IconColors.BLUE,
+                iconType: FontAwesomeLayerIcons.PLUS_SQUARE,
+                isSolid: false
+              }
+            })
+          }
+        }).catch(err => {
+          console.error('failed to convert to json: ', err)
+        })
+    }).catch(err => {
+      console.error(err);
+    })
+  }
 
-
-
-  // useEffect(() => {
-  //   fetch('http://localhost:3000/api/map', {
-  //     method: 'GET',
-  //     headers: {
-  //         'Content-Type': 'application/json',
-  //     }
-  //   }).then(maps => {
-  //       maps.json().then(parsed => {
-  //         console.log('parsed from fetch:', parsed);
-  //         if(!!parsed && !!parsed.maps && parsed.maps.length) {
-  //           setCurrMaps(parsed.maps);
-  //           let mapFilterGroups: MapFiltersGroup[] = [
-  //             {
-  //               id: 0,
-  //               name: '1660 | Castello Plans',
-  //               label: '1660 | Castello Plans',
-  //               maps: parsed.maps.map((x: PrismaMap) => {
-  //                 let newDBMap: MapItem = {
-  //                   mapId: x.mapId,
-  //                   center: [x.longitude, x.latitude],
-  //                   zoom: x.zoom,
-  //                   bearing: x.bearing,
-  //                   styleId: x.styleId,
-  //                   name: x.name
-  //                 }
-  //                 return newDBMap
-  //               })
-  //             }
-  //           ]
-  //           setMappedFilterItemGroups(mapFilterGroups)
-  //         }
-  //       })
-  //   }).catch(err => {
-  //     console.error(err);
-  //   })
-  // }, [])
-
-  // useEffect(() => {
-  //   fetch('http://localhost:3000/api/layer', {
-  //     method: 'GET',
-  //     headers: {
-  //         'Content-Type': 'application/json',
-  //     }
-  //   }).then(layers => {
-  //       layers.json().then(parsed => {
-  //         console.log('parsed labels from fetch:', parsed);
-  //         if(!!parsed && !!parsed.layers && parsed.layers.length) {
-  //           console.log(parsed.layers)
-  //           setCurrLayers(parsed.layers);
-  //           let mappedLayerItems: SectionLayerItem[] = parsed.layers.map((x: PrismaLayer) => {
-  //             let sectionItem: SectionLayerItem = {
-  //               id: 0,
-  //               label: x.layerName,
-  //               iconColor: IconColors.BLUE,
-  //               iconType: FontAwesomeLayerIcons.PLUS_SQUARE,
-  //               isSolid: false
-  //             }
-  //           })
-  //         }
-  //       })
-  //   }).catch(err => {
-  //     console.error(err);
-  //   })
-  // }, [])
-
-  // useEffect(() => {
-  //   console.log(mappedFilterItemGroups)
-  // }, [mappedFilterItemGroups])
-
-  /**
-   * When the page is loaded, get all maps / layers from the API, parse these to work with our frontend models.
-   */
-  useEffect(() => {
+  const getMaps = () => {
     fetch('http://localhost:3000/api/map', {
       method: 'GET',
       headers: {
@@ -291,36 +373,15 @@ export default function Home() {
     }).catch(err => {
       console.error(err);
     })
-  }, [])
+  }
 
+
+  /**
+   * When the page is loaded, get all maps / layers from the API, parse these to work with our frontend models.
+   */
   useEffect(() => {
-    fetch('http://localhost:3000/api/layer', {
-      method: 'GET',
-      headers: {
-          'Content-Type': 'application/json',
-      }
-    }).then(layers => {
-        layers.json().then(parsed => {
-          console.log('parsed response: ', parsed, parsed?.layer, parsed?.layer?.length);
-          if(parsed !== null && parsed.layer !== null && parsed.layer.length > 0) {
-            console.log('parsed layers: ', parsed.layer);
-            setCurrLayers(parsed.layer);
-            let mappedLayerItems: SectionLayerItem[] = parsed.layer.map((x: PrismaLayer) => {
-              let sectionItem: SectionLayerItem = {
-                id: 0,
-                label: x.layerName,
-                iconColor: IconColors.BLUE,
-                iconType: FontAwesomeLayerIcons.PLUS_SQUARE,
-                isSolid: false
-              }
-            })
-          }
-        }).catch(err => {
-          console.error('failed to convert to json: ', err)
-        })
-    }).catch(err => {
-      console.error(err);
-    })
+    getMaps();
+    getLayers();
   }, [])
 
   /**
@@ -367,6 +428,8 @@ export default function Home() {
 
     const mapboxCompare = new MapboxCompare(currBeforeMap.current, currAfterMap.current, comparisonContainerRef.current as HTMLElement);
 
+    // popup.setLngLat([-74.01454, 40.70024]).setHTML('<h1>Hello World!</h1>').addTo(afterMap.current);
+
     const compareSwiper = document.querySelector('.compare-swiper') as HTMLElement;
     if (compareSwiper && !modalOpen) {
       compareSwiper.innerHTML = ''; 
@@ -398,86 +461,10 @@ export default function Home() {
         };
       };
     }
-     //Following lines set hover functionality for dutch grants 
-    // const popup = new mapboxgl.Popup({
-    //   closeButton: false,
-    //   closeOnClick: false,
-    //   offset: 5,
-      
-    // });
-    // let hoveredPolygonId: any = null;
-    // beforeMap.current!.on('mousemove', 'dutch_grants-5ehfqe', (e) => {
-    //   if (e.features!.length > 0) {
-    //     if (hoveredPolygonId !== null) {
-    //       beforeMap.current!.setFeatureState(
-    //         { source: "dutch_grants-5ehfqe", sourceLayer: "dutch_grants-5ehfqe", id: hoveredPolygonId },
-    //         { hover: false }
-    //       );
-    //     }
-    //     hoveredPolygonId = e.features![0].id;
-    //     console.log(e.features![0].id);
-    //     beforeMap.current!.setFeatureState(
-    //       { source: "dutch_grants-5ehfqe", sourceLayer: "dutch_grants-5ehfqe", id: hoveredPolygonId },
-    //       { hover: true }
-    //     );
-    //   }
-    // });
 
-    // beforeMap.current!.on('mouseleave', 'dutch_grants-5ehfqe', () => {
-    //   if (hoveredPolygonId !== null) {
-    //     beforeMap.current!.setFeatureState(
-    //       { source: "dutch_grants-5ehfqe", sourceLayer: "dutch_grants-5ehfqe", id: hoveredPolygonId },
-    //       { hover: false }
-    //     );
-    //   }
-    //   hoveredPolygonId = null;
-    // });
+    //beforeMap.current.on("click", 'dutch_grants-5ehfqe', onClickHandler);
 
-    // afterMap.current!.on('mousemove', 'dutch_grants-5ehfqe', (e) => {
-    //   if (e.features!.length > 0) {
-    //     if (hoveredPolygonId !== null) {
-    //       afterMap.current!.setFeatureState(
-    //         { source: "dutch_grants-5ehfqe", sourceLayer: "dutch_grants-5ehfqe", id: hoveredPolygonId },
-    //         { hover: false }
-    //       );
-    //     }
-    //     hoveredPolygonId = e.features![0].id;
-    //     console.log("e.features![0]: ");
-    //     console.log(e.features![0]);
-    //     console.log("e.features[0].id: ");
-    //     console.log(e.features![0].id);
-    //     afterMap.current!.setFeatureState(
-    //       { source: "dutch_grants-5ehfqe", sourceLayer: "dutch_grants-5ehfqe", id: hoveredPolygonId },
-    //       { hover: true }
-    //     );
-        
-    //   }
-    // });
-
-    // afterMap.current!.on('mouseleave', 'dutch_grants-5ehfqe', () => {
-    //   if (hoveredPolygonId !== null) {
-    //     afterMap.current!.setFeatureState(
-    //       { source: "dutch_grants-5ehfqe", sourceLayer: "dutch_grants-5ehfqe", id: hoveredPolygonId },
-    //       { hover: false }
-    //     );
-    //   }
-    //   hoveredPolygonId = null;
-    // });
-    // //Popup functionality for dutch grants
-    
-    // afterMap.current.on('mouseover', 'dutch_grants-5ehfqe', (e) => {
-    //   afterMap.current!.getCanvas().style.cursor = 'pointer';
-    //   let popupHtml: string = `<div class='infoLayerDutchGrantsPopUp'><b>Name:</b> ${e.features![0].properties!.name}<br><b>Dutch Grant Lot:</b> ${e.features![0].properties!.Lot}</div>`;
-    //   popup.setLngLat(e.lngLat).setHTML(popupHtml).addTo(afterMap.current!);
-    //   console.log("Popup: ");
-    //   console.log(popup);
-    // });
-
-    // afterMap.current.on('mouseleave', 'dutch_grants-5ehfqe', () => {
-    //   afterMap.current!.getCanvas().style.cursor = '';
-    //   popup.remove();
-    // });
-}, [MapboxCompare, beforeMap, afterMap]);
+}, [MapboxCompare]);
 
   useEffect(() => {
     if (!MapboxCompare || !comparisonContainerRef.current) return;
@@ -529,7 +516,6 @@ export default function Home() {
             url: 'mapbox://mapny.7q2vs9ar'
           })
         }
-
         addMapLayer(currBeforeMap, x)
         addMapLayer(currAfterMap, x)
       })
@@ -549,7 +535,7 @@ export default function Home() {
         currAfterMap.current!.setLayoutProperty(layer.id, 'visibility', 'none');
       }
     });
-  }, [activeLayerIds])
+  }, [activeLayerIds]);
 
   useEffect(() => {
     if(!currDate) return;
@@ -659,6 +645,7 @@ export default function Home() {
             setLayerPanelVisible(true);
             setPopUpVisible(true);
             setModalOpen(false);
+            getLayers();
           }}
           ></LayerFormButton>
 
@@ -672,6 +659,7 @@ export default function Home() {
             setLayerPanelVisible(true);
             setPopUpVisible(true);
             setModalOpen(false);
+            getMaps();
           }}
           ></MapFormButton>
 

@@ -7,7 +7,7 @@ export async function GET() {
   const groups = await prisma.mapFilterGroup.findMany({ //find all groups 
     include: {
         maps: true,             // Include associated maps
-        MapFilterItems: true,   // Include associated MapFilterItems
+        mapfilteritems: true,   // Include associated MapFilterItems
     },
 });
 
@@ -51,8 +51,8 @@ export async function POST(request: Request) { // create
                     styleId: m.styleId,
                 })) || [],
             },
-            MapFilterItems: {
-                create: group.MapFilterItems?.map(item => ({ //creates the items
+            mapfilteritems: {
+                create: group.mapfilteritems?.map(item => ({ //creates the items
                     itemName: item.itemName,
                     label: item.label,
                     defaultCheckedForBeforeMap: item.defaultCheckedForBeforeMap,
