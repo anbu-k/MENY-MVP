@@ -1,10 +1,13 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useFormik } from 'formik';
 import { CSSProperties } from 'react';
+import { MapFilterGroup as PrismaMapFilterGroup } from '@prisma/client';
 
 const POSTMapForm = () => {
   const [responseMessage, setResponseMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+  const [showGroupSettings, setShowGroupSettings] = useState(false);
+  const [existingGroups, setExistingGroups] = useState<PrismaMapFilterGroup[]>([]);
 
   const formik = useFormik({
     initialValues: {
@@ -14,32 +17,115 @@ const POSTMapForm = () => {
       mapId:                  '',
       zoom:                    0,
       bearing:                 0,
-      styleId:                 ''
+      styleId:                 '',
+      groupValue:               '',
+      newGroupName:            '',
+      newGroupLabel:           ''
     },
     
     onSubmit: async (values) => {
       try {
-        const response = await fetch('api/map', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(values),
-        });
+        // If we are creating a new group, need to hit a different endpoint
+        if(values.groupValue === 'newGroup') {
+          const serializedBody = {
+            groupName: values.newGroupName,
+            label: values.newGroupLabel,
+            mapId: `unique-map-id-${values.newGroupName}-${values.name}`,
+            mapfilteritems: [
+              {
+                itemName: values.name,
+                label: values.name,
+                defaultCheckedForBeforeMap: true,
+                defaultCheckedForAfterMap: false,
+                showInfoButton: true,
+                showZoomButton: false
+              }
+            ],
+            maps: [
+              {
+                longitude: values.longitude,
+                latitude: values.latitude,
+                mapName: values.name,
+                zoom: values.zoom,
+                bearing: values.bearing,
+                styleId: values.styleId
+              }
+            ]
+          }
 
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
+          const response = await fetch('api/map', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(serializedBody),
+          });
+
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+
+          const data = await response.json();
+          setResponseMessage(`Success - map ID: ${data.message}`); 
+          formik.resetForm(); 
+        } else {
+          const serializedBody = {
+            name: values.name,
+            longitude: values.longitude,
+            latitude: values.latitude,
+            mapId: values.mapId,
+            zoom: values.zoom,
+            bearing: values.bearing,
+            styleId: values.styleId,
+          }
+
+          const response = await fetch('api/map', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(serializedBody),
+          });
+
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+
+          const data = await response.json();
+          setResponseMessage(`Success - map ID: ${data.message}`); 
+          formik.resetForm(); 
         }
-
-        const data = await response.json();
-        setResponseMessage(`Success - map ID: ${data.message}`); 
-        formik.resetForm(); 
       } catch (error) {
-        setErrorMessage(`Error: ${error.message}`);
+        setErrorMessage(`Error: ${error}`);
         setResponseMessage('');
       }
     },
   });
+
+  const getMaps = () => {
+    fetch('http://localhost:3000/api/map', {
+      method: 'GET',
+      headers: {
+          'Content-Type': 'application/json',
+      }
+    }).then(maps => {
+        maps.json()?.then(parsed => {
+          if(!!parsed && !!parsed.groups && parsed.groups.length) {
+            let groups: PrismaMapFilterGroup[] = parsed.groups;
+
+            setExistingGroups(groups)
+          }
+        }).catch(err => {
+          console.error('failed to convert to json: ', err)
+        })
+    }).catch(err => {
+      console.error(err);
+    })
+  }
+
+  useEffect(() => {
+    getMaps();
+  }, [])
 
   const boxStyling: CSSProperties = {
     padding: '8px',
@@ -112,6 +198,43 @@ return (
             <label htmlFor="styleId" style={labelStyling}>StyleId:</label>
             <input type="text" id="styleId" name="styleId" onChange={formik.handleChange} value={formik.values.styleId} style={boxStyling} />
         </div>
+
+              {/* Dropdown for Type */}
+        <div style={{ marginBottom: '15px' }}>
+          <label htmlFor="groupValue" style={labelStyling}>Group:</label>
+          <select
+            id="groupValue"
+            name="groupValue"
+            onChange={formik.handleChange}
+            value={formik.values.groupValue ?? ''}
+            style={boxStyling}
+          >
+            <option value="">Select Type</option>
+            <option value="newGroup">Create New Group</ option>
+            {
+              (existingGroups ?? []).map(grp => (
+                <>
+                  <option value={grp.groupName}>{grp.label}</ option>
+                </>
+              ))
+            }
+          </select>
+        </div>
+
+      {
+        ((formik.values.groupValue ?? '') === 'newGroup') && (
+          <>
+            <div style={{ marginBottom: '15px' }}>
+              <label htmlFor="newGroupName" style={labelStyling}>New Group Name:</label>
+              <input type="text" id="newGroupName" name="newGroupName" onChange={formik.handleChange} value={formik.values.newGroupName} style={boxStyling} />
+            </div>
+            <div style={{ marginBottom: '15px' }}>
+              <label htmlFor="newGroupLabel" style={labelStyling}>New Group Label:</label>
+              <input type="text" id="newGroupLabel" name="newGroupLabel" onChange={formik.handleChange} value={formik.values.newGroupLabel} style={boxStyling} />
+            </div>
+          </>
+        )
+      }
         
         <button style={buttonStyling} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = buttonHoverStyling.backgroundColor!}
             onMouseLeave={(e) => e.currentTarget.style.backgroundColor = buttonStyling.backgroundColor!}

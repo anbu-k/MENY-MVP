@@ -20,8 +20,7 @@ import { MapItem } from './models/maps/map.model';
 import LayerFormButton from './components/forms/buttons/layer-form-button.component';
 import Modal from 'react-modal';
 import MapFormButton from './components/forms/buttons/map-form-button.component';
-import {Map as PrismaMap, Layer as PrismaLayer} from '@prisma/client';
-import { MapCompareFilters } from './models/all-filters/all-filters.model';
+import {Map as PrismaMap, Layer as PrismaLayer, MapFilterGroup as PrismaMapFilterGroup, MapFilterItem as PrismaMapFilterItem, MapFilterItem} from '@prisma/client';
  
 // Remove this when we have a way to get layers correctly
 
@@ -66,7 +65,7 @@ const beforeMapItem: MapItem = {
   center: [-74.01454, 40.70024],
   zoom: 15.09,
   bearing: -51.3,
-  styleId: '',
+  styleId: 'cjooubzup2kx52sqdf9zmmv2j',
 }
 
 const afterMapItem: MapItem = {
@@ -75,7 +74,7 @@ const afterMapItem: MapItem = {
   center: [-74.01454, 40.70024],
   zoom: 15.09,
   bearing: -51.3,
-  styleId: '',
+  styleId: 'cjowjzrig5pje2rmmnjb5b0y2',
 }
 
 mapboxgl.accessToken = 'pk.eyJ1IjoibWFwbnkiLCJhIjoiY2xtMG93amk4MnBrZTNnczUzY2VvYjg0ciJ9.MDMHYBlVbG14TJD120t6NQ';
@@ -220,27 +219,46 @@ export default function Home() {
           'Content-Type': 'application/json',
       }
     }).then(maps => {
+      console.log(maps)
         maps.json()?.then(parsed => {
-          if(!!parsed && !!parsed.maps && parsed.maps.length) {
-            setCurrMaps(parsed.maps);
-            let mapFilterGroups: MapFiltersGroup[] = [
-              {
-                id: 0,
-                name: '1660 | Castello Plans',
-                label: '1660 | Castello Plans',
-                maps: parsed.maps.map((x: PrismaMap) => {
+          console.log(parsed);
+          if(!!parsed && !!parsed.groups && parsed.groups.length) {
+            let groups: PrismaMapFilterGroup[] = parsed.groups;
+            let mapFilterGroups: MapFiltersGroup[] = groups.map((grp, idx) => {
+              
+              let mappedGroup: MapFiltersGroup = {
+                id: idx,
+                name: grp.groupName,
+                label: grp.label,
+                maps: grp.maps.map((x: PrismaMap) => {
                   let newDBMap: MapItem = {
                     mapId: x.mapId,
                     center: [x.longitude, x.latitude],
                     zoom: x.zoom,
                     bearing: x.bearing,
                     styleId: x.styleId,
-                    name: x.name
+                    name: x.mapName
                   }
                   return newDBMap
+                }),
+                mapfilteritems: grp.mapfilteritems.map((x: PrismaMapFilterItem) => {
+                  let filterItem: MapFilterItem = {
+                    id: x.id,
+                    label: x.label,
+                    mapId: x.mapId,
+                    itemName: x.itemName,
+                    defaultCheckedForBeforeMap: x.defaultCheckedForBeforeMap,
+                    defaultCheckedForAfterMap: x.defaultCheckedForAfterMap,
+                    showInfoButton: x.showInfoButton,
+                    showZoomButton: x.showZoomButton
+                  }
+                  return filterItem;
                 })
               }
-            ]
+
+              return mappedGroup;
+            })
+
             setMappedFilterItemGroups(mapFilterGroups)
           }
         }).catch(err => {
@@ -580,11 +598,14 @@ export default function Home() {
           }} />
 
         <MapFilterWrapperComponent beforeMapCallback={(map) => {
+          console.log('before hit', map?.styleId)
           // Set beforeMap to selected map by changing the mapId
-          setMapStyle(currBeforeMap, map.mapId);
+          setMapStyle(currBeforeMap, map.styleId);
         }} afterMapCallback={(map) => {
           // Set afterMap to selected map by changing the mapId
-          setMapStyle(currAfterMap, map.mapId);
+          console.log('after hit', map?.styleId)
+
+          setMapStyle(currAfterMap, map.styleId);
         }} defaultMap={beforeMapItem} mapGroups={mappedFilterItemGroups} />
       </div>)}
 

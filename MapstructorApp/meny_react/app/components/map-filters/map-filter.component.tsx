@@ -13,7 +13,7 @@ type MapFilterComponentProps = {
 }
 
 const MapFilterComponent = (props: MapFilterComponentProps) => {
-
+    console.log('MAPPPPPS: ', props.map)
     return (
         <>
             <div className="layer-list-row">
