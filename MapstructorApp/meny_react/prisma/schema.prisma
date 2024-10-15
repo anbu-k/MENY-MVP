@@ -4,7 +4,8 @@
 // Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 // Command for refreashing the db: 
-//        npx prisma generate; npx prisma db push
+
+// ====> npx prisma generate; npx prisma db push
 
 generator client {
   provider = "prisma-client-js"
@@ -15,19 +16,12 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-//switch around the models to
-//          MapFilterGroup
-//               |
-//          list of maps
-//               |
-//        list of mapFilterItems
-
 model MapFilterGroup{
   id             String @id @default(auto()) @map("_id") @db.ObjectId 
   groupName      String
   label          String
+  groupId        String @unique
   maps           Map[]
-  mapId          String @unique
   mapfilteritems MapFilterItem[]
 }
 model Map {
@@ -39,21 +33,23 @@ model Map {
   zoom           Float
   bearing        Float
   styleId        String
+  groupId        String
 
-  MapFilterGroup MapFilterGroup? @relation(fields: [mapId], references: [mapId])
+
+  MapFilterGroup MapFilterGroup? @relation(fields: [groupId], references: [groupId])
 }
 
 model MapFilterItem{
-    id                         String @id @default(auto()) @map("_id") @db.ObjectId
-    itemName                   String
-    label                      String
-    defaultCheckedForBeforeMap Boolean
-    defaultCheckedForAfterMap  Boolean
-    showInfoButton             Boolean
-    showZoomButton             Boolean
-    mapId                      String 
+  id                         String @id @default(auto()) @map("_id") @db.ObjectId
+  itemName                   String
+  label                      String
+  defaultCheckedForBeforeMap Boolean
+  defaultCheckedForAfterMap  Boolean
+  showInfoButton             Boolean
+  showZoomButton             Boolean
+  groupId                    String 
 
-    mapfiltergroup MapFilterGroup? @relation(fields: [mapId], references: [mapId])
+  mapfiltergroup MapFilterGroup? @relation(fields: [groupId], references: [groupId])
 }
 
 

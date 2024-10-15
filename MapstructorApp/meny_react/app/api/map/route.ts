@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 
 const prisma = new PrismaClient();
 
-export async function GET() {
+export async function GET() {//get
   const groups = await prisma.mapFilterGroup.findMany({ //find all groups 
     include: {
         maps: true,             // Include associated maps
@@ -22,7 +22,7 @@ export async function POST(request: Request) { // create
 
       const existingGroup = await prisma.mapFilterGroup.findFirst({ //check if group exsit 
           where: {
-              mapId: group.mapId,
+            groupId: group.groupId,
           },
       });
 
@@ -35,11 +35,13 @@ export async function POST(request: Request) { // create
           }, { status: 400 });
       }
 
-      const newMap = await prisma.mapFilterGroup.create({ //creates the group and its nested tables
+      console.log(group.mapfiltergroup);
+
+      const newgroup = await prisma.mapFilterGroup.create({ //creates the group and its nested tables
         data: {
             groupName: group.groupName,
             label: group.label,
-            mapId: group.mapId,
+            groupId: group.groupId,
             maps: {
                 create: group.maps?.map(m => ({ //creates the maps
                     mapId: m.mapId,
@@ -59,7 +61,6 @@ export async function POST(request: Request) { // create
                     defaultCheckedForAfterMap: item.defaultCheckedForAfterMap,
                     showInfoButton: item.showInfoButton,
                     showZoomButton: item.showZoomButton,
-                    mapId: item.mapId, // Use the mapId of the group for the connection
                 })) || [],
             },
         },
@@ -67,7 +68,7 @@ export async function POST(request: Request) { // create
 
       return NextResponse.json({ // send success and the new map data back 
           message: "Success",
-          map_id: newMap.id,
+          map_id: newgroup.id
       });
       
   } catch (error) { // catch error if try fails
@@ -80,43 +81,47 @@ export async function POST(request: Request) { // create
 }
 
 //Outdated do not use!!!!!!!!!!!!!!!!!
-// export async function DELETE(request: Request){ //delete 
-//     const m: Map = await request.json();
+export async function DELETE(request: Request){ //delete 
+    const g: MapFilterGroup = await request.json();
 
-//     console.log("<================== DELETE ==================>: ", m.id);//logging
+    console.log("DELETE:", g.id);//logging
 
     
-//     try{
-//         if (m.id == undefined) { //check to see if the JSON is vaild
-//             console.log("ERROR: MISSING ID DATA -- SENDING 400");
-//             console.error("Validation error: Missing required fields", m);
-//             return NextResponse.json({ //sends error and 400 (Bad Request) if not
-//                 message: "Invalid data: ",
-//                 error: "Missing required fields",
-//             }, { status: 400 });
-//         }
+    try{
+        if (g.id == undefined) { //check to see if the JSON is vaild
+            console.log("ERROR: MISSING ID DATA -- SENDING 400");
+            console.error("Validation error: Missing required fields");
+            return NextResponse.json({ //sends error and 400 (Bad Request) if not
+                message: "Invalid data: ",
+                error: "Missing required fields",
+            }, { status: 400 });
+        }
 
-//         const delmap = await prisma.map.delete({ //find and delete the map id that was sent
-//             where: {
-//               id: m.id,
-//             },
-//           })
+        const delmap = await prisma.mapFilterGroup.delete({ //find and delete the map id that was sent
+            where: {
+              id: g.id,
+            },
+            include: {
+                maps: true,             // Include associated maps
+                mapfilteritems: true,   // Include associated MapFilterItems
+            },
+          })
 
-//           console.log("<================== DELETE COMPLETE ==================>: ", m.id);//sucess delete map
+          console.log("DELETE COMPLETE: ", g.id);//sucess delete map
 
-//         return NextResponse.json({ //send success and the delmap data back 
-//             message: "Success",
-//             data: delmap
-//         });
-//     }
-//     catch (error: any) { //catch error if try fails
-//         console.error("Error Deleting map:", error); //log to server
-//         return NextResponse.json({ //send 500 (Internal Server Error) and what the error is to frontend
-//             message: "Failed to Deleting map",
-//             error: error.message,
-//         }, { status: 500 });
-//     } 
-// }
+        return NextResponse.json({ //send success and the delmap data back 
+            message: "Success",
+            data: delmap
+        });
+    }
+    catch (error: any) { //catch error if try fails
+        console.error("Error Deleting map:", error); //log to server
+        return NextResponse.json({ //send 500 (Internal Server Error) and what the error is to frontend
+            message: "Failed to delete map",
+            error: error.message,
+        }, { status: 500 });
+    } 
+}
 
 // export async function PUT(request: Request){ //modify
 //     const m: Map = await request.json();
