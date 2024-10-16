@@ -35,8 +35,6 @@ export async function POST(request: Request) { // create
           }, { status: 400 });
       }
 
-      console.log(group.mapfiltergroup);
-
       const newgroup = await prisma.mapFilterGroup.create({ //creates the group and its nested tables
         data: {
             groupName: group.groupName,
@@ -68,7 +66,7 @@ export async function POST(request: Request) { // create
 
       return NextResponse.json({ // send success and the new map data back 
           message: "Success",
-          map_id: newgroup.id
+          map_id: newgroup
       });
       
   } catch (error) { // catch error if try fails
@@ -80,44 +78,70 @@ export async function POST(request: Request) { // create
   }
 }
 
-//Outdated do not use!!!!!!!!!!!!!!!!!
 export async function DELETE(request: Request){ //delete 
-    const g: MapFilterGroup = await request.json();
+    const g = await request.json();
 
-    console.log("DELETE:", g.id);//logging
+    let delitemname: string = g.itemName;
+    let delmapid:string  = g.mapId;
+    
+    let message:string = "failed";
+
+    console.log("DELETE:", delmapid, g.groupId);//logging
 
     
     try{
-        if (g.id == undefined) { //check to see if the JSON is vaild
+        if (g.groupId == undefined) { //check to see if the JSON is vaild
             console.log("ERROR: MISSING ID DATA -- SENDING 400");
             console.error("Validation error: Missing required fields");
             return NextResponse.json({ //sends error and 400 (Bad Request) if not
-                message: "Invalid data: ",
+                message: "Invalid data",
                 error: "Missing required fields",
             }, { status: 400 });
         }
 
-        const delmap = await prisma.mapFilterGroup.delete({ //find and delete the map id that was sent
-            where: {
-              id: g.id,
-            },
-            include: {
-                maps: true,             // Include associated maps
-                mapfilteritems: true,   // Include associated MapFilterItems
-            },
-          })
+        if(delmapid !== undefined){//want to delete a map
+           await prisma.map.deleteMany({
+                where: {
+                    groupId: g.groupId,
+                    mapId: delmapid, 
+                },
+            });
 
-          console.log("DELETE COMPLETE: ", g.id);//sucess delete map
+            message = "deleted map";
+        }
+
+        else if(delitemname !== undefined){ //want to delete a item
+            await prisma.mapFilterItem.deleteMany({
+                where: {
+                    groupId: g.groupId,
+                    itemName: delitemname, 
+                },
+            });
+
+            message = "deleted item";
+        }
+
+        else{ //delete group
+            console.log("del group!")
+            const transaction = await prisma.$transaction([ 
+                prisma.map.deleteMany({ where: { groupId: g.groupId } }),
+                prisma.mapFilterItem.deleteMany({ where: { groupId: g.groupId } }),
+                prisma.mapFilterGroup.deleteMany({ where: { groupId: g.groupId } })
+            ]);
+            message = "deleted group";
+        }
+
+          console.log("DELETE COMPLETE: ", g.groupId);//sucess delete map
 
         return NextResponse.json({ //send success and the delmap data back 
-            message: "Success",
-            data: delmap
+            message: message,
+            data: g
         });
     }
     catch (error: any) { //catch error if try fails
-        console.error("Error Deleting map:", error); //log to server
+        console.error("Error Deleting:", error); //log to server
         return NextResponse.json({ //send 500 (Internal Server Error) and what the error is to frontend
-            message: "Failed to delete map",
+            message: "Failed to delete",
             error: error.message,
         }, { status: 500 });
     } 
