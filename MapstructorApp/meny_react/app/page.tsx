@@ -22,6 +22,8 @@ import Modal from 'react-modal';
 import MapFormButton from './components/forms/buttons/map-form-button.component';
 import {Map as PrismaMap, Layer as PrismaLayer, MapFilterGroup as PrismaMapFilterGroup, MapFilterItem as PrismaMapFilterItem, MapFilterItem} from '@prisma/client';
  
+import EditMenu from './components/forms/buttons/edit-form-wrapper.component';
+
 // Remove this when we have a way to get layers correctly
 
 const manhattaSectionGroups: SectionLayerGroup[] = [
@@ -266,7 +268,20 @@ export default function Home() {
         })
     }).catch(err => {
       console.error(err);
-    })
+    });
+  }
+  const [editMenuOpen, setEditMenuOpen] = useState(false);
+
+  const beforeModalOpen = () => {
+    setLayerPanelVisible(false);
+    setPopUpVisible(false);
+    setModalOpen(true);
+  }
+
+  const afterModalClose = () => {
+    setLayerPanelVisible(true);
+    setPopUpVisible(true);
+    setModalOpen(false);
   }
 
 
@@ -512,32 +527,19 @@ export default function Home() {
           /></a>
 
           <LayerFormButton
-          beforeOpen={() => {
-            setLayerPanelVisible(false);
-            setPopUpVisible(false);
-            setModalOpen(true);
-          }}
-          afterClose={() => {
-            setLayerPanelVisible(true);
-            setPopUpVisible(true);
-            setModalOpen(false);
-            getLayers();
-          }}
+          beforeOpen={beforeModalOpen}
+          afterClose={afterModalClose}
           ></LayerFormButton>
 
           <MapFormButton
-          beforeOpen={() => {
-            setLayerPanelVisible(false);
-            setPopUpVisible(false);
-            setModalOpen(true);
-          }}
-          afterClose={() => {
-            setLayerPanelVisible(true);
-            setPopUpVisible(true);
-            setModalOpen(false);
-            getMaps();
-          }}
+          beforeOpen={beforeModalOpen}
+          afterClose={afterModalClose}
           ></MapFormButton>
+
+          {editMenuOpen && <EditMenu
+          openWindow={beforeModalOpen}
+          closeWindow={afterModalClose}
+          isOpen={editMenuOpen}/>}
 
           <label htmlFor="o" id="open-popup" style={{display: "none"}}>Open PopUp</label>
           <label id="about" className="trigger-popup" title="Open">ABOUT</label>
