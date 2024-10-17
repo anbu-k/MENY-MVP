@@ -13,7 +13,7 @@ import { FontAwesomeLayerIcons } from "./models/font-awesome.model";
 import {CSSTransition} from 'react-transition-group';
 "./global.css";
 import MapComparisonComponent from "./components/map/map-compare-container.component";
-import mapboxgl, { FilterSpecification } from 'mapbox-gl';
+import mapboxgl, { FilterSpecification, LngLatLike } from 'mapbox-gl';
 import { MapFiltersGroup } from './models/maps/map-filters.model';
 import MapFilterWrapperComponent from './components/map-filters/map-filter-wrapper.component';
 import { MapItem } from './models/maps/map.model';
@@ -157,14 +157,17 @@ export default function Home() {
         } else {
           map.current.addLayer(layerStuff as any)
         }
-        let hoverPopup = new mapboxgl.Popup({ closeOnClick: false, closeButton: false, offset: 5 });
-        // map.current.on("mouseenter", layerConfig.id, (e) =>{
-        //   var coordinates = e.lngLat;
-        //   new mapboxgl.Popup()
-        //     .setLngLat(coordinates)
-        //     .setHTML('you clicked here: <br/>' + coordinates)
-        //     .addTo(map.current!);
-        // });
+        let hoverPopup = new mapboxgl.Popup({ closeOnClick: false, closeButton: false, offset: 100 });
+        map.current.on("mouseenter", layerConfig.id, (e) =>{
+          var longitude: number = e.lngLat.lng;
+          var latitude: number = e.lngLat.lat;
+          var coordinates: LngLatLike = [longitude, latitude];
+          hoverPopup
+            .setHTML(`<div class='infoLayerDutchGrantsPopUp'><b>Name:</b> ${e.features![0].properties!.name}<br><b>Dutch Grant Lot:</b> ${e.features![0].properties!.Lot}</div>`)
+            .addTo(map.current!);
+          hoverPopup.setLngLat(coordinates);
+          console.log(e);
+        });
         /**
          * Mouse move event triggers hover functionality. 
          * It tracks the hovered id and sets the "hover" field on the map 
@@ -183,6 +186,7 @@ export default function Home() {
               map.current!.getCanvas().style.cursor = "pointer";
             }
           }
+          
         });
         /**
          * Mouse leave event ends hover functionality. 
