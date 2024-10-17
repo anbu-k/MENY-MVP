@@ -47,6 +47,13 @@ const SectionLayerGroupItemComponent = (props: SectionLayerGroupItemProps) => {
                 <div className="layer-buttons-block">
                     <div className="layer-buttons-list">
                         <FontAwesomeIcon
+                        className="layer-menu edit-modal"
+                        title="Edit Layer"
+                        color="black"
+                        icon={getFontawesomeIcon(FontAwesomeLayerIcons.PEN_TO_SQUARE)}
+                        onClick={() => {}}
+                        />
+                        <FontAwesomeIcon
                         className="zoom-to-layer"
                         title="Zoom to Layer"
                         color="blue"

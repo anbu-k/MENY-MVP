@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useState } from "react";
 import { faMinusSquare, faPlusSquare, faPlayCircle } from "@fortawesome/free-regular-svg-icons";
 import SectionLayerGroupItemComponent from "./section-layer-group-item.component";
-import { faCrosshairs, faInfoCircle } from "@fortawesome/free-solid-svg-icons";
+import { faCrosshairs, faInfoCircle, faPenToSquare } from "@fortawesome/free-solid-svg-icons";
 import { getFontawesomeIcon } from "@/app/helpers/font-awesome.helper";
 import { FontAwesomeLayerIcons } from "@/app/models/font-awesome.model";
 import { IconColors } from "@/app/models/colors.model";
@@ -45,6 +45,13 @@ const SectionLayerGroupComponent = (props: SectionLayerGroupsProps) => {
                 </label>
                 <div className="layer-buttons-block">
                     <div className="layer-buttons-list">
+                        <FontAwesomeIcon
+                        className="layer-menu edit-modal"
+                        title="Edit Layer"
+                        color="black"
+                        icon={faPenToSquare}
+                        onClick={() => {}/*zoomtocenter(layerData.zoomTo || "N/A")*/} // Edit This to pull up a modal
+                        />
                         <FontAwesomeIcon
                         className="zoom-to-layer"
                         title="Zoom to Layer"
