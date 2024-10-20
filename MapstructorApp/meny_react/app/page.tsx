@@ -11,7 +11,6 @@ import { faArrowCircleLeft } from "@fortawesome/free-solid-svg-icons";
 import SectionLayerComponent from "./components/layers/section-layer.component";
 import { FontAwesomeLayerIcons } from "./models/font-awesome.model";
 import {CSSTransition} from 'react-transition-group';
-"./global.css";
 import MapComparisonComponent from "./components/map/map-compare-container.component";
 import mapboxgl, { FilterSpecification, LngLatLike } from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
@@ -22,7 +21,7 @@ import LayerFormButton from './components/forms/buttons/layer-form-button.compon
 import Modal from 'react-modal';
 import MapFormButton from './components/forms/buttons/map-form-button.component';
 import {Map as PrismaMap, Layer as PrismaLayer, MapFilterGroup as PrismaMapFilterGroup, MapFilterItem as PrismaMapFilterItem, MapFilterItem} from '@prisma/client';
- 
+import './popup.css';
 // Remove this when we have a way to get layers correctly
 
 const manhattaSectionGroups: SectionLayerGroup[] = [
