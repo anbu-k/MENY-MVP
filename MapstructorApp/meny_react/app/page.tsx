@@ -14,6 +14,7 @@ import {CSSTransition} from 'react-transition-group';
 "./global.css";
 import MapComparisonComponent from "./components/map/map-compare-container.component";
 import mapboxgl, { FilterSpecification, LngLatLike } from 'mapbox-gl';
+import 'mapbox-gl/dist/mapbox-gl.css';
 import { MapFiltersGroup } from './models/maps/map-filters.model';
 import MapFilterWrapperComponent from './components/map-filters/map-filter-wrapper.component';
 import { MapItem } from './models/maps/map.model';
@@ -157,16 +158,33 @@ export default function Home() {
         } else {
           map.current.addLayer(layerStuff as any)
         }
-        let hoverPopup = new mapboxgl.Popup({ closeOnClick: false, closeButton: false, offset: 100 });
+        let hoverPopup = new mapboxgl.Popup({ closeOnClick: false, closeButton: false});
+        let clickHoverPopUp = new mapboxgl.Popup({ closeOnClick: false, closeButton: false});
+        let hoverStyleString: string;
+        /**
+         * This is gross and needs to be redone
+         * Popups type needs to be reactified
+         * Right now I pass the e event into the popup props
+         * and determine type by the type field
+         * Same think with hover popup styling Idk how we
+         * want to drive this.
+         */
+        if(layerConfig.layerName === "dutch_grants-5ehfqe")
+          {
+            popUpType = "dutch-grant";
+            hoverStyleString = "<div class='infoLayerDutchGrantsPopUp'><b>Name:</b> {name}<br><b>Dutch Grant Lot:</b> {Lot}</div>";
+          }
+          else if (layerConfig.layerName === "lot_events-bf43eb")
+          {
+            popUpType = "lot-event"
+            hoverStyleString = "<div class='demoLayerInfoPopUp'><b><h2>Taxlot: <a href='https://encyclopedia.nahc-mapping.org/taxlot/{TAXLOT}' target='_blank'>{TAXLOT}</a></h2></b></div>";
+          }
+          else
+          {
+            popUpType = "castello-taxlot"
+            hoverStyleString = "<div class='infoLayerCastelloPopUp'><b>Taxlot (1660):</b> <br/> {LOT2}</div>";
+          }
         map.current.on("mouseenter", layerConfig.id, (e) =>{
-          var longitude: number = e.lngLat.lng;
-          var latitude: number = e.lngLat.lat;
-          var coordinates: LngLatLike = [longitude, latitude];
-          hoverPopup
-            .setHTML(`<div class='infoLayerDutchGrantsPopUp'><b>Name:</b> ${e.features![0].properties!.name}<br><b>Dutch Grant Lot:</b> ${e.features![0].properties!.Lot}</div>`)
-            .addTo(map.current!);
-          hoverPopup.setLngLat(coordinates);
-          console.log(e);
         });
         /**
          * Mouse move event triggers hover functionality. 
@@ -185,6 +203,10 @@ export default function Home() {
               map.current!.setFeatureState({ source: layerConfig.id, sourceLayer: layerConfig.sourceLayer, id: hoveredId }, { hover: true });
               map.current!.getCanvas().style.cursor = "pointer";
             }
+            hoverPopup
+            .setHTML(hoverStyleString)
+            .setLngLat(e.lngLat)
+            .addTo(map.current!);
           }
           
         });
@@ -200,6 +222,7 @@ export default function Home() {
             map.current!.setFeatureState({ source: layerConfig.id, sourceLayer: layerConfig.sourceLayer, id: hoveredId  }, { hover: false });
             hoveredId = null;
           }
+          hoverPopup.remove();
         });
         /**
          * Code below handles click events
@@ -210,34 +233,26 @@ export default function Home() {
         var popUpType: "castello-taxlot" | "lot-event" | "long-island-native-groups" | "dutch-grant";
         var previousNid: number | string | undefined;
         var previousName: string | undefined;
-        /**
-         * This is gross and needs to be redone
-         * Popups type needs to be reactified
-         * Right now I pass the e event into the popup props
-         * and determine type by the type field
-         */
-        if(layerConfig.layerName === "dutch_grants-5ehfqe")
-        {
-          popUpType = "dutch-grant";
-        }
-        else if (layerConfig.layerName === "lot_events-bf43eb")
-        {
-          popUpType = "lot-event"
-        }
-        else
-        {
-          popUpType = "castello-taxlot"
-        }
         map.current.on("click", layerConfig.id, (e) => {
+          if(clickHoverPopUp.isOpen())
+          {
+            clickHoverPopUp.remove();
+          }
+          clickHoverPopUp
+            .setHTML(hoverStyleString)
+            .setLngLat(e.lngLat)
+            .addTo(map.current!);
           if(clickVisible && previousNid && (previousNid === e.features![0].properties!.nid))
           {
             clickVisible = false;
             setPopUpVisible(clickVisible);
+            clickHoverPopUp.remove();
           }
           else if (clickVisible && previousName && (previousName === e.features![0].properties!.name))
           {
             clickVisible = false;
             setPopUpVisible(clickVisible);
+            clickHoverPopUp.remove();
           }
           else
           {
@@ -449,8 +464,6 @@ export default function Home() {
 
     const mapboxCompare = new MapboxCompare(currBeforeMap.current, currAfterMap.current, comparisonContainerRef.current as HTMLElement);
 
-    // popup.setLngLat([-74.01454, 40.70024]).setHTML('<h1>Hello World!</h1>').addTo(afterMap.current);
-
     const compareSwiper = document.querySelector('.compare-swiper') as HTMLElement;
     if (compareSwiper && !modalOpen) {
       compareSwiper.innerHTML = ''; 
@@ -482,8 +495,6 @@ export default function Home() {
         };
       };
     }
-
-    //beforeMap.current.on("click", 'dutch_grants-5ehfqe', onClickHandler);
 
 }, [MapboxCompare]);
 
