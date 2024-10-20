@@ -14,6 +14,9 @@ type SectionLayerGroupsProps = {
     group: SectionLayerGroup,
     activeLayerCallback: (activeLayers: string[]) => void,
     activeLayers: string[],
+    openWindow: () => void,
+    editFormVisibleCallback: (isOpen: boolean) => void,
+    editFormIdCallback: (id: string) => void,
 }
 
 const SectionLayerGroupComponent = (props: SectionLayerGroupsProps) => {
@@ -45,13 +48,20 @@ const SectionLayerGroupComponent = (props: SectionLayerGroupsProps) => {
                 </label>
                 <div className="layer-buttons-block">
                     <div className="layer-buttons-list">
-                        <FontAwesomeIcon
+                    {/* <FontAwesomeIcon
                         className="layer-menu edit-modal"
                         title="Edit Layer"
                         color="black"
-                        icon={faPenToSquare}
-                        onClick={() => {}/*zoomtocenter(layerData.zoomTo || "N/A")*/} // Edit This to pull up a modal
-                        />
+                        icon={getFontawesomeIcon(FontAwesomeLayerIcons.PEN_TO_SQUARE)}
+                        onClick={() => {
+                            props.openWindow();
+                            props.editFormIdCallback(props.group.id);
+                            console.log("Layer id: " + props.group.id);
+                            props.editFormVisibleCallback(true);
+                        }}
+                        /> 
+                        EDIT BUTTON FOR GROUPS, ADD LATER
+                        */} 
                         <FontAwesomeIcon
                         className="zoom-to-layer"
                         title="Zoom to Layer"
@@ -73,7 +83,13 @@ const SectionLayerGroupComponent = (props: SectionLayerGroupsProps) => {
                 layerIsOpen && props.group.items.map(item => {
                     return (
                         <>
-                            <SectionLayerGroupItemComponent activeLayers={props.activeLayers} activeLayerCallback={props.activeLayerCallback} item={item} />
+                            <SectionLayerGroupItemComponent 
+                            activeLayers={props.activeLayers} 
+                            activeLayerCallback={props.activeLayerCallback} 
+                            item={item} 
+                            openWindow={props.openWindow}
+                            editFormVisibleCallback={props.editFormVisibleCallback}
+                            editFormIdCallback={props.editFormIdCallback}/>
                         </>
                     )
                 })
