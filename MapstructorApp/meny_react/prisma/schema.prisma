@@ -26,7 +26,7 @@ model MapFilterGroup{
 }
 model Map {
   id             String @id @default(auto()) @map("_id") @db.ObjectId
-  mapId          String 
+  mapId          String @unique
   longitude      Float
   latitude       Float
   mapName        String
@@ -47,6 +47,7 @@ model MapFilterItem{
   defaultCheckedForAfterMap  Boolean
   showInfoButton             Boolean
   showZoomButton             Boolean
+  itemId                     String @unique
   groupId                    String 
 
   mapfiltergroup MapFilterGroup? @relation(fields: [groupId], references: [groupId], onDelete: Cascade)
