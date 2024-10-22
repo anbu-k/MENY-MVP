@@ -5,7 +5,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import MapFilterComponent from "./map-filter.component";
 import MapFiltersGroupComponent from "./map-filters-group.component";
 import { useEffect } from "react";
-import { MapItem } from "@/app/models/maps/map.model";
+import { MapItem, MapZoomProps } from "@/app/models/maps/map.model";
 
 
 export type MapFilterWrapperProps = {
@@ -13,6 +13,7 @@ export type MapFilterWrapperProps = {
     mapGroups: MapFiltersGroup[],
     beforeMapCallback: (map: MapItem) => void,
     afterMapCallback: (map: MapItem) => void,
+    mapZoomCallback: (zoomProps: MapZoomProps) => void
 }
 
 const MapFilterWrapperComponent = (props: MapFilterWrapperProps) => {
@@ -21,12 +22,12 @@ const MapFilterWrapperComponent = (props: MapFilterWrapperProps) => {
         <>
         <div>
             <p className="title">MAPS</p>
-            <MapFilterComponent beforeMapCallback={props.beforeMapCallback} afterMapCallback={props.afterMapCallback} map={props.defaultMap} displayZoomButton={false} displayInfoButton></MapFilterComponent>
+            <MapFilterComponent mapZoomCallback={props.mapZoomCallback} beforeMapCallback={props.beforeMapCallback} afterMapCallback={props.afterMapCallback} map={props.defaultMap} displayZoomButton={false} displayInfoButton></MapFilterComponent>
             <br />
             <div id="maps-group">
                 {
                     props.mapGroups.map((m, idx) => (
-                        <MapFiltersGroupComponent key={`map-filters-group-${idx}`} beforeMapCallback={props.beforeMapCallback} afterMapCallback={props.afterMapCallback} group={m}></MapFiltersGroupComponent>
+                        <MapFiltersGroupComponent mapZoomCallback={props.mapZoomCallback} key={`map-filters-group-${idx}`} beforeMapCallback={props.beforeMapCallback} afterMapCallback={props.afterMapCallback} group={m}></MapFiltersGroupComponent>
                     ))
                 }
             </div>
