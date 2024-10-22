@@ -3,16 +3,16 @@ import { NextResponse } from "next/server";
 
 const prisma = new PrismaClient();
 
-export async function GET() {//get
-  const groups = await prisma.mapFilterGroup.findMany({ //find all groups 
-    include: {
-        maps: true,             // Include associated maps
-        mapfilteritems: true,   // Include associated MapFilterItems
-    },
-});
+export async function GET(request: Request) {//get
+    const groups = await prisma.mapFilterGroup.findMany({ //find all groups 
+        include: {
+            maps: true,             // Include associated maps
+            mapfilteritems: true,   // Include associated MapFilterItems
+        },
+    }); 
 
     return NextResponse.json({
-      groups
+        groups
     })
 }
 
@@ -123,7 +123,7 @@ export async function DELETE(request: Request){ //delete
         }
 
         else{ //delete group
-            console.log("del group!")
+            console.log("delete group!")
             const transaction = await prisma.$transaction([ 
                 prisma.map.deleteMany({ where: { groupId: g.groupId } }),
                 prisma.mapFilterItem.deleteMany({ where: { groupId: g.groupId } }),
