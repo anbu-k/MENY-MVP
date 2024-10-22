@@ -408,6 +408,16 @@ export default function Home() {
     setModalOpen(false);
   }
 
+  const afterModalCloseLayers = () => {
+    afterModalClose();
+    getLayers();
+  }
+
+  const afterModalCloseMaps = () => {
+    afterModalClose();
+    getMaps();
+  }
+
 
   /**
    * When the page is loaded, get all maps / layers from the API, parse these to work with our frontend models.
@@ -653,12 +663,12 @@ export default function Home() {
 
           <LayerFormButton
           beforeOpen={beforeModalOpen}
-          afterClose={afterModalClose}
+          afterClose={afterModalCloseLayers}
           ></LayerFormButton>
 
           <MapFormButton
           beforeOpen={beforeModalOpen}
-          afterClose={afterModalClose}
+          afterClose={afterModalCloseMaps}
           ></MapFormButton>
 
           <Modal
@@ -672,7 +682,7 @@ export default function Home() {
             onRequestClose={() => {
               setEditFormOpen(false);
               setEditFormId("");
-              afterModalClose();
+              afterModalCloseLayers();
             }}
             contentLabel='New Layer'
             >
@@ -681,7 +691,7 @@ export default function Home() {
             afterSubmit={(closeForm: boolean) => {
               setEditFormOpen(closeForm)
               setEditFormId("");
-              afterModalClose();
+              afterModalCloseLayers();
             }}/>
           </Modal>
 
