@@ -40,24 +40,6 @@ const manhattaLayer: SectionLayer = {
   label: "MANHATTAN",
   groups: manhattaSectionGroups
 }
-//Test Popup Props
-const dutchGrantPopupTest: GenericPopUpProps = {
-  DayEnd: 17000102,
-  DayEnd1: 16550429,
-  DayStart: 16430713,
-  Lot: "B1",
-  day1: "13-Jul",
-  day2: "Apr. 29",
-  descriptio: "Gr-br. to Cornelis Volckersen. (GG: 83.) Desc: A double lot for two hos. and two gardens, lying on the Common Highway, its br. along said road is 9 r. and 8 ft., and below on the marsh of the same br.; its length on the N. side is 18 r., 2 ft., 5 ins. an",
-  lot2: "",
-  name: "Cornelis Volckersen",
-  nid: 19107,
-  notes: "",
-  styling1: "knownfull",
-  year1: "1643",
-  year2: "1655",
-  type: "dutch-grant",
-}
 
 const beforeMapItem: MapItem = {
   name: '1660 Original Castello Plan',
@@ -80,7 +62,7 @@ const afterMapItem: MapItem = {
 mapboxgl.accessToken = 'pk.eyJ1IjoibWFwbnkiLCJhIjoiY2xtMG93amk4MnBrZTNnczUzY2VvYjg0ciJ9.MDMHYBlVbG14TJD120t6NQ';
 export default function Home() {
   const [currDate, setCurrDate] = useState<moment.Moment | null>(null);
-  const [popUp, setPopUp] = useState<GenericPopUpProps | null>(dutchGrantPopupTest);
+  const [popUp, setPopUp] = useState<GenericPopUpProps | null>(null);
   const [popUpVisible, setPopUpVisible] = useState(false);
   const [layerPanelVisible, setLayerPanelVisible] = useState(true);
   const [MapboxCompare, setMapboxCompare] = useState<any>(null);
@@ -535,21 +517,8 @@ export default function Home() {
   }, [currBeforeMap, currAfterMap])
 
   useEffect(() => {
-    if(currLayers !== null && currBeforeMap !== null && currAfterMap !== null) {
-      currLayers.forEach((x: PrismaLayer) => {
-        if(currBeforeMap.current?.getSource(x.sourceId) === null) {
-          currBeforeMap.current.addSource(x.sourceId, {
-            type: 'vector',
-            url: 'mapbox://mapny.7q2vs9ar'
-          });
-          currAfterMap.current?.addSource(x.sourceId, {
-            type: 'vector',
-            url: 'mapbox://mapny.7q2vs9ar'
-          })
-        }
-        addMapLayer(currBeforeMap, x)
-        addMapLayer(currAfterMap, x)
-      })
+    if(currBeforeMap !== null && currAfterMap !== null) {
+      addAllMapLayers();
     }
   }, [currLayers, currBeforeMap, currAfterMap]);
 
