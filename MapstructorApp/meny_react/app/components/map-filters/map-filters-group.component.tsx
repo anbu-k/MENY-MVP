@@ -5,13 +5,14 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useState } from "react";
 import MapFilterComponent from "./map-filter.component";
 import { IconColors } from "@/app/models/colors.model";
-import { MapItem } from "@/app/models/maps/map.model";
+import { MapItem, MapZoomProps } from "@/app/models/maps/map.model";
 
 
 type MapFiltersGroupComponentProps = {
     group: MapFiltersGroup,
     beforeMapCallback: (map: MapItem) => void,
-    afterMapCallback: (map: MapItem) => void
+    afterMapCallback: (map: MapItem) => void,
+    mapZoomCallback: (zoomProps: MapZoomProps) => void
 }
 
 const MapFiltersGroupComponent = (props: MapFiltersGroupComponentProps) => {
@@ -31,7 +32,7 @@ const MapFiltersGroupComponent = (props: MapFiltersGroupComponentProps) => {
             {
                 layerIsOpen &&
                 props.group.maps.map((map, idx) => (
-                    <MapFilterComponent beforeMapCallback={props.beforeMapCallback} afterMapCallback={props.afterMapCallback} key={`map-filter-component-${idx}`} map={map} displayInfoButton displayZoomButton/>
+                    <MapFilterComponent beforeMapCallback={props.beforeMapCallback} afterMapCallback={props.afterMapCallback} mapZoomCallback={props.mapZoomCallback} key={`map-filter-component-${idx}`} map={map} displayInfoButton displayZoomButton/>
                 ))
             }
         </>
