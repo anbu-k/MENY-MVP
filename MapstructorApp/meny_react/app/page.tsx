@@ -100,7 +100,7 @@ export default function Home() {
 
   const setMapStyle = (map: MutableRefObject<mapboxgl.Map | null>, mapId: string) => {
     if(map?.current) {
-      map.current.setStyle(`mapbox://styles/nittyjee/${mapId.trim()}`);
+      map.current.setStyle(`mapbox://styles/mapny/${mapId.trim()}`);
 
       // Replace this later
       setTimeout(() => {
