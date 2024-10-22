@@ -8,7 +8,7 @@ type LayerType = 'symbol' | 'fill' | 'line' | 'circle' | 'heatmap' | 'fill-extru
 type SourceType = 'vector' | 'raster' | 'raster-dem' | 'raster-array' | 'geojson' | 'video' | 'image' | 'model' | 'batched-model';
 
 
-const EditForm = (props: {id: string}) => {
+const EditForm = (props: {id: string, afterSubmit: (formVisible: boolean) => void}) => {
     const [layer, setLayer] = useState<PrismaLayer>({
         id: "",
         layerName: "",
@@ -55,13 +55,21 @@ const EditForm = (props: {id: string}) => {
         },
       
       onSubmit: async (values) => {
-        await fetch('http://localhost:3000/api/layer/' + props.id, {
-            method: 'UPDATE',
+        try{
+          await fetch('http://localhost:3000/api/layer/' + props.id, {
+            method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify(values)
-        })
+        });
+        alert(`Layer Updated`);
+        props.afterSubmit(false);
+        }
+        catch (error: any)
+        {
+          alert(`Error: ${error.message}`);
+        }
       }
     });
 

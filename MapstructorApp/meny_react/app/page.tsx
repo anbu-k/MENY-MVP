@@ -677,7 +677,12 @@ export default function Home() {
             contentLabel='New Layer'
             >
             <EditForm
-            id={editFormId}/>
+            id={editFormId}
+            afterSubmit={(closeForm: boolean) => {
+              setEditFormOpen(closeForm)
+              setEditFormId("");
+              afterModalClose();
+            }}/>
           </Modal>
 
           <label htmlFor="o" id="open-popup" style={{display: "none"}}>Open PopUp</label>
