@@ -1,6 +1,6 @@
 import { getFontawesomeIcon } from "@/app/helpers/font-awesome.helper"
 import { FontAwesomeLayerIcons } from "@/app/models/font-awesome.model"
-import { MapItem } from "@/app/models/maps/map.model"
+import { MapItem, MapZoomProps } from "@/app/models/maps/map.model"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 
 
@@ -9,7 +9,8 @@ type MapFilterComponentProps = {
     displayZoomButton: boolean,
     displayInfoButton: boolean,
     beforeMapCallback: (map: MapItem) => void,
-    afterMapCallback: (map: MapItem) => void
+    afterMapCallback: (map: MapItem) => void,
+    mapZoomCallback: (zoomProps: MapZoomProps) => void
 }
 
 const MapFilterComponent = (props: MapFilterComponentProps) => {
@@ -48,7 +49,15 @@ const MapFilterComponent = (props: MapFilterComponentProps) => {
                                 title="Zoom to Layer"
                                 color="blue"
                                 icon={getFontawesomeIcon(FontAwesomeLayerIcons.CROSSHAIRS)}
-                                onClick={() => {}/*zoomtocenter(layerData.zoomTo || "N/A")*/} // Edit zoomFunctions.js to create this function
+                                onClick={() => {
+                                    props.mapZoomCallback({
+                                        center: props.map.center,
+                                        zoom: props.map.zoom,
+                                        speed: 0.2,
+                                        curve: 1,
+                                        duration: 2500,
+                                    })
+                                }}
                                 />
                             )
                         }
