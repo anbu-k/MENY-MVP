@@ -7,16 +7,14 @@ type PopUpProps = {
 
 const SliderPopUp = (props: PopUpProps) => {
     const [renderedEntity, setRenderedEntity] = useState(null);
-    const [nid, setNid] = useState<number | string | undefined>(props.popUpProps.nid);
-    useEffect(() => {
-        fetch(`https://encyclopedia.nahc-mapping.org/rendered-export-single?nid=${nid}`)
-        .then((buffer) => buffer.json())
-        .then((res) => {setRenderedEntity(res[0].rendered_entity)})
-        .catch((error) => {
-            setRenderedEntity(null);
-            console.log(error);
-        });
-    }, [nid]);
+    const nid: number | string | null = props.popUpProps.nid ?? null;
+    fetch(`https://encyclopedia.nahc-mapping.org/rendered-export-single?nid=${nid}`)
+    .then((buffer) => buffer.json())
+    .then((res) => {setRenderedEntity(res[0].rendered_entity)})
+    .catch((error) => {
+        setRenderedEntity(null);
+        console.log(error);
+    });
   
     if (props.popUpProps.type === "castello-taxlot")
     {
@@ -35,12 +33,6 @@ const SliderPopUp = (props: PopUpProps) => {
             
         );
     }   
-    // if (props.popUpProps.type === "lot-event")
-    //   return (
-    //     <div className="infoLayerElem" id="infoLayerGrantLots">
-    //         <div className="infoLayerCastelloPopUp"><b>Taxlot (1660):</b><br/>${props.popUpProps.lot2}</div>
-    //     </div>
-    // );
   
     if (renderedEntity) {
           const html: string = renderedEntity;
