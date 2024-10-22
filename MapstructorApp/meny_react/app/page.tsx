@@ -16,7 +16,7 @@ import MapComparisonComponent from "./components/map/map-compare-container.compo
 import mapboxgl, { FilterSpecification } from 'mapbox-gl';
 import { MapFiltersGroup } from './models/maps/map-filters.model';
 import MapFilterWrapperComponent from './components/map-filters/map-filter-wrapper.component';
-import { MapItem } from './models/maps/map.model';
+import { MapItem, MapZoomProps } from './models/maps/map.model';
 import LayerFormButton from './components/forms/buttons/layer-form-button.component';
 import Modal from 'react-modal';
 import MapFormButton from './components/forms/buttons/map-form-button.component';
@@ -100,7 +100,7 @@ export default function Home() {
 
   const setMapStyle = (map: MutableRefObject<mapboxgl.Map | null>, mapId: string) => {
     if(map?.current) {
-      map.current.setStyle(`mapbox://styles/nittyjee/${mapId.trim()}`);
+      map.current.setStyle(`mapbox://styles/mapny/${mapId.trim()}`);
 
       // Replace this later
       setTimeout(() => {
@@ -606,7 +606,18 @@ export default function Home() {
           console.log('after hit', map?.styleId)
 
           setMapStyle(currAfterMap, map.styleId);
-        }} defaultMap={beforeMapItem} mapGroups={mappedFilterItemGroups} />
+        }} defaultMap={beforeMapItem} mapGroups={mappedFilterItemGroups} mapZoomCallback={(zoomProps: MapZoomProps) => {
+          currBeforeMap.current?.easeTo({
+            center: zoomProps.center,
+            zoom: zoomProps.zoom,
+            speed: zoomProps.speed,
+            curve: zoomProps.curve,
+            duration: zoomProps.duration,
+            easing(t) {
+              return t;
+            }
+          })
+        }} />
       </div>)}
 
       <MapComparisonComponent
