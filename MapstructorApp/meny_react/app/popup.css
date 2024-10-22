@@ -1,0 +1,78 @@
+/* Mapbox Hover PopUp content */
+.mapboxgl-popup-content {
+    padding: 0;
+  }
+  
+  .mapboxgl-popup-anchor-top .mapboxgl-popup-tip,
+  .mapboxgl-popup-anchor-top-left .mapboxgl-popup-tip,
+  .mapboxgl-popup-anchor-top-right .mapboxgl-popup-tip {
+    border-bottom-color: #f15b28;
+  }
+  .mapboxgl-popup-anchor-bottom .mapboxgl-popup-tip,
+  .mapboxgl-popup-anchor-bottom-left .mapboxgl-popup-tip,
+  .mapboxgl-popup-anchor-bottom-right .mapboxgl-popup-tip {
+    border-top-color: #f15b28;
+  }
+  .mapboxgl-popup-anchor-left .mapboxgl-popup-tip {
+    border-right-color: #f15b28;
+  }
+  .mapboxgl-popup-anchor-right .mapboxgl-popup-tip {
+    border-left-color: #f15b28;
+  }
+  /*Right bar Popup Styling*/
+  #rightInfoBar {
+    position: absolute;
+    display: block;
+    /* top: 80px; */
+    top: 60px;
+    right: 0;
+  
+    /* Standard */
+    max-height: calc(100% - 230px);
+    /* Opera */
+    max-height: -o-calc(100% - 230px);
+    /* Firefox */
+    max-height: -moz-calc(100% - 230px);
+    /* WebKit */
+    max-height: -webkit-calc(100% - 230px);
+    overflow: auto;
+    /* background-color: transparent !important; */
+    background-color: #fff !important;
+    z-index: 100;
+  }
+  
+  .rightInfoBarBorder {
+    border: solid #ffffff 3px;
+  }
+#demoLayerInfo,
+#infoLayerCastello,
+#infoLayerGrantLots,
+#infoLayerDutchGrants,
+#infoLayerGravesend,
+#infoLayerNativeGroups,
+#infoLayerKarl,
+#infoLayerFarms,
+#infoLayerCurrLots,
+#infoLayerSettlements,
+#infoLayerInfoPoint {
+  padding: 5px;
+  margin-top: 1px;
+  margin-bottom: 1px;
+  width: 270px; /* left: 258px; width: 300px; */
+  /* dont break out a link */
+  /* These are technically the same, but use both */
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+
+  -ms-word-break: break-all;
+  /* This is the dangerous one in WebKit, as it breaks things wherever */
+  /* word-break: break-all; */
+  /* Instead use this non-standard one: */
+  word-break: break-word;
+
+  /* Adds a hyphen where the word breaks, if supported (No Blink) */
+  -ms-hyphens: auto;
+  -moz-hyphens: auto;
+  -webkit-hyphens: auto;
+  hyphens: auto;
+}
