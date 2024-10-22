@@ -353,9 +353,11 @@ export default function Home() {
                 id: idx,
                 name: grp.groupName,
                 label: grp.label,
+                groupId: grp.groupId,
                 maps: grp.maps.map((x: PrismaMap) => {
                   let newDBMap: MapItem = {
                     mapId: x.mapId,
+                    groupId: grp.groupId,
                     center: [x.longitude, x.latitude],
                     zoom: x.zoom,
                     bearing: x.bearing,
@@ -367,8 +369,9 @@ export default function Home() {
                 mapfilteritems: grp.mapfilteritems.map((x: PrismaMapFilterItem) => {
                   let filterItem: MapFilterItem = {
                     id: x.id,
+                    groupId: grp.groupId,
                     label: x.label,
-                    mapId: x.mapId,
+                    itemId: x.itemId,
                     itemName: x.itemName,
                     defaultCheckedForBeforeMap: x.defaultCheckedForBeforeMap,
                     defaultCheckedForAfterMap: x.defaultCheckedForAfterMap,
@@ -381,7 +384,6 @@ export default function Home() {
 
               return mappedGroup;
             })
-
             setMappedFilterItemGroups(mapFilterGroups)
           }
         }).catch(err => {
