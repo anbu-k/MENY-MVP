@@ -21,12 +21,14 @@ import LayerFormButton from './components/forms/buttons/layer-form-button.compon
 import Modal from 'react-modal';
 import MapFormButton from './components/forms/buttons/map-form-button.component';
 import {Map as PrismaMap, Layer as PrismaLayer, MapFilterGroup as PrismaMapFilterGroup, MapFilterItem as PrismaMapFilterItem, MapFilterItem} from '@prisma/client';
+
+import EditForm from './components/forms/EditForm';
 import './popup.css';
 // Remove this when we have a way to get layers correctly
 
 const manhattaSectionGroups: SectionLayerGroup[] = [
   {
-    id: 0,
+    id: '0',
     label: "1609 | Manhatta",
     iconColor: IconColors.YELLOW,
     iconType: FontAwesomeLayerIcons.PLUS_SQUARE,
@@ -36,7 +38,7 @@ const manhattaSectionGroups: SectionLayerGroup[] = [
 ]
 
 const manhattaLayer: SectionLayer = {
-  id: 0,
+  id:'0',
   label: "MANHATTAN",
   groups: manhattaSectionGroups
 }
@@ -79,6 +81,8 @@ export default function Home() {
   const [defaultAfterMap, setDefaultAfterMap] = useState<mapboxgl.Map>();
   const currBeforeMap = useRef<mapboxgl.Map | null>(null);
   const currAfterMap = useRef<mapboxgl.Map | null>(null);
+  const [editFormOpen, setEditFormOpen] = useState(false);
+  const [editFormId, setEditFormId] = useState("");
 
   const setMapStyle = (map: MutableRefObject<mapboxgl.Map | null>, mapId: string) => {
     if(map?.current) {
@@ -319,7 +323,7 @@ export default function Home() {
             setCurrLayers(parsed.layer);
             let mappedLayerItems: SectionLayerItem[] = parsed.layer.map((x: PrismaLayer) => {
               let sectionItem: SectionLayerItem = {
-                id: 0,
+                id: x.id,
                 label: x.layerName,
                 iconColor: IconColors.BLUE,
                 iconType: FontAwesomeLayerIcons.PLUS_SQUARE,
@@ -389,7 +393,29 @@ export default function Home() {
         })
     }).catch(err => {
       console.error(err);
-    })
+    });
+  }
+
+  const beforeModalOpen = () => {
+    setLayerPanelVisible(false);
+    setPopUpVisible(false);
+    setModalOpen(true);
+  }
+
+  const afterModalClose = () => {
+    setLayerPanelVisible(true);
+    setPopUpVisible(true);
+    setModalOpen(false);
+  }
+
+  const afterModalCloseLayers = () => {
+    afterModalClose();
+    getLayers();
+  }
+
+  const afterModalCloseMaps = () => {
+    afterModalClose();
+    getMaps();
   }
 
 
@@ -636,32 +662,38 @@ export default function Home() {
           /></a>
 
           <LayerFormButton
-          beforeOpen={() => {
-            setLayerPanelVisible(false);
-            setPopUpVisible(false);
-            setModalOpen(true);
-          }}
-          afterClose={() => {
-            setLayerPanelVisible(true);
-            setPopUpVisible(true);
-            setModalOpen(false);
-            getLayers();
-          }}
+          beforeOpen={beforeModalOpen}
+          afterClose={afterModalCloseLayers}
           ></LayerFormButton>
 
           <MapFormButton
-          beforeOpen={() => {
-            setLayerPanelVisible(false);
-            setPopUpVisible(false);
-            setModalOpen(true);
-          }}
-          afterClose={() => {
-            setLayerPanelVisible(true);
-            setPopUpVisible(true);
-            setModalOpen(false);
-            getMaps();
-          }}
+          beforeOpen={beforeModalOpen}
+          afterClose={afterModalCloseMaps}
           ></MapFormButton>
+
+          <Modal
+            style={{
+                content: {
+                    width: '30%',
+                    right: '5px'
+                }
+            }}
+            isOpen={editFormOpen}
+            onRequestClose={() => {
+              setEditFormOpen(false);
+              setEditFormId("");
+              afterModalCloseLayers();
+            }}
+            contentLabel='New Layer'
+            >
+            <EditForm
+            id={editFormId}
+            afterSubmit={(closeForm: boolean) => {
+              setEditFormOpen(closeForm)
+              setEditFormId("");
+              afterModalCloseLayers();
+            }}/>
+          </Modal>
 
           <label htmlFor="o" id="open-popup" style={{display: "none"}}>Open PopUp</label>
           <label id="about" className="trigger-popup" title="Open">ABOUT</label>
@@ -694,32 +726,44 @@ export default function Home() {
         <FontAwesomeIcon id="mobi-hide-sidebar" icon={faArrowCircleLeft} />
         <p className="title">LAYERS</p>
         <br />
-        <SectionLayerComponent activeLayers={activeLayerIds} activeLayerCallback={(newActiveLayers: string[]) => {
-          console.log(newActiveLayers)
-          setActiveLayerIds(newActiveLayers)
-        }} layersHeader={manhattaLayer.label} layer={{
-          ...manhattaLayer,
-          groups: [
-            {
-              id: 0,
-              label: "1609 | Manhatta",
-              iconColor: IconColors.YELLOW,
-              iconType: FontAwesomeLayerIcons.PLUS_SQUARE,
-              isSolid: true,
-              items: currLayers.map((x, idx) => {
-                let returnedLayer: SectionLayerItem =  {
-                  id: idx,
-                  label: x.layerName,
-                  iconColor: IconColors.YELLOW, // Change this once we store Icon stats in DB
-                  iconType: FontAwesomeLayerIcons.PLUS_SQUARE, // Change this once we store Icon stats in DB
-                  isSolid: false, // Change this once we store Icon stats in DB
-                  layerId: x.id
+        <SectionLayerComponent 
+            activeLayers={activeLayerIds}
+            activeLayerCallback={(newActiveLayers: string[]) => {
+              console.log(newActiveLayers);
+              setActiveLayerIds(newActiveLayers);
+            } } 
+            layersHeader={manhattaLayer.label} 
+            layer={{
+              ...manhattaLayer,
+              groups: [
+                {
+                  id: '0',
+                  label: "1609 | Manhatta",
+                  iconColor: IconColors.YELLOW,
+                  iconType: FontAwesomeLayerIcons.PLUS_SQUARE,
+                  isSolid: true,
+                  items: currLayers.map((x, idx) => {
+                    let returnedLayer: SectionLayerItem = {
+                      id: x.id,
+                      label: x.layerName,
+                      iconColor: IconColors.YELLOW, // Change this once we store Icon stats in DB
+                      iconType: FontAwesomeLayerIcons.PLUS_SQUARE, // Change this once we store Icon stats in DB
+                      isSolid: false, // Change this once we store Icon stats in DB
+                      layerId: x.id
+                    };
+                    return returnedLayer;
+                  })
                 }
-                return returnedLayer;
-              })
-            }
-          ]
-          }} />
+              ],
+            }} 
+            openWindow={beforeModalOpen}
+            editFormVisibleCallback={(isOpen: boolean) => {
+              setEditFormOpen(isOpen);
+            }}
+            editFormIdCallback={(id: string) => {
+              setEditFormId(id);
+            }}
+            />
 
         <MapFilterWrapperComponent beforeMapCallback={(map) => {
           console.log('before hit', map?.styleId)

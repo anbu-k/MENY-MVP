@@ -10,6 +10,9 @@ type SectionLayerGroupItemProps = {
     item: SectionLayerItem,
     activeLayerCallback: (activeLayers: string[]) => void,
     activeLayers: string[],
+    openWindow: () => void,
+    editFormVisibleCallback: (isOpen: boolean) => void,
+    editFormIdCallback: (id: string) => void,
 }
 
 const SectionLayerGroupItemComponent = (props: SectionLayerGroupItemProps) => {
@@ -46,6 +49,18 @@ const SectionLayerGroupItemComponent = (props: SectionLayerGroupItemProps) => {
                 </label>
                 <div className="layer-buttons-block">
                     <div className="layer-buttons-list">
+                        <FontAwesomeIcon
+                        className="layer-menu edit-modal"
+                        title="Edit Layer"
+                        color="black"
+                        icon={getFontawesomeIcon(FontAwesomeLayerIcons.PEN_TO_SQUARE)}
+                        onClick={() => {
+                            props.openWindow();
+                            props.editFormIdCallback(props.item.id);
+                            console.log("Layer id: " + props.item.id);
+                            props.editFormVisibleCallback(true);
+                        }}
+                        />
                         <FontAwesomeIcon
                         className="zoom-to-layer"
                         title="Zoom to Layer"

@@ -4,7 +4,7 @@ import LayerForm from '../LayerForm';
 
 type LayerFormButtonProps = {
     beforeOpen: () => void,
-    afterClose: () => void
+    afterClose: () => void,
 }
 
 const LayerFormButton = (props: LayerFormButtonProps) => {

@@ -421,7 +421,7 @@ div.layer-buttons-list {
   justify-content: space-between;
 }
 div.layer-buttons-block {
-  width: 38px;
+  width: auto;
   right: 3px;
   margin-right: 3px;
   position: absolute;
