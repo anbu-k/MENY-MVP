@@ -24,5 +24,13 @@ export async function POST(request: Request) {
                 layerSectionName:LayerGroup.layerSectionName
             }
         })
+        return NextResponse.json({
+            message: "Success"
+        })
     }
+    
+    catch(e) {
+        console.log(e.message)
+    }
+
 }

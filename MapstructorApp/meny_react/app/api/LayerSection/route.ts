@@ -7,9 +7,18 @@ export async function GET() {
     const LayerSections = (await prisma.layerSection.findMany({
         include: {layers: {
             include: {
-                layers: true
+                layers: true,
             }
-        }}
+        },
+    layerGroups: {
+        include: {
+            childLayers: {
+                include: {
+                    layers: true
+                }
+            }
+        }
+    }}
     }));
 
     return NextResponse.json({
