@@ -35,6 +35,8 @@ export async function POST(request: Request) { // create
           }, { status: 400 });
       }
 
+
+
       const newgroup = await prisma.mapFilterGroup.create({ //creates the group and its nested tables
         data: {
             groupName: group.groupName,
@@ -152,7 +154,7 @@ export async function PUT(request: Request){ //modify
     const g  = await request.json();
     
 
-    console.log("PUT");
+    console.log("PUT: \n", g);
 
     try{
         if (!g.groupId){ //check to see if the JSON is vaild
@@ -164,7 +166,13 @@ export async function PUT(request: Request){ //modify
             }, { status: 400 });
         }
 
-        if(g.mapId){//update a map
+        if(g.mapId && (await prisma.map.findFirst({
+            where: {
+                 mapId: g.mapId,
+                groupId: g.groupId
+            }})
+        ) !== null){//update a map
+            console.log(" Map update PUT COMPELETE ");
             await prisma.map.updateMany({
                 where: {
                     mapId: g.mapId,
@@ -180,23 +188,100 @@ export async function PUT(request: Request){ //modify
                   },
             });
         }
-        else if(g.itemName){//update a item
+
+        else if(g.mapId && (await prisma.map.findFirst({
+            where: {
+                 mapId: g.mapId,
+                groupId: g.groupId
+            }})) === null
+        ){//update a map
+            console.log(" Map create PUT COMPELETE ");
+
+            const newmap = await prisma.map.create({
+                data:{
+                    longitude: g.longitude,
+                    groupId: g.groupId,
+                    latitude: g.latitude,
+                    mapName: g.mapName,
+                    mapId: g.mapId,
+                    zoom: g.zoom,
+                    bearing: g.bearing,
+                    styleId: g.styleId
+                }
+            });
+
+            await prisma.mapFilterGroup.update({
+                where: {
+                    groupId: g.groupId,
+                  },
+                  data: {
+                    maps: {
+                     push: newmap,
+                    },
+                  },
+            });
+        }
+
+        else if(g.itemId && (await prisma.mapFilterItem.findFirst({
+            where: {
+                itemId: g.itemId,
+                groupId: g.groupId
+            }})
+        ) !== null){//update a item
+            console.log(" item update PUT COMPELETE ");
             await prisma.mapFilterItem.updateMany({
                 where: {
                     itemId: g.itemId,
                     groupId: g.groupId
                   },
                   data: {
-                    itemName: g.itemName,
-                    label: g.label,
-                    defaultCheckedForBeforeMap: g.defaultCheckedForBeforeMap,
-                    defaultCheckedForAfterMap: g.defaultCheckedForAfterMap,
-                    showInfoButton: g.showInfoButton,
-                    showZoomButton: g.showZoomButton,
+                    itemName                   :  g.itemName,
+                    groupId: g.groupId,
+                    label                      :  g.label,
+                    defaultCheckedForBeforeMap :  g.defaultCheckedForBeforeMap,
+                    defaultCheckedForAfterMap  :  g.defaultCheckedForAfterMap,
+                    showInfoButton             :  g.showInfoButton,
+                    showZoomButton             :  g.showZoomButton,
+                    itemId                     :  g.itemId,
                   },
             });
         }
+
+        else if(g.itemId && (await prisma.mapFilterItem.findFirst({
+            where: {
+                itemId: g.itemId,
+                groupId: g.groupId
+            }})) === null
+        ){//creating a new item
+            console.log(" item create PUT COMPELETE ");
+
+            const newitem = await prisma.mapFilterItem.create({
+                data:{
+                    itemName                   :  g.itemName,
+                    label                      :  g.label,
+                    groupId: g.groupId,
+                    defaultCheckedForBeforeMap :  g.defaultCheckedForBeforeMap,
+                    defaultCheckedForAfterMap  :  g.defaultCheckedForAfterMap,
+                    showInfoButton             :  g.showInfoButton,
+                    showZoomButton             :  g.showZoomButton,
+                    itemId                     :  g.itemId,
+                }
+            });
+
+            await prisma.mapFilterGroup.update({
+                where: {
+                    groupId: g.groupId,
+                  },
+                  data: {
+                    mapfilteritems: {
+                     push: newitem,
+                    },
+                  },
+            });
+        }
+        
         else{//update a group
+            console.log("group update")
             await prisma.mapFilterGroup.updateMany({
                 where: {
                     groupId: g.groupId
