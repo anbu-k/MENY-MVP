@@ -6,7 +6,13 @@ import { LayerGroup } from "@prisma/client";
 export async function GET() {
     const prisma = new PrismaClient();
     const groups = (await prisma.layerGroup.findMany({
-        include: {childLayers: true}
+        include: {
+            childLayers: {
+                include: {
+                    layers: true
+                }
+            }
+        }
     }))
 
     return NextResponse.json({
