@@ -289,20 +289,15 @@ export default function Home() {
     }
   }
 
+  const removeMapLayer = (map: MutableRefObject<mapboxgl.Map | null>, id: string) => {
+    if (map === null) return;
+      map.current?.removeLayer(id);
+      map.current?.removeSource(id);
+  }
+
   const addAllMapLayers = () => {
     if(currLayers !== null) {
       currLayers.forEach((x: PrismaLayer) => {
-        if(currBeforeMap.current?.getSource(x.sourceId) === null) {
-          currBeforeMap.current.addSource(x.sourceId, {
-            type: 'vector',
-            url: 'mapbox://mapny.7q2vs9ar'
-          });
-          currAfterMap.current?.addSource(x.sourceId, {
-            type: 'vector',
-            url: 'mapbox://mapny.7q2vs9ar'
-          })
-        }
-
         addMapLayer(currBeforeMap, x)
         addMapLayer(currAfterMap, x)
       })
@@ -689,7 +684,9 @@ export default function Home() {
             <EditForm
             id={editFormId}
             afterSubmit={(closeForm: boolean) => {
-              setEditFormOpen(closeForm)
+              setEditFormOpen(closeForm);
+              removeMapLayer(currBeforeMap, editFormId);
+              removeMapLayer(currAfterMap, editFormId);
               setEditFormId("");
               afterModalCloseLayers();
             }}/>
@@ -729,7 +726,6 @@ export default function Home() {
         <SectionLayerComponent 
             activeLayers={activeLayerIds}
             activeLayerCallback={(newActiveLayers: string[]) => {
-              console.log(newActiveLayers);
               setActiveLayerIds(newActiveLayers);
             } } 
             layersHeader={manhattaLayer.label} 
