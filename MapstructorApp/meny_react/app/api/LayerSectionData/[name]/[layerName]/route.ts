@@ -17,6 +17,7 @@ export async function POST(request: Request, context: any) {
 
     })
     console.log(s)
+    
     return NextResponse.json({
         message: "success"
     })
