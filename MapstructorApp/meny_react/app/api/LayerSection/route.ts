@@ -5,20 +5,22 @@ import { NextResponse } from "next/server";
 export async function GET() {
     const prisma = new PrismaClient();
     const LayerSections = (await prisma.layerSection.findMany({
-        include: {layers: {
+        include: {
+        layerGroups: {
+            include: {
+                childLayers: {
+                    include: {
+                        layers: true
+                    }
+                }
+            }
+        },
+        layers: {
             include: {
                 layers: true,
             }
-        },
-    layerGroups: {
-        include: {
-            childLayers: {
-                include: {
-                    layers: true
-                }
-            }
         }
-    }}
+    }
     }));
 
     return NextResponse.json({
