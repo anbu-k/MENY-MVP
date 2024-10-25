@@ -71,7 +71,10 @@ model LayerSectionData {
   sectionName   String
   iconColor     String
   label         String
-  zoomTo        String?
+  longitude     Float?
+  latitude      Float?
+  zoom          Float?
+  bearing       Float?
   groupName     LayerGroup?   @relation(fields: [topLayerClass], references: [name])
   topLayerClass String?
   infoId        String?
