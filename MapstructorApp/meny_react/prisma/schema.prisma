@@ -58,10 +58,10 @@ model MapFilterItem {
 }
 
 model LayerSection {
-  id          String             @id @default(auto()) @map("_id") @db.ObjectId
-  name        String             @unique
-  layerGroups LayerGroup[]
-  layers      LayerSectionData[]
+  id            String             @id @default(auto()) @map("_id") @db.ObjectId
+  name          String             @unique
+  layerGroups   LayerGroup[]
+  layerSections LayerSectionData[]
 }
 
 model LayerSectionData {

@@ -15,7 +15,7 @@ export async function GET() {
                 }
             }
         },
-        layers: {
+        layerSections: {
             include: {
                 layers: true,
             }
