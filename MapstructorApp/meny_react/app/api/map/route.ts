@@ -30,12 +30,10 @@ export async function POST(request: Request) { // create
           console.log("ERROR: ATTEMPTED REPEATED RECORDS -- SENDING 400");
           console.error("REPEATED RECORD ERROR: Missing required fields");
           return NextResponse.json({
-              message: "Already exists - send a put request",
+              message: "group ID exists",
               error: "REPEATED RECORDS ARE NOT ALLOWED",
           }, { status: 400 });
       }
-
-
 
       const newgroup = await prisma.mapFilterGroup.create({ //creates the group and its nested tables
         data: {
@@ -126,7 +124,7 @@ export async function DELETE(request: Request){ //delete
 
         else{ //delete group
             console.log("delete group!")
-            const transaction = await prisma.$transaction([ 
+            await prisma.$transaction([ 
                 prisma.map.deleteMany({ where: { groupId: g.groupId } }),
                 prisma.mapFilterItem.deleteMany({ where: { groupId: g.groupId } }),
                 prisma.mapFilterGroup.deleteMany({ where: { groupId: g.groupId } })
@@ -157,11 +155,11 @@ export async function PUT(request: Request){ //modify
     console.log("PUT: \n", g);
 
     try{
-        if (!g.groupId){ //check to see if the JSON is vaild
+        if (!g.groupId && (!g.mapId || !g.itemId)){ //check to see if the JSON is vaild
             console.log("ERROR: MISSING DATA -- SENDING 400");
             console.error("Validation error: Missing required fields");
             return NextResponse.json({ //sends error and 400 (Bad Request) if not
-                message: "Invalid data: ",
+                message: "Invalid data",
                 error: "Missing required fields",
             }, { status: 400 });
         }
@@ -259,7 +257,7 @@ export async function PUT(request: Request){ //modify
                 data:{
                     itemName                   :  g.itemName,
                     label                      :  g.label,
-                    groupId: g.groupId,
+                    groupId                    :  g.groupId,
                     defaultCheckedForBeforeMap :  g.defaultCheckedForBeforeMap,
                     defaultCheckedForAfterMap  :  g.defaultCheckedForAfterMap,
                     showInfoButton             :  g.showInfoButton,

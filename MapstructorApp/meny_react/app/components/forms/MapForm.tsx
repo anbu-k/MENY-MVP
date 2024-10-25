@@ -183,7 +183,6 @@ const buttonHoverStyling: CSSProperties = {
 };
 
 return (
-  //add them fucks here cuase fuck
     <form onSubmit={formik.handleSubmit} style={{ maxWidth: '400px', margin: '0 auto' }}>
         <h2 style={{ paddingBottom: '8px', color: '#333', textAlign: 'center' }}><strong>Add New Map</strong></h2>
         
