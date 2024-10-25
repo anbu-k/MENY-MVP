@@ -11,23 +11,52 @@ const POSTMapForm = () => {
 
   const formik = useFormik({
     initialValues: {
-      name: '',
-      longitude: 0,
+      name:                    undefined,
+      longitude:               0,
       latitude:                0,
-      mapId:                   '',
-      itemId:                  '',
-      itemName:                 '',
-      itemLabel:                '',
-      groupid:                 '',
+      mapId:                   undefined,
+      itemId:                  undefined,
+      itemName:                undefined,
+      itemLabel:               undefined,
+      groupid:                 undefined,
       zoom:                    0,
       bearing:                 0,
-      styleId:                 '',
-      groupValue:              '',
-      newGroupName:            '',
-      newGroupLabel:           ''
+      styleId:                 undefined,
+      groupValue:              undefined,
+      newGroupName:            undefined,
+      newGroupLabel:           undefined
     },
     
     onSubmit: async (values) => {
+
+      let map;
+      let item;
+
+      if(values.mapId){ //to add more maps then appen to map and make struct or some idk
+        map = [{
+          longitude: values.longitude,
+          groupId: `unique-map-id-${values.newGroupName}-${values.name}`,
+          latitude: values.latitude,
+          mapName: values.name,
+          mapId: values.mapId,
+          zoom: values.zoom,
+          bearing: values.bearing,
+          styleId: values.styleId
+        }]
+      }
+      if(values.itemId){
+        item = [{
+          itemName: values.itemName, 
+          groupId: `unique-map-id-${values.newGroupName}-${values.name}`,
+          label: values.itemLabel, 
+          itemId: values.itemId, 
+          defaultCheckedForBeforeMap: true, //change
+          defaultCheckedForAfterMap: false, //change
+          showInfoButton: true, //change
+          showZoomButton: false //change
+        }]
+      }
+
       try {
         // If we are creating a new group, need to hit a different endpoint
 
@@ -36,30 +65,8 @@ const POSTMapForm = () => {
             groupName: values.newGroupName,
             label: values.newGroupLabel,
             groupId: `unique-map-id-${values.newGroupName}-${values.name}`,
-            mapfilteritems: [
-              {
-                itemName: values.itemName, 
-                groupId: `unique-map-id-${values.newGroupName}-${values.name}`,
-                label: values.itemLabel, 
-                itemId: values.itemId, 
-                defaultCheckedForBeforeMap: true, //change
-                defaultCheckedForAfterMap: false, //change
-                showInfoButton: true, //change
-                showZoomButton: false //change
-              }
-            ],
-            maps: [
-              {
-                longitude: values.longitude,
-                groupId: `unique-map-id-${values.newGroupName}-${values.name}`,
-                latitude: values.latitude,
-                mapName: values.name,
-                mapId: values.mapId,
-                zoom: values.zoom,
-                bearing: values.bearing,
-                styleId: values.styleId
-              }
-            ]
+            mapfilteritems: item,
+            maps: map
           }
 
           const response = await fetch('api/map', {
@@ -97,8 +104,6 @@ const POSTMapForm = () => {
             defaultCheckedForAfterMap: false, //change
             showInfoButton: true, //change
             showZoomButton: false //change
-
-            
           }
 
           const response = await fetch('api/map', {
@@ -262,7 +267,7 @@ return (
         </div>
 
       {
-        ((formik.values.groupValue ?? '') === 'newGroup') && (
+        ((formik.values.groupValue ?? undefined) === 'newGroup') && (
           <>
             <div style={{ marginBottom: '15px' }}>
               <label htmlFor="newGroupName" style={labelStyling}>New Group Name:</label>
