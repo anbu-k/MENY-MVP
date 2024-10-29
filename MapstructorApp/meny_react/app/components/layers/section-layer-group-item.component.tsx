@@ -9,7 +9,10 @@ import { FontAwesomeLayerIcons } from "@/app/models/font-awesome.model";
 type SectionLayerGroupItemProps = {
     item: SectionLayerItem,
     activeLayerCallback: (activeLayers: string[]) => void,
-    activeLayers: string[]
+    activeLayers: string[],
+    openWindow: () => void,
+    editFormVisibleCallback: (isOpen: boolean) => void,
+    editFormIdCallback: (id: string) => void,
 }
 
 const SectionLayerGroupItemComponent = (props: SectionLayerGroupItemProps) => {
@@ -54,10 +57,10 @@ const SectionLayerGroupItemComponent = (props: SectionLayerGroupItemProps) => {
                         color="black"
                         icon={getFontawesomeIcon(FontAwesomeLayerIcons.PEN_TO_SQUARE)}
                         onClick={() => {
-                            // props.openWindow();
-                            // props.editFormIdCallback(props.item.id);
-                            console.log("Layer id: " + props.item.id);
-                            // props.editFormVisibleCallback(true);
+                            props.openWindow();
+                            props.editFormIdCallback(props.item.layerId ?? '');
+                            console.log("Layer id: " + props.item.layerId);
+                            props.editFormVisibleCallback(true);
                         }}
                         />
                         <FontAwesomeIcon

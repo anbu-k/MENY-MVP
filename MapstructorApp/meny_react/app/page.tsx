@@ -801,7 +801,14 @@ export default function Home() {
                 <SectionLayerComponent activeLayers={activeLayerIds} activeLayerCallback={(newActiveLayers: string[]) => {
                   console.log('layers selected: ', newActiveLayers);
                   setActiveLayerIds(newActiveLayers);
-                } } layersHeader={secLayer.label} layer={secLayer}/>
+                } } layersHeader={secLayer.label} layer={secLayer}
+                openWindow={beforeModalOpen}
+            editFormVisibleCallback={(isOpen: boolean) => {
+              setEditFormOpen(isOpen);
+            }}
+            editFormIdCallback={(id: string) => {
+              setEditFormId(id);
+            }}/>
               )
             })
           }

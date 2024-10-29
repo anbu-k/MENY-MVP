@@ -9,7 +9,10 @@ type SectionLayerProps = {
     layersHeader: string,
     layer: SectionLayer,
     activeLayerCallback: (activeLayers: string[]) => void,
-    activeLayers: string[]
+    activeLayers: string[],
+    openWindow: () => void,
+    editFormVisibleCallback: (isOpen: boolean) => void,
+    editFormIdCallback: (id: string) => void,
 }
 
 const SectionLayerComponent = (props: SectionLayerProps) => {
@@ -32,7 +35,10 @@ const SectionLayerComponent = (props: SectionLayerProps) => {
                     activeLayers={props.activeLayers} 
                     activeLayerCallback={props.activeLayerCallback} 
                     layersHeader={props.layersHeader} 
-                    group={grp}/>
+                    group={grp} 
+                    openWindow={props.openWindow}
+                    editFormVisibleCallback={props.editFormVisibleCallback}
+                    editFormIdCallback={props.editFormIdCallback}/>
                 ))
             }
         </>

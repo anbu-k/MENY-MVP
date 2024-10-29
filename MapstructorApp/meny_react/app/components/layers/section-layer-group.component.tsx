@@ -13,7 +13,10 @@ type SectionLayerGroupsProps = {
     layersHeader: string,
     group: SectionLayerGroup,
     activeLayerCallback: (activeLayers: string[]) => void,
-    activeLayers: string[]
+    activeLayers: string[],
+    openWindow: () => void,
+    editFormVisibleCallback: (isOpen: boolean) => void,
+    editFormIdCallback: (id: string) => void,
 }
 
 const SectionLayerGroupComponent = (props: SectionLayerGroupsProps) => {
@@ -83,7 +86,10 @@ const SectionLayerGroupComponent = (props: SectionLayerGroupsProps) => {
                             <SectionLayerGroupItemComponent 
                             activeLayers={props.activeLayers} 
                             activeLayerCallback={props.activeLayerCallback} 
-                            item={item}/>
+                            item={item} 
+                            openWindow={props.openWindow}
+                            editFormVisibleCallback={props.editFormVisibleCallback}
+                            editFormIdCallback={props.editFormIdCallback}/>
                         </>
                     )
                 })
