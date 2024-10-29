@@ -20,6 +20,7 @@ export async function POST(request: Request) { // create
   try {
       const group: MapFilterGroup = await request.json(); // parse the JSON
 
+      console.log(group);
       const existingGroup = await prisma.mapFilterGroup.findFirst({ //check if group exsit 
           where: {
             groupId: group.groupId,
@@ -187,81 +188,33 @@ export async function PUT(request: Request){ //modify
             }, { status: 400 });
         }
 
-        if(g.mapId && (await prisma.map.findFirst({ //update a map
-            where: {
-                 mapId: g.mapId,
-                groupId: g.groupId
-            }})
-        ) !== null){
-            console.log(" Map update ");
-            await prisma.map.updateMany({
+        if(g.mapId){
+            console.log(" Map upsert ");
+            await prisma.map.upsert({
                 where: {
                     mapId: g.mapId,
                     groupId: g.groupId
                   },
-                  data: gmap,
+                  update:
+                    gmap,
+                  create: 
+                    gmap,
             });
         }
 
-        else if(g.mapId && (await prisma.map.findFirst({ //create new map
-            where: {
-                 mapId: g.mapId,
-                groupId: g.groupId
-            }})) === null
-        ){
-            console.log(" Map create ");
-
-            const newmap = await prisma.map.create({data: gmap});
-
-            await prisma.mapFilterGroup.update({
-                where: {
-                    groupId: g.groupId,
-                  },
-                  data: {
-                    maps: {
-                     push: newmap,
-                    },
-                  },
-            });
-        }
-
-        if(g.itemId && (await prisma.mapFilterItem.findFirst({ //update a item
-            where: {
-                itemId: g.itemId,
-                groupId: g.groupId
-            }})
-        ) !== null){
-            console.log(" item update ");
-            await prisma.mapFilterItem.updateMany({
-                where: {
-                    itemId: g.itemId,
-                    groupId: g.groupId
-                  },
-                  data: gitem
-            });
-        }
-
-        else if(g.itemId && (await prisma.mapFilterItem.findFirst({ //creating a new item
-            where: {
-                itemId: g.itemId,
-                groupId: g.groupId
-            }})) === null
-        ){
-            console.log(" item create ");
-
-            const newitem = await prisma.mapFilterItem.create({data: gitem});
-
-            await prisma.mapFilterGroup.update({
-                where: {
-                    groupId: g.groupId,
-                  },
-                  data: {
-                    mapfilteritems: {
-                     push: newitem,
-                    },
-                  },
-            });
-        }
+        if(g.itemId){
+          console.log(" item upsert ");
+          await prisma.mapFilterItem.upsert({
+              where: {
+                  itemId: g.itemId,
+                  groupId: g.groupId
+                },
+                update:
+                  gitem,
+                create: 
+                  gitem,
+          });
+      }
         
         //update a group
             console.log("group update")
