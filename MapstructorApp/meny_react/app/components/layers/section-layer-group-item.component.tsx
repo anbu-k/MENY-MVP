@@ -10,13 +10,18 @@ type SectionLayerGroupItemProps = {
     item: SectionLayerItem,
     activeLayerCallback: (activeLayers: string[]) => void,
     activeLayers: string[],
+    openWindow: () => void,
+    editFormVisibleCallback: (isOpen: boolean) => void,
+    editFormIdCallback: (id: string) => void,
 }
 
 const SectionLayerGroupItemComponent = (props: SectionLayerGroupItemProps) => {
 
     const handleLayerChange = () => {
+        console.log('handleLayerChange Hit: ', props.item);
         if(props.item.layerId)
         {
+            console.log('CALLBACK ITEMS: ', props.activeLayers, props.item.layerId)
             if (props.activeLayers.includes(props.item.layerId)) {
                 props.activeLayerCallback(props.activeLayers.filter((d) => d !== props.item.layerId));
               } else {
@@ -46,6 +51,18 @@ const SectionLayerGroupItemComponent = (props: SectionLayerGroupItemProps) => {
                 </label>
                 <div className="layer-buttons-block">
                     <div className="layer-buttons-list">
+                        <FontAwesomeIcon
+                        className="layer-menu edit-modal"
+                        title="Edit Layer"
+                        color="black"
+                        icon={getFontawesomeIcon(FontAwesomeLayerIcons.PEN_TO_SQUARE)}
+                        onClick={() => {
+                            props.openWindow();
+                            props.editFormIdCallback(props.item.layerId ?? '');
+                            console.log("Layer id: " + props.item.layerId);
+                            props.editFormVisibleCallback(true);
+                        }}
+                        />
                         <FontAwesomeIcon
                         className="zoom-to-layer"
                         title="Zoom to Layer"

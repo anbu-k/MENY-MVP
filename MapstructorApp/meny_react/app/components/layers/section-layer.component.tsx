@@ -10,11 +10,13 @@ type SectionLayerProps = {
     layer: SectionLayer,
     activeLayerCallback: (activeLayers: string[]) => void,
     activeLayers: string[],
+    openWindow: () => void,
+    editFormVisibleCallback: (isOpen: boolean) => void,
+    editFormIdCallback: (id: string) => void,
 }
 
 const SectionLayerComponent = (props: SectionLayerProps) => {
     const [layerIsOpen, setLayerIsOpen] = useState<boolean>(false);
-    
     return (
         <>
             <center>
@@ -28,7 +30,15 @@ const SectionLayerComponent = (props: SectionLayerProps) => {
             {
                 layerIsOpen &&
                 props.layer.groups.map((grp, idx) => (
-                    <SectionLayerGroupComponent key={`section-layer-component-${idx}`} activeLayers={props.activeLayers} activeLayerCallback={props.activeLayerCallback} layersHeader={props.layersHeader} group={grp} />
+                    <SectionLayerGroupComponent 
+                    key={`section-layer-component-${idx}`} 
+                    activeLayers={props.activeLayers} 
+                    activeLayerCallback={props.activeLayerCallback} 
+                    layersHeader={props.layersHeader} 
+                    group={grp} 
+                    openWindow={props.openWindow}
+                    editFormVisibleCallback={props.editFormVisibleCallback}
+                    editFormIdCallback={props.editFormIdCallback}/>
                 ))
             }
         </>

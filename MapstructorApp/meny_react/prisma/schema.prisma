@@ -24,6 +24,7 @@ model MapFilterGroup{
   maps           Map[]
   mapfilteritems MapFilterItem[]
 }
+
 model Map {
   id             String @id @default(auto()) @map("_id") @db.ObjectId
   mapId          String @unique
@@ -53,13 +54,11 @@ model MapFilterItem{
   mapfiltergroup MapFilterGroup? @relation(fields: [groupId], references: [groupId], onDelete: Cascade)
 }
 
-
-
 model LayerSection {
-  id          String             @id @default(auto()) @map("_id") @db.ObjectId
-  name        String             @unique
-  layerGroups LayerGroup[]
-  layers      LayerSectionData[]
+  id            String             @id @default(auto()) @map("_id") @db.ObjectId
+  name          String             @unique
+  layerGroups   LayerGroup[]
+  layerSections LayerSectionData[]
 }
 
 model LayerSectionData {
@@ -69,7 +68,10 @@ model LayerSectionData {
   sectionName   String
   iconColor     String
   label         String
-  zoomTo        String?
+  longitude     Float?
+  latitude      Float?
+  zoom          Float?
+  bearing       Float?
   groupName     LayerGroup?   @relation(fields: [topLayerClass], references: [name])
   topLayerClass String?
   infoId        String?
@@ -87,7 +89,7 @@ model LayerGroup {
 
 model Layer {
   id               String            @id @default(auto()) @map("_id") @db.ObjectId
-  layerName        String            @unique
+  layerName        String
   type             String
   LayerSectionData LayerSectionData? @relation(fields: [sectionName], references: [name])
   sectionName      String?

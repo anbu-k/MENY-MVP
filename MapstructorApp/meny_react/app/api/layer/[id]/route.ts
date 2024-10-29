@@ -14,3 +14,50 @@ export async function GET(request: Request, context: any) {
         layer
     })
 }
+
+
+export async function DELETE(context: any) {
+    const {params} = context;
+    const prisma = new PrismaClient();
+    const layer = await prisma.layer.findFirst({
+        where: {
+            id: params.id
+        }
+    })
+    const deleteLayer = await prisma.layer.update({
+        where: {
+            id: params.id
+        },
+        data: {
+            LayerSectionData: {
+                disconnect: true
+            }
+        }
+    })
+}
+
+
+export async function PUT(request: Request, context: any) {
+    const { params } = context;
+    const Layer:Layer = await request.json()
+    const prisma = new PrismaClient();
+    const layer = await prisma.layer.update({
+        where: {
+            id: params.id
+        },
+        data: {
+            layerName: Layer.layerName,
+            type: Layer.type,
+            sectionName: Layer.sectionName,
+            sourceType: Layer.sourceType,
+            sourceUrl: Layer.sourceUrl,
+            sourceId: Layer.sourceId,
+            paint: Layer.paint,
+            sourceLayer: Layer.sourceLayer
+        }
+    })
+
+    return NextResponse.json({
+        layer
+    })
+}
