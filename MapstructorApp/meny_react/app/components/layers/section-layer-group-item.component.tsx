@@ -9,7 +9,7 @@ import { FontAwesomeLayerIcons } from "@/app/models/font-awesome.model";
 type SectionLayerGroupItemProps = {
     item: SectionLayerItem,
     activeLayerCallback: (activeLayers: string[]) => void,
-    activeLayers: string[],
+    activeLayers: string[]
 }
 
 const SectionLayerGroupItemComponent = (props: SectionLayerGroupItemProps) => {
@@ -48,6 +48,18 @@ const SectionLayerGroupItemComponent = (props: SectionLayerGroupItemProps) => {
                 </label>
                 <div className="layer-buttons-block">
                     <div className="layer-buttons-list">
+                        <FontAwesomeIcon
+                        className="layer-menu edit-modal"
+                        title="Edit Layer"
+                        color="black"
+                        icon={getFontawesomeIcon(FontAwesomeLayerIcons.PEN_TO_SQUARE)}
+                        onClick={() => {
+                            // props.openWindow();
+                            // props.editFormIdCallback(props.item.id);
+                            console.log("Layer id: " + props.item.id);
+                            // props.editFormVisibleCallback(true);
+                        }}
+                        />
                         <FontAwesomeIcon
                         className="zoom-to-layer"
                         title="Zoom to Layer"

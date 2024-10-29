@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useState } from "react";
 import { faMinusSquare, faPlusSquare, faPlayCircle } from "@fortawesome/free-regular-svg-icons";
 import SectionLayerGroupItemComponent from "./section-layer-group-item.component";
-import { faCrosshairs, faInfoCircle } from "@fortawesome/free-solid-svg-icons";
+import { faCrosshairs, faInfoCircle, faPenToSquare } from "@fortawesome/free-solid-svg-icons";
 import { getFontawesomeIcon } from "@/app/helpers/font-awesome.helper";
 import { FontAwesomeLayerIcons } from "@/app/models/font-awesome.model";
 import { IconColors } from "@/app/models/colors.model";
@@ -13,7 +13,7 @@ type SectionLayerGroupsProps = {
     layersHeader: string,
     group: SectionLayerGroup,
     activeLayerCallback: (activeLayers: string[]) => void,
-    activeLayers: string[],
+    activeLayers: string[]
 }
 
 const SectionLayerGroupComponent = (props: SectionLayerGroupsProps) => {
@@ -45,6 +45,20 @@ const SectionLayerGroupComponent = (props: SectionLayerGroupsProps) => {
                 </label>
                 <div className="layer-buttons-block">
                     <div className="layer-buttons-list">
+                    {/* <FontAwesomeIcon
+                        className="layer-menu edit-modal"
+                        title="Edit Layer"
+                        color="black"
+                        icon={getFontawesomeIcon(FontAwesomeLayerIcons.PEN_TO_SQUARE)}
+                        onClick={() => {
+                            props.openWindow();
+                            props.editFormIdCallback(props.group.id);
+                            console.log("Layer id: " + props.group.id);
+                            props.editFormVisibleCallback(true);
+                        }}
+                        /> 
+                        EDIT BUTTON FOR GROUPS, ADD LATER
+                        */} 
                         <FontAwesomeIcon
                         className="zoom-to-layer"
                         title="Zoom to Layer"
@@ -66,7 +80,10 @@ const SectionLayerGroupComponent = (props: SectionLayerGroupsProps) => {
                 layerIsOpen && props.group.items.map(item => {
                     return (
                         <>
-                            <SectionLayerGroupItemComponent activeLayers={props.activeLayers} activeLayerCallback={props.activeLayerCallback} item={item} />
+                            <SectionLayerGroupItemComponent 
+                            activeLayers={props.activeLayers} 
+                            activeLayerCallback={props.activeLayerCallback} 
+                            item={item}/>
                         </>
                     )
                 })

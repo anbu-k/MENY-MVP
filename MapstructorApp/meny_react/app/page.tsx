@@ -11,9 +11,9 @@ import { faArrowCircleLeft } from "@fortawesome/free-solid-svg-icons";
 import SectionLayerComponent from "./components/layers/section-layer.component";
 import { FontAwesomeLayerIcons } from "./models/font-awesome.model";
 import {CSSTransition} from 'react-transition-group';
-"./global.css";
 import MapComparisonComponent from "./components/map/map-compare-container.component";
-import mapboxgl, { FilterSpecification } from 'mapbox-gl';
+import mapboxgl, { FilterSpecification, LngLatLike } from 'mapbox-gl';
+import 'mapbox-gl/dist/mapbox-gl.css';
 import { MapFiltersGroup } from './models/maps/map-filters.model';
 import MapFilterWrapperComponent from './components/map-filters/map-filter-wrapper.component';
 import { MapItem, MapZoomProps } from './models/maps/map.model';
@@ -21,12 +21,13 @@ import LayerFormButton from './components/forms/buttons/layer-form-button.compon
 import Modal from 'react-modal';
 import MapFormButton from './components/forms/buttons/map-form-button.component';
 import {Map as PrismaMap, Layer as PrismaLayer, LayerSectionData as PrismaLayerSectionData, LayerGroup as PrismaLayerGroup, MapFilterGroup as PrismaMapFilterGroup, MapFilterItem as PrismaMapFilterItem, MapFilterItem} from '@prisma/client';
- 
+import EditForm from './components/forms/EditForm';
+import './popup.css';
 // Remove this when we have a way to get layers correctly
 
 const manhattaSectionGroups: SectionLayerGroup[] = [
   {
-    id: 0,
+    id: '0',
     label: "1609 | Manhatta",
     iconColor: IconColors.YELLOW,
     iconType: FontAwesomeLayerIcons.PLUS_SQUARE,
@@ -36,27 +37,9 @@ const manhattaSectionGroups: SectionLayerGroup[] = [
 ]
 
 const manhattaLayer: SectionLayer = {
-  id: 0,
+  id:'0',
   label: "MANHATTAN",
   groups: manhattaSectionGroups
-}
-//Test Popup Props
-const dutchGrantPopupTest: GenericPopUpProps = {
-  DayEnd: 17000102,
-  DayEnd1: 16550429,
-  DayStart: 16430713,
-  Lot: "B1",
-  day1: "13-Jul",
-  day2: "Apr. 29",
-  descriptio: "Gr-br. to Cornelis Volckersen. (GG: 83.) Desc: A double lot for two hos. and two gardens, lying on the Common Highway, its br. along said road is 9 r. and 8 ft., and below on the marsh of the same br.; its length on the N. side is 18 r., 2 ft., 5 ins. an",
-  lot2: "",
-  name: "Cornelis Volckersen",
-  nid: 19107,
-  notes: "",
-  styling1: "knownfull",
-  year1: "1643",
-  year2: "1655",
-  type: "dutch-grant",
 }
 
 const beforeMapItem: MapItem = {
@@ -80,8 +63,8 @@ const afterMapItem: MapItem = {
 mapboxgl.accessToken = 'pk.eyJ1IjoibWFwbnkiLCJhIjoiY2xtMG93amk4MnBrZTNnczUzY2VvYjg0ciJ9.MDMHYBlVbG14TJD120t6NQ';
 export default function Home() {
   const [currDate, setCurrDate] = useState<moment.Moment | null>(null);
-  const [popUp, setPopUp] = useState<GenericPopUpProps | null>(dutchGrantPopupTest);
-  const [popUpVisible, setPopUpVisible] = useState(true);
+  const [popUp, setPopUp] = useState<GenericPopUpProps | null>(null);
+  const [popUpVisible, setPopUpVisible] = useState(false);
   const [layerPanelVisible, setLayerPanelVisible] = useState(true);
   const [MapboxCompare, setMapboxCompare] = useState<any>(null);
   const beforeMapContainerRef = useRef<HTMLDivElement>(null);
@@ -98,6 +81,8 @@ export default function Home() {
   const [currSectionLayers, setSectionLayers] = useState<SectionLayer[]>();
   const currBeforeMap = useRef<mapboxgl.Map | null>(null);
   const currAfterMap = useRef<mapboxgl.Map | null>(null);
+  const [editFormOpen, setEditFormOpen] = useState(false);
+  const [editFormId, setEditFormId] = useState("");
 
   const setMapStyle = (map: MutableRefObject<mapboxgl.Map | null>, mapId: string) => {
     if(map?.current) {
@@ -112,16 +97,15 @@ export default function Home() {
 
   const addMapLayer = (map: MutableRefObject<mapboxgl.Map | null>, layerConfig: PrismaLayer) => {
     if(map?.current == null) return;
+    let hoveredId: string | number | null = null;
 
     let layerTypes: string[] = ["symbol", "fill", "line", "circle", "heatmap", "fill-extrusion", "raster", "raster-particle", "hillshade", "model", "background", "sky", "slot", "clip"]
     if(layerTypes.includes(layerConfig.type)) {
       let layerStuff =         {
-        //ID: CHANGE THIS, 1 OF 3
         id: layerConfig.id,
         type: layerConfig.type as unknown as any,
         source: {
           type: 'vector',
-          //URL: CHANGE THIS, 2 OF 3
           url: layerConfig.sourceUrl,
         },
         layout: {
@@ -159,24 +143,161 @@ export default function Home() {
         } else {
           map.current.addLayer(layerStuff as any)
         }
+        let hoverPopup = new mapboxgl.Popup({ closeOnClick: false, closeButton: false});
+        let clickHoverPopUp = new mapboxgl.Popup({ closeOnClick: false, closeButton: false});
+        let hoverStyleString: string;
+        /**
+         * This is gross and needs to be redone
+         * Popups type needs to be reactified
+         * Right now I pass the e event into the popup props
+         * and determine type by the type field
+         * Same think with hover popup styling Idk how we
+         * want to drive this.
+         */
+        if(layerConfig.layerName === "dutch_grants-5ehfqe")
+          {
+            popUpType = "dutch-grant";
+            hoverStyleString = "<div class='infoLayerDutchGrantsPopUp'><b>Name:</b> {name}<br><b>Dutch Grant Lot:</b> {Lot}</div>";
+          }
+          else if (layerConfig.layerName === "lot_events-bf43eb")
+          {
+            popUpType = "lot-event"
+            hoverStyleString = "<div class='demoLayerInfoPopUp'><b><h2>Taxlot: <a href='https://encyclopedia.nahc-mapping.org/taxlot/{TAXLOT}' target='_blank'>{TAXLOT}</a></h2></b></div>";
+          }
+          else
+          {
+            popUpType = "castello-taxlot"
+            hoverStyleString = "<div class='infoLayerCastelloPopUp'><b>Taxlot (1660):</b> <br/> {LOT2}</div>";
+          }
+        map.current.on("mouseenter", layerConfig.id, (e) =>{
+        });
+        /**
+         * Mouse move event triggers hover functionality. 
+         * It tracks the hovered id and sets the "hover" field on the map 
+         * layer with specified layerConfig.id to true
+         * Probably need field to determine if layer needs hover functionality
+         */
+        map.current.on("mousemove", layerConfig.id, (e) => {
+          if (e.features?.length) {
+            if (hoveredId !== null) {
+              map.current!.setFeatureState({ source: layerConfig.id, sourceLayer: layerConfig.sourceLayer, id: hoveredId }, { hover: false });
+            }
+    
+            if (e.features[0].id !== undefined) {
+              hoveredId = e.features[0].id;
+              map.current!.setFeatureState({ source: layerConfig.id, sourceLayer: layerConfig.sourceLayer, id: hoveredId }, { hover: true });
+              map.current!.getCanvas().style.cursor = "pointer";
+            }
+            hoverPopup
+            .setHTML(hoverStyleString)
+            .setLngLat(e.lngLat)
+            .addTo(map.current!);
+          }
+          
+        });
+        /**
+         * Mouse leave event ends hover functionality. 
+         * It tracks the hovered id and sets the "hover" field on the map 
+         * layer with specified layerConfig.id to false
+         * Probably need field to determine if layer needs hover functionality
+         */
+        map.current.on("mouseleave", layerConfig.id, () => {
+          map.current!.getCanvas().style.cursor = "";
+          if (hoveredId) {
+            map.current!.setFeatureState({ source: layerConfig.id, sourceLayer: layerConfig.sourceLayer, id: hoveredId  }, { hover: false });
+            hoveredId = null;
+          }
+          hoverPopup.remove();
+        });
+        /**
+         * Code below handles click events
+         * Probably need some sort of field in database that
+         * indicates if a layer needs to have click events or not
+         */
+        var clickVisible: boolean = popUpVisible;
+        var popUpType: "castello-taxlot" | "lot-event" | "long-island-native-groups" | "dutch-grant";
+        var previousNid: number | string | undefined;
+        var previousName: string | undefined;
+        map.current.on("click", layerConfig.id, (e) => {
+          if(clickHoverPopUp.isOpen())
+          {
+            clickHoverPopUp.remove();
+          }
+          clickHoverPopUp
+            .setHTML(hoverStyleString)
+            .setLngLat(e.lngLat)
+            .addTo(map.current!);
+          if(clickVisible && previousNid && (previousNid === e.features![0].properties!.nid))
+          {
+            clickVisible = false;
+            setPopUpVisible(clickVisible);
+            clickHoverPopUp.remove();
+          }
+          else if (clickVisible && previousName && (previousName === e.features![0].properties!.name))
+          {
+            clickVisible = false;
+            setPopUpVisible(clickVisible);
+            clickHoverPopUp.remove();
+          }
+          else
+          {
+            previousName = e.features![0].properties!.name ?? undefined;
+            previousNid = e.features![0].properties!.nid ?? undefined;
+            setPopUp({
+              Aligned: e.features![0].properties!.Aligned ?? undefined,
+              DayEnd1: e.features![0].properties!.DayEnd1 ?? undefined,
+              notes: e.features![0].properties!.notes ?? undefined,
+              styling1: e.features![0].properties!.styling1 ?? undefined,
+              block: e.features![0].properties!.block ?? undefined,
+              id: e.features![0].properties!.id ?? undefined,
+              lot: e.features![0].properties!.lot ?? undefined,
+              new_link: e.features![0].properties!.new_link ?? undefined,
+              old_link_2: e.features![0].properties!.old_link_2 ?? undefined,
+              tax_lots_2: e.features![0].properties!.tax_lots_2 ?? undefined,
+              tax_lots_3: e.features![0].properties!.tax_lots_3 ?? undefined,
+              DayEnd: e.features![0].properties!.DayEnd ?? undefined,
+              DayStart: e.features![0].properties!.DayStart ?? undefined,
+              TAXLOT: e.features![0].properties!.TAXLOT ?? undefined,
+              color: e.features![0].properties!.color ?? undefined,
+              color_num: e.features![0].properties!.color_num ?? undefined,
+              end_date: e.features![0].properties!.end_date ?? undefined,
+              num: e.features![0].properties!.num ?? undefined,
+              start_date: e.features![0].properties!.start_date ?? undefined,
+              title: e.features![0].properties!.title ?? undefined,
+              FID_1: e.features![0].properties!.FID_1 ?? undefined,
+              lot2: e.features![0].properties!.lot2 ?? undefined,
+              tax_lots_1: e.features![0].properties!.tax_lots_1 ?? undefined,
+              nid: e.features![0].properties!.nid ?? undefined,
+              Lot: e.features![0].properties!.Lot ?? undefined,
+              name: e.features![0].properties!.name ?? undefined,
+              day1: e.features![0].properties!.day1 ?? undefined,
+              day2: e.features![0].properties!.day2 ?? undefined,
+              year1: e.features![0].properties!.year1 ?? undefined,
+              year2: e.features![0].properties!.year2 ?? undefined,
+              descriptio: e.features![0].properties!.descriptio ?? undefined,
+              type: popUpType,
+            });
+            if (e.features![0].id !== undefined) {
+              map.current!.setFeatureState({ source: layerConfig.id, sourceLayer: layerConfig.sourceLayer, id: e.features![0].id }, { hover: true });
+            }
+            clickVisible = true;
+            setPopUpVisible(clickVisible);
+          }
+        });
+    
       }
     }
+  }
+
+  const removeMapLayer = (map: MutableRefObject<mapboxgl.Map | null>, id: string) => {
+    if (map === null) return;
+      map.current?.removeLayer(id);
+      map.current?.removeSource(id);
   }
 
   const addAllMapLayers = () => {
     if(currLayers !== null) {
       currLayers.forEach((x: PrismaLayer) => {
-        if(currBeforeMap.current?.getSource(x.sourceId) === null) {
-          currBeforeMap.current.addSource(x.sourceId, {
-            type: 'vector',
-            url: 'mapbox://mapny.7q2vs9ar'
-          });
-          currAfterMap.current?.addSource(x.sourceId, {
-            type: 'vector',
-            url: 'mapbox://mapny.7q2vs9ar'
-          })
-        }
-
         addMapLayer(currBeforeMap, x)
         addMapLayer(currAfterMap, x)
       })
@@ -195,7 +316,7 @@ export default function Home() {
             setCurrLayers(parsed.layer);
             let mappedLayerItems: SectionLayerItem[] = parsed.layer.map((x: PrismaLayer) => {
               let sectionItem: SectionLayerItem = {
-                id: 0,
+                id: x.id,
                 label: x.layerName,
                 iconColor: IconColors.BLUE,
                 iconType: FontAwesomeLayerIcons.PLUS_SQUARE,
@@ -334,7 +455,29 @@ export default function Home() {
         })
     }).catch(err => {
       console.error(err);
-    })
+    });
+  }
+
+  const beforeModalOpen = () => {
+    setLayerPanelVisible(false);
+    setPopUpVisible(false);
+    setModalOpen(true);
+  }
+
+  const afterModalClose = () => {
+    setLayerPanelVisible(true);
+    setPopUpVisible(true);
+    setModalOpen(false);
+  }
+
+  const afterModalCloseLayers = () => {
+    afterModalClose();
+    getLayers();
+  }
+
+  const afterModalCloseMaps = () => {
+    afterModalClose();
+    getMaps();
   }
 
 
@@ -423,7 +566,8 @@ export default function Home() {
         };
       };
     }
-  }, [MapboxCompare]);
+
+}, [MapboxCompare]);
 
   useEffect(() => {
     if (!MapboxCompare || !comparisonContainerRef.current) return;
@@ -481,7 +625,7 @@ export default function Home() {
         currAfterMap.current!.setLayoutProperty(layer.id, 'visibility', 'none');
       }
     });
-  }, [activeLayerIds])
+  }, [activeLayerIds]);
 
   useEffect(() => {
     if(!currDate) return;
@@ -582,32 +726,40 @@ export default function Home() {
           /></a>
 
           <LayerFormButton
-          beforeOpen={() => {
-            setLayerPanelVisible(false);
-            setPopUpVisible(false);
-            setModalOpen(true);
-          }}
-          afterClose={() => {
-            setLayerPanelVisible(true);
-            setPopUpVisible(true);
-            setModalOpen(false);
-            getLayers();
-          }}
+          beforeOpen={beforeModalOpen}
+          afterClose={afterModalCloseLayers}
           ></LayerFormButton>
 
           <MapFormButton
-          beforeOpen={() => {
-            setLayerPanelVisible(false);
-            setPopUpVisible(false);
-            setModalOpen(true);
-          }}
-          afterClose={() => {
-            setLayerPanelVisible(true);
-            setPopUpVisible(true);
-            setModalOpen(false);
-            getMaps();
-          }}
+          beforeOpen={beforeModalOpen}
+          afterClose={afterModalCloseMaps}
           ></MapFormButton>
+
+          <Modal
+            style={{
+                content: {
+                    width: '30%',
+                    right: '5px'
+                }
+            }}
+            isOpen={editFormOpen}
+            onRequestClose={() => {
+              setEditFormOpen(false);
+              setEditFormId("");
+              afterModalCloseLayers();
+            }}
+            contentLabel='New Layer'
+            >
+            <EditForm
+            id={editFormId}
+            afterSubmit={(closeForm: boolean) => {
+              setEditFormOpen(closeForm);
+              removeMapLayer(currBeforeMap, editFormId);
+              removeMapLayer(currAfterMap, editFormId);
+              setEditFormId("");
+              afterModalCloseLayers();
+            }}/>
+          </Modal>
 
           <label htmlFor="o" id="open-popup" style={{display: "none"}}>Open PopUp</label>
           <label id="about" className="trigger-popup" title="Open">ABOUT</label>
@@ -648,8 +800,8 @@ export default function Home() {
               return (
                 <SectionLayerComponent activeLayers={activeLayerIds} activeLayerCallback={(newActiveLayers: string[]) => {
                   console.log('layers selected: ', newActiveLayers);
-                  setActiveLayerIds(newActiveLayers)
-                }} layersHeader={secLayer.label} layer={secLayer} />
+                  setActiveLayerIds(newActiveLayers);
+                } } layersHeader={secLayer.label} layer={secLayer}/>
               )
             })
           }

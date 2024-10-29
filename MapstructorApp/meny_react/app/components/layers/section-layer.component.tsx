@@ -9,7 +9,7 @@ type SectionLayerProps = {
     layersHeader: string,
     layer: SectionLayer,
     activeLayerCallback: (activeLayers: string[]) => void,
-    activeLayers: string[],
+    activeLayers: string[]
 }
 
 const SectionLayerComponent = (props: SectionLayerProps) => {
@@ -27,7 +27,12 @@ const SectionLayerComponent = (props: SectionLayerProps) => {
             {
                 layerIsOpen &&
                 props.layer.groups.map((grp, idx) => (
-                    <SectionLayerGroupComponent key={`section-layer-component-${idx}`} activeLayers={props.activeLayers} activeLayerCallback={props.activeLayerCallback} layersHeader={props.layersHeader} group={grp} />
+                    <SectionLayerGroupComponent 
+                    key={`section-layer-component-${idx}`} 
+                    activeLayers={props.activeLayers} 
+                    activeLayerCallback={props.activeLayerCallback} 
+                    layersHeader={props.layersHeader} 
+                    group={grp}/>
                 ))
             }
         </>
