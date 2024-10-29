@@ -15,8 +15,10 @@ type SectionLayerGroupItemProps = {
 const SectionLayerGroupItemComponent = (props: SectionLayerGroupItemProps) => {
 
     const handleLayerChange = () => {
+        console.log('handleLayerChange Hit: ', props.item);
         if(props.item.layerId)
         {
+            console.log('CALLBACK ITEMS: ', props.activeLayers, props.item.layerId)
             if (props.activeLayers.includes(props.item.layerId)) {
                 props.activeLayerCallback(props.activeLayers.filter((d) => d !== props.item.layerId));
               } else {

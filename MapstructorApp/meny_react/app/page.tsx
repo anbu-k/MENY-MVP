@@ -218,10 +218,27 @@ export default function Home() {
         'Content-Type': 'application/json',
       }
     }).then(groups => {
+      console.log('groups found')
         groups.json()?.then(parsed => {
           if(!!parsed && !!parsed.groups && parsed.groups.length) {
             let groups: PrismaLayerGroup[] = parsed.groups;
+            let individualItems: SectionLayerItem[] = []
+
+            console.log('all groups: ', groups);
+
             let sectionLayers: SectionLayer[] = groups.map((grp, idx) => {
+              individualItems.push(
+                grp.childLayers.map((z: PrismaLayerSectionData, z_idx: number) => {
+                console.log(z);
+                let newDBMap: SectionLayerItem = {
+                  id: z_idx,
+                  label: z.layerName,
+                  iconColor: IconColors.YELLOW,
+                  iconType: FontAwesomeLayerIcons.PLUS_SQUARE,
+                  isSolid: false
+                };
+                return newDBMap;
+              }))
 
               let sectionLayer: SectionLayer = {
                 id: idx,
@@ -234,9 +251,11 @@ export default function Home() {
                     iconType: FontAwesomeLayerIcons.PLUS_SQUARE,
                     isSolid: true,
                     items: x.layers.map((y: PrismaLayerSectionData, y_idx: number) => {
+                      console.log(y);
                       let newDBMap: SectionLayerItem = {
                         id: y_idx,
-                        label: y.label,
+                        layerId: y.id,
+                        label: y.layerName,
                         iconColor: IconColors.YELLOW,
                         iconType: FontAwesomeLayerIcons.PLUS_SQUARE,
                         isSolid: false
@@ -252,6 +271,7 @@ export default function Home() {
               return sectionLayer;
             })
 
+            console.log('sectionLAyers: ', sectionLayers);
             setSectionLayers(sectionLayers)
           }
         }).catch(err => {
@@ -323,6 +343,7 @@ export default function Home() {
    */
   useEffect(() => {
     getMaps();
+    console.log('getting layer groups')
     getLayerGroups();
     getLayers();
   }, [])
@@ -626,6 +647,7 @@ export default function Home() {
 
               return (
                 <SectionLayerComponent activeLayers={activeLayerIds} activeLayerCallback={(newActiveLayers: string[]) => {
+                  console.log('layers selected: ', newActiveLayers);
                   setActiveLayerIds(newActiveLayers)
                 }} layersHeader={secLayer.label} layer={secLayer} />
               )
