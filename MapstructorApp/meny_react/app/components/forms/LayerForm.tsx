@@ -1,5 +1,6 @@
 import { useFormik } from 'formik';
 import { CSSProperties, useState } from 'react';
+import ColorPickerButton from './color-picker/color-picker-button.component';
 
 
 type LayerType = 'symbol' | 'fill' | 'line' | 'circle' | 'heatmap' | 'fill-extrusion' | 'raster' | 'raster-particle' | 'hillshade' | 'model' | 'background' | 'sky' | 'slot' | 'clip';
@@ -18,6 +19,7 @@ export default function LayerForm() {
       sourceId: '',
       paint: '',
       sourceLayer: '',
+      iconColor: ''
     },
     
     onSubmit: async (values) => {
@@ -221,6 +223,21 @@ export default function LayerForm() {
             />
           </div>
         )}
+      </div>
+
+      <div style={{ marginBottom: '15px' }}>
+        <label htmlFor="iconColor" style={labelStyling}>Icon Color:</label>
+        <div
+          id="sourceLayer"
+        >
+        <ColorPickerButton callback={(newColor: string) => {
+          formik.setValues({
+            ...formik.values,
+            iconColor: newColor
+          });
+          console.log(formik.values);
+        }}></ColorPickerButton>
+        </div>
       </div>
 
       <button
