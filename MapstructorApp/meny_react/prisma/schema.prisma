@@ -58,10 +58,10 @@ model MapFilterItem {
 }
 
 model LayerSection {
-  id          String             @id @default(auto()) @map("_id") @db.ObjectId
-  name        String             @unique
-  layerGroups LayerGroup[]
-  layers      LayerSectionData[]
+  id            String             @id @default(auto()) @map("_id") @db.ObjectId
+  name          String             @unique
+  layerGroups   LayerGroup[]
+  layerSections LayerSectionData[]
 }
 
 model LayerSectionData {
@@ -71,7 +71,10 @@ model LayerSectionData {
   sectionName   String
   iconColor     String
   label         String
-  zoomTo        String?
+  longitude     Float?
+  latitude      Float?
+  zoom          Float?
+  bearing       Float?
   groupName     LayerGroup?   @relation(fields: [topLayerClass], references: [name])
   topLayerClass String?
   infoId        String?

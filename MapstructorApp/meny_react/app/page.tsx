@@ -20,8 +20,7 @@ import { MapItem, MapZoomProps } from './models/maps/map.model';
 import LayerFormButton from './components/forms/buttons/layer-form-button.component';
 import Modal from 'react-modal';
 import MapFormButton from './components/forms/buttons/map-form-button.component';
-import {Map as PrismaMap, Layer as PrismaLayer, MapFilterGroup as PrismaMapFilterGroup, MapFilterItem as PrismaMapFilterItem, MapFilterItem} from '@prisma/client';
-
+import {Map as PrismaMap, Layer as PrismaLayer, LayerSectionData as PrismaLayerSectionData, LayerGroup as PrismaLayerGroup, MapFilterGroup as PrismaMapFilterGroup, MapFilterItem as PrismaMapFilterItem, MapFilterItem} from '@prisma/client';
 import EditForm from './components/forms/EditForm';
 import './popup.css';
 // Remove this when we have a way to get layers correctly
@@ -79,6 +78,7 @@ export default function Home() {
   const [currLayers, setCurrLayers] = useState<PrismaLayer[]>([]);
   const [defaultBeforeMap, setDefaultBeforeMap] = useState<mapboxgl.Map>();
   const [defaultAfterMap, setDefaultAfterMap] = useState<mapboxgl.Map>();
+  const [currSectionLayers, setSectionLayers] = useState<SectionLayer[]>();
   const currBeforeMap = useRef<mapboxgl.Map | null>(null);
   const currAfterMap = useRef<mapboxgl.Map | null>(null);
   const [editFormOpen, setEditFormOpen] = useState(false);
@@ -312,9 +312,7 @@ export default function Home() {
       }
     }).then(layers => {
         layers.json().then(parsed => {
-          console.log('parsed response: ', parsed, parsed?.layer, parsed?.layer?.length);
           if(parsed !== null && parsed.layer !== null && parsed.layer.length > 0) {
-            console.log('parsed layers: ', parsed.layer);
             setCurrLayers(parsed.layer);
             let mappedLayerItems: SectionLayerItem[] = parsed.layer.map((x: PrismaLayer) => {
               let sectionItem: SectionLayerItem = {
@@ -334,6 +332,77 @@ export default function Home() {
     })
   }
 
+  const getLayerGroups = () => {
+    fetch('http://localhost:3000/api/LayerGroup', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    }).then(groups => {
+      console.log('groups found')
+        groups.json()?.then(parsed => {
+          if(!!parsed && !!parsed.groups && parsed.groups.length) {
+            let groups: PrismaLayerGroup[] = parsed.groups;
+            let individualItems: SectionLayerItem[] = []
+
+            console.log('all groups: ', groups);
+
+            let sectionLayers: SectionLayer[] = groups.map((grp, idx) => {
+              individualItems.push(
+                grp.childLayers.map((z: PrismaLayerSectionData, z_idx: number) => {
+                console.log(z);
+                let newDBMap: SectionLayerItem = {
+                  id: z_idx,
+                  label: z.layerName,
+                  iconColor: IconColors.YELLOW,
+                  iconType: FontAwesomeLayerIcons.PLUS_SQUARE,
+                  isSolid: false
+                };
+                return newDBMap;
+              }))
+
+              let sectionLayer: SectionLayer = {
+                id: idx,
+                label: grp.name,
+                groups: grp.childLayers.map((x: PrismaLayerGroup, x_idx: number) => {
+                  let mappedLayerGroup: SectionLayerGroup = {
+                    id: x_idx,
+                    label: x.name,
+                    iconColor: IconColors.YELLOW,
+                    iconType: FontAwesomeLayerIcons.PLUS_SQUARE,
+                    isSolid: true,
+                    items: x.layers.map((y: PrismaLayerSectionData, y_idx: number) => {
+                      console.log(y);
+                      let newDBMap: SectionLayerItem = {
+                        id: y_idx,
+                        layerId: y.id,
+                        label: y.layerName,
+                        iconColor: IconColors.YELLOW,
+                        iconType: FontAwesomeLayerIcons.PLUS_SQUARE,
+                        isSolid: false
+                      };
+                      return newDBMap;
+                    }),
+                  }
+    
+                  return mappedLayerGroup;
+                })
+              }
+
+              return sectionLayer;
+            })
+
+            console.log('sectionLAyers: ', sectionLayers);
+            setSectionLayers(sectionLayers)
+          }
+        }).catch(err => {
+          console.error('failed to convert to json: ', err)
+        })
+    }).catch(err => {
+      console.error(err);
+    })
+  }
+
   const getMaps = () => {
     fetch('http://localhost:3000/api/map', {
       method: 'GET',
@@ -341,9 +410,7 @@ export default function Home() {
           'Content-Type': 'application/json',
       }
     }).then(maps => {
-      console.log(maps)
         maps.json()?.then(parsed => {
-          console.log(parsed);
           if(!!parsed && !!parsed.groups && parsed.groups.length) {
             let groups: PrismaMapFilterGroup[] = parsed.groups;
             let mapFilterGroups: MapFiltersGroup[] = groups.map((grp, idx) => {
@@ -419,6 +486,8 @@ export default function Home() {
    */
   useEffect(() => {
     getMaps();
+    console.log('getting layer groups')
+    getLayerGroups();
     getLayers();
   }, [])
 
@@ -723,51 +792,33 @@ export default function Home() {
         <FontAwesomeIcon id="mobi-hide-sidebar" icon={faArrowCircleLeft} />
         <p className="title">LAYERS</p>
         <br />
-        <SectionLayerComponent 
-            activeLayers={activeLayerIds}
-            activeLayerCallback={(newActiveLayers: string[]) => {
-              setActiveLayerIds(newActiveLayers);
-            } } 
-            layersHeader={manhattaLayer.label} 
-            layer={{
-              ...manhattaLayer,
-              groups: [
-                {
-                  id: '0',
-                  label: "1609 | Manhatta",
-                  iconColor: IconColors.YELLOW,
-                  iconType: FontAwesomeLayerIcons.PLUS_SQUARE,
-                  isSolid: true,
-                  items: currLayers.map((x, idx) => {
-                    let returnedLayer: SectionLayerItem = {
-                      id: x.id,
-                      label: x.layerName,
-                      iconColor: IconColors.YELLOW, // Change this once we store Icon stats in DB
-                      iconType: FontAwesomeLayerIcons.PLUS_SQUARE, // Change this once we store Icon stats in DB
-                      isSolid: false, // Change this once we store Icon stats in DB
-                      layerId: x.id
-                    };
-                    return returnedLayer;
-                  })
-                }
-              ],
-            }} 
-            openWindow={beforeModalOpen}
+
+        <>
+          {
+            (currSectionLayers ?? []).map(secLayer => {
+
+              return (
+                <SectionLayerComponent activeLayers={activeLayerIds} activeLayerCallback={(newActiveLayers: string[]) => {
+                  console.log('layers selected: ', newActiveLayers);
+                  setActiveLayerIds(newActiveLayers);
+                } } layersHeader={secLayer.label} layer={secLayer}
+                openWindow={beforeModalOpen}
             editFormVisibleCallback={(isOpen: boolean) => {
               setEditFormOpen(isOpen);
             }}
             editFormIdCallback={(id: string) => {
               setEditFormId(id);
-            }}
-            />
+            }}/>
+              )
+            })
+          }
+        </>
 
         <MapFilterWrapperComponent beforeMapCallback={(map) => {
-          console.log('before hit', map?.styleId)
           // Set beforeMap to selected map by changing the mapId
           setMapStyle(currBeforeMap, map.styleId);
         }} afterMapCallback={(map) => {
           // Set afterMap to selected map by changing the mapId
-          console.log('after hit', map?.styleId)
 
           setMapStyle(currAfterMap, map.styleId);
         }} defaultMap={beforeMapItem} mapGroups={mappedFilterItemGroups} mapZoomCallback={(zoomProps: MapZoomProps) => {

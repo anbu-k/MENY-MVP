@@ -18,8 +18,10 @@ type SectionLayerGroupItemProps = {
 const SectionLayerGroupItemComponent = (props: SectionLayerGroupItemProps) => {
 
     const handleLayerChange = () => {
+        console.log('handleLayerChange Hit: ', props.item);
         if(props.item.layerId)
         {
+            console.log('CALLBACK ITEMS: ', props.activeLayers, props.item.layerId)
             if (props.activeLayers.includes(props.item.layerId)) {
                 props.activeLayerCallback(props.activeLayers.filter((d) => d !== props.item.layerId));
               } else {
@@ -56,8 +58,8 @@ const SectionLayerGroupItemComponent = (props: SectionLayerGroupItemProps) => {
                         icon={getFontawesomeIcon(FontAwesomeLayerIcons.PEN_TO_SQUARE)}
                         onClick={() => {
                             props.openWindow();
-                            props.editFormIdCallback(props.item.id);
-                            console.log("Layer id: " + props.item.id);
+                            props.editFormIdCallback(props.item.layerId ?? '');
+                            console.log("Layer id: " + props.item.layerId);
                             props.editFormVisibleCallback(true);
                         }}
                         />

@@ -24,6 +24,10 @@ export async function POST(request: Request) {
                 sectionName:LayerSectionData.sectionName,
                 iconColor:LayerSectionData.iconColor,
                 label:LayerSectionData.label,
+                longitude:LayerSectionData.longitude,
+                latitude:LayerSectionData.latitude,
+                zoom:LayerSectionData.zoom,
+                bearing:LayerSectionData.bearing,
                 topLayerClass:LayerSectionData.topLayerClass,
                 infoId:LayerSectionData.infoId,
             }
@@ -50,6 +54,10 @@ export async function PUT(request: Request) {
                 sectionName:LayerSectionData.sectionName,
                 iconColor:LayerSectionData.iconColor,
                 label:LayerSectionData.label,
+                longitude:LayerSectionData.longitude,
+                latitude:LayerSectionData.latitude,
+                zoom:LayerSectionData.zoom,
+                bearing:LayerSectionData.bearing,
                 topLayerClass:LayerSectionData.topLayerClass,
                 infoId:LayerSectionData.infoId,
             }
