@@ -113,8 +113,8 @@ export default function Home() {
         },
         "source-layer": layerConfig.sourceLayer,
         paint: {
-          "fill-color": "#e3ed58",
-          "fill-opacity": [
+          "fill-color": layerConfig.paint?.['fill-color'] ?? "#e3ed58",  // Default color if undefined,
+          "fill-opacity": layerConfig.paint?.['fill-opacity'] ?? [
             "case",
             ["boolean", ["feature-state", "hover"], false],
             0.8,

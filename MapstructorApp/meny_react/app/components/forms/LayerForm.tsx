@@ -1,7 +1,6 @@
 import { useFormik } from 'formik';
 import { CSSProperties, useState } from 'react';
 
-
 type LayerType = 'symbol' | 'fill' | 'line' | 'circle' | 'heatmap' | 'fill-extrusion' | 'raster' | 'raster-particle' | 'hillshade' | 'model' | 'background' | 'sky' | 'slot' | 'clip';
 type SourceType = 'vector' | 'raster' | 'raster-dem' | 'raster-array' | 'geojson' | 'video' | 'image' | 'model' | 'batched-model';
 
@@ -12,22 +11,30 @@ export default function LayerForm() {
     initialValues: {
       layerName: '',
       type: '' as LayerType,
-      sectionName: '',
       sourceType: '' as SourceType,
       sourceUrl: '',
       sourceId: '',
-      paint: '',
       sourceLayer: '',
+      fillColor: '#e3ed58',  // Default fill color
+      fillOpacity: 0.5,  // Default opacity
     },
     
     onSubmit: async (values) => {
+      const formattedLayer = {
+        ...values,
+        paint: {
+          'fill-color': values.fillColor,
+          'fill-opacity': values.fillOpacity,
+        },
+      };
+
       try {
         const response = await fetch('api/layer', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify(values),
+          body: JSON.stringify(formattedLayer),
         });
         alert('Layer added successfully');
         formik.resetForm();
@@ -76,6 +83,7 @@ export default function LayerForm() {
         <strong>Add New Layer</strong>
       </h2>
 
+      {/* Layer Name Input */}
       <div style={{ marginBottom: '15px' }}>
         <label htmlFor="layerName" style={labelStyling}>Layer Name:</label>
         <input
@@ -117,13 +125,13 @@ export default function LayerForm() {
       </div>
 
       {/* <div style={{ marginBottom: '15px' }}>
-        <label htmlFor="sectionName" style={labelStyling}>Section Name:</label>
+        <label htmlFor="paint" style={labelStyling}>Paint:</label>
         <input
           type="text"
-          id="sectionName"
-          name="sectionName"
+          id="paint"
+          name="paint"
           onChange={formik.handleChange}
-          value={formik.values.sectionName}
+          value={formik.values.paint}
           style={boxStyling}
         />
       </div> */}
@@ -151,6 +159,7 @@ export default function LayerForm() {
         </select>
       </div>
 
+      {/* Source URL Input */}
       <div style={{ marginBottom: '15px' }}>
         <label htmlFor="sourceUrl" style={labelStyling}>Source URL:</label>
         <input
@@ -163,6 +172,7 @@ export default function LayerForm() {
         />
       </div>
 
+      {/* Source ID Input */}
       <div style={{ marginBottom: '15px' }}>
         <label htmlFor="sourceId" style={labelStyling}>Source ID:</label>
         <input
@@ -175,6 +185,7 @@ export default function LayerForm() {
         />
       </div>
 
+      {/* Source Layer Input */}
       <div style={{ marginBottom: '15px' }}>
         <label htmlFor="sourceLayer" style={labelStyling}>Source Layer:</label>
         <input
@@ -187,40 +198,33 @@ export default function LayerForm() {
         />
       </div>
 
-      {/* <div style={{ marginBottom: '15px' }}>
-        <label htmlFor="paint" style={labelStyling}>Paint:</label>
+      {/* Background Fill Color Picker */}
+      <div style={{ marginBottom: '15px' }}>
+        <label htmlFor="fillColor" style={labelStyling}>Background Fill Color:</label>
         <input
-          type="text"
-          id="paint"
-          name="paint"
+          type="color"
+          id="fillColor"
+          name="fillColor"
           onChange={formik.handleChange}
-          value={formik.values.paint}
+          value={formik.values.fillColor}
+          style={{ ...boxStyling, padding: '5px' }}
+        />
+      </div>
+
+      {/* Fill Opacity Input */}
+      <div style={{ marginBottom: '15px' }}>
+        <label htmlFor="fillOpacity" style={labelStyling}>Fill Opacity:</label>
+        <input
+          type="number"
+          id="fillOpacity"
+          name="fillOpacity"
+          onChange={formik.handleChange}
+          value={formik.values.fillOpacity}
+          min="0"
+          max="1"
+          step="0.1"
           style={boxStyling}
         />
-      </div> */}
-
-      {/* Option to create a new source */}
-      <div style={{ marginBottom: '15px' }}>
-        <button
-          type="button"
-          style={buttonStyling}
-          onClick={() => setShowNewSourceInput(!showNewSourceInput)}
-        >
-          {showNewSourceInput ? 'Cancel New Source' : 'Create New Source'}
-        </button>
-
-        {showNewSourceInput && (
-          <div>
-            <label htmlFor="newSource" style={labelStyling}>New Source:</label>
-            <input
-              type="text"
-              id="newSource"
-              name="newSource"
-              onChange={formik.handleChange}
-              style={boxStyling}
-            />
-          </div>
-        )}
       </div>
 
       <button
