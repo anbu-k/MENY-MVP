@@ -132,19 +132,16 @@ export default function Home() {
       ];
 
       if(!map.current?.getLayer(layerConfig.id)) {
-        if(currDate) {
+        if(layerConfig.time) {
           map.current.addLayer(
             {
               ...layerStuff as any,
               filter: dateFilter
             }
           );
-          // map.current.getLayer(layerConfig.id)!.filter = ["all", ["<=", "DayStart", parseInt(currDate.format("YYYYMMDD"))], [">=", "DayEnd", parseInt(currDate.format("YYYYMMDD"))]]
         } else {
           map.current.addLayer(layerStuff as any)
         }
-        let hoverPopup = new mapboxgl.Popup({ closeOnClick: false, closeButton: false});
-        let clickHoverPopUp = new mapboxgl.Popup({ closeOnClick: false, closeButton: false});
         let hoverStyleString: string;
         /**
          * This is gross and needs to be redone
@@ -169,122 +166,124 @@ export default function Home() {
             popUpType = "castello-taxlot"
             hoverStyleString = "<div class='infoLayerCastelloPopUp'><b>Taxlot (1660):</b> <br/> {LOT2}</div>";
           }
-        map.current.on("mouseenter", layerConfig.id, (e) =>{
-        });
-        /**
-         * Mouse move event triggers hover functionality. 
-         * It tracks the hovered id and sets the "hover" field on the map 
-         * layer with specified layerConfig.id to true
-         * Probably need field to determine if layer needs hover functionality
-         */
-        map.current.on("mousemove", layerConfig.id, (e) => {
-          if (e.features?.length) {
-            if (hoveredId !== null) {
-              map.current!.setFeatureState({ source: layerConfig.id, sourceLayer: layerConfig.sourceLayer, id: hoveredId }, { hover: false });
+        if(layerConfig.hover)
+        {
+          let hoverPopup = new mapboxgl.Popup({ closeOnClick: false, closeButton: false});
+          /**
+           * Mouse move event triggers hover functionality. 
+           * It tracks the hovered id and sets the "hover" field on the map 
+           * layer with specified layerConfig.id to true
+           * Probably need field to determine if layer needs hover functionality
+           */
+          map.current.on("mousemove", layerConfig.id, (e) => {
+            if (e.features?.length) {
+              if (hoveredId !== null) {
+                map.current!.setFeatureState({ source: layerConfig.id, sourceLayer: layerConfig.sourceLayer, id: hoveredId }, { hover: false });
+              }
+      
+              if (e.features[0].id !== undefined) {
+                hoveredId = e.features[0].id;
+                map.current!.setFeatureState({ source: layerConfig.id, sourceLayer: layerConfig.sourceLayer, id: hoveredId }, { hover: true });
+                map.current!.getCanvas().style.cursor = "pointer";
+              }
+              hoverPopup
+              .setHTML(hoverStyleString)
+              .setLngLat(e.lngLat)
+              .addTo(map.current!);
             }
-    
-            if (e.features[0].id !== undefined) {
-              hoveredId = e.features[0].id;
-              map.current!.setFeatureState({ source: layerConfig.id, sourceLayer: layerConfig.sourceLayer, id: hoveredId }, { hover: true });
-              map.current!.getCanvas().style.cursor = "pointer";
+            
+          });
+          /**
+           * Mouse leave event ends hover functionality. 
+           * It tracks the hovered id and sets the "hover" field on the map 
+           * layer with specified layerConfig.id to false
+           * Probably need field to determine if layer needs hover functionality
+           */
+          map.current.on("mouseleave", layerConfig.id, () => {
+            map.current!.getCanvas().style.cursor = "";
+            if (hoveredId) {
+              map.current!.setFeatureState({ source: layerConfig.id, sourceLayer: layerConfig.sourceLayer, id: hoveredId  }, { hover: false });
+              hoveredId = null;
             }
-            hoverPopup
-            .setHTML(hoverStyleString)
-            .setLngLat(e.lngLat)
-            .addTo(map.current!);
-          }
-          
-        });
-        /**
-         * Mouse leave event ends hover functionality. 
-         * It tracks the hovered id and sets the "hover" field on the map 
-         * layer with specified layerConfig.id to false
-         * Probably need field to determine if layer needs hover functionality
-         */
-        map.current.on("mouseleave", layerConfig.id, () => {
-          map.current!.getCanvas().style.cursor = "";
-          if (hoveredId) {
-            map.current!.setFeatureState({ source: layerConfig.id, sourceLayer: layerConfig.sourceLayer, id: hoveredId  }, { hover: false });
-            hoveredId = null;
-          }
-          hoverPopup.remove();
-        });
+            hoverPopup.remove();
+          });
+        }
         /**
          * Code below handles click events
          * Probably need some sort of field in database that
          * indicates if a layer needs to have click events or not
          */
-        var clickVisible: boolean = popUpVisible;
-        var popUpType: "castello-taxlot" | "lot-event" | "long-island-native-groups" | "dutch-grant";
-        var previousNid: number | string | undefined;
-        var previousName: string | undefined;
-        map.current.on("click", layerConfig.id, (e) => {
-          if(clickHoverPopUp.isOpen())
-          {
-            clickHoverPopUp.remove();
-          }
-          clickHoverPopUp
-            .setHTML(hoverStyleString)
-            .setLngLat(e.lngLat)
-            .addTo(map.current!);
-          if(clickVisible && previousNid && (previousNid === e.features![0].properties!.nid))
-          {
-            clickVisible = false;
-            setPopUpVisible(clickVisible);
-            clickHoverPopUp.remove();
-          }
-          else if (clickVisible && previousName && (previousName === e.features![0].properties!.name))
-          {
-            clickVisible = false;
-            setPopUpVisible(clickVisible);
-            clickHoverPopUp.remove();
-          }
-          else
-          {
-            previousName = e.features![0].properties!.name ?? undefined;
-            previousNid = e.features![0].properties!.nid ?? undefined;
-            setPopUp({
-              Aligned: e.features![0].properties!.Aligned ?? undefined,
-              DayEnd1: e.features![0].properties!.DayEnd1 ?? undefined,
-              notes: e.features![0].properties!.notes ?? undefined,
-              styling1: e.features![0].properties!.styling1 ?? undefined,
-              block: e.features![0].properties!.block ?? undefined,
-              id: e.features![0].properties!.id ?? undefined,
-              lot: e.features![0].properties!.lot ?? undefined,
-              new_link: e.features![0].properties!.new_link ?? undefined,
-              old_link_2: e.features![0].properties!.old_link_2 ?? undefined,
-              tax_lots_2: e.features![0].properties!.tax_lots_2 ?? undefined,
-              tax_lots_3: e.features![0].properties!.tax_lots_3 ?? undefined,
-              DayEnd: e.features![0].properties!.DayEnd ?? undefined,
-              DayStart: e.features![0].properties!.DayStart ?? undefined,
-              TAXLOT: e.features![0].properties!.TAXLOT ?? undefined,
-              color: e.features![0].properties!.color ?? undefined,
-              color_num: e.features![0].properties!.color_num ?? undefined,
-              end_date: e.features![0].properties!.end_date ?? undefined,
-              num: e.features![0].properties!.num ?? undefined,
-              start_date: e.features![0].properties!.start_date ?? undefined,
-              title: e.features![0].properties!.title ?? undefined,
-              FID_1: e.features![0].properties!.FID_1 ?? undefined,
-              lot2: e.features![0].properties!.lot2 ?? undefined,
-              tax_lots_1: e.features![0].properties!.tax_lots_1 ?? undefined,
-              nid: e.features![0].properties!.nid ?? undefined,
-              Lot: e.features![0].properties!.Lot ?? undefined,
-              name: e.features![0].properties!.name ?? undefined,
-              day1: e.features![0].properties!.day1 ?? undefined,
-              day2: e.features![0].properties!.day2 ?? undefined,
-              year1: e.features![0].properties!.year1 ?? undefined,
-              year2: e.features![0].properties!.year2 ?? undefined,
-              descriptio: e.features![0].properties!.descriptio ?? undefined,
-              type: popUpType,
-            });
-            if (e.features![0].id !== undefined) {
-              map.current!.setFeatureState({ source: layerConfig.id, sourceLayer: layerConfig.sourceLayer, id: e.features![0].id }, { hover: true });
+        if(layerConfig.click)
+        {
+          var clickVisible: boolean = popUpVisible;
+          var popUpType: "castello-taxlot" | "lot-event" | "long-island-native-groups" | "dutch-grant";
+          var previousNid: number | string | undefined;
+          var previousName: string | undefined;
+          let clickHoverPopUp = new mapboxgl.Popup({ closeOnClick: false, closeButton: false});
+          map.current.on("click", layerConfig.id, (e) => {
+            if(clickHoverPopUp.isOpen())
+            {
+              clickHoverPopUp.remove();
             }
-            clickVisible = true;
-            setPopUpVisible(clickVisible);
-          }
-        });
-    
+            clickHoverPopUp
+              .setHTML(hoverStyleString)
+              .setLngLat(e.lngLat)
+              .addTo(map.current!);
+            if(clickVisible && previousNid && (previousNid === e.features![0].properties!.nid))
+            {
+              clickVisible = false;
+              setPopUpVisible(clickVisible);
+              clickHoverPopUp.remove();
+            }
+            else if (clickVisible && previousName && (previousName === e.features![0].properties!.name))
+            {
+              clickVisible = false;
+              setPopUpVisible(clickVisible);
+              clickHoverPopUp.remove();
+            }
+            else
+            {
+              previousName = e.features![0].properties!.name ?? undefined;
+              previousNid = e.features![0].properties!.nid ?? undefined;
+              setPopUp({
+                Aligned: e.features![0].properties!.Aligned ?? undefined,
+                DayEnd1: e.features![0].properties!.DayEnd1 ?? undefined,
+                notes: e.features![0].properties!.notes ?? undefined,
+                styling1: e.features![0].properties!.styling1 ?? undefined,
+                block: e.features![0].properties!.block ?? undefined,
+                id: e.features![0].properties!.id ?? undefined,
+                lot: e.features![0].properties!.lot ?? undefined,
+                new_link: e.features![0].properties!.new_link ?? undefined,
+                old_link_2: e.features![0].properties!.old_link_2 ?? undefined,
+                tax_lots_2: e.features![0].properties!.tax_lots_2 ?? undefined,
+                tax_lots_3: e.features![0].properties!.tax_lots_3 ?? undefined,
+                DayEnd: e.features![0].properties!.DayEnd ?? undefined,
+                DayStart: e.features![0].properties!.DayStart ?? undefined,
+                TAXLOT: e.features![0].properties!.TAXLOT ?? undefined,
+                color: e.features![0].properties!.color ?? undefined,
+                color_num: e.features![0].properties!.color_num ?? undefined,
+                end_date: e.features![0].properties!.end_date ?? undefined,
+                num: e.features![0].properties!.num ?? undefined,
+                start_date: e.features![0].properties!.start_date ?? undefined,
+                title: e.features![0].properties!.title ?? undefined,
+                FID_1: e.features![0].properties!.FID_1 ?? undefined,
+                lot2: e.features![0].properties!.lot2 ?? undefined,
+                tax_lots_1: e.features![0].properties!.tax_lots_1 ?? undefined,
+                nid: e.features![0].properties!.nid ?? undefined,
+                Lot: e.features![0].properties!.Lot ?? undefined,
+                name: e.features![0].properties!.name ?? undefined,
+                day1: e.features![0].properties!.day1 ?? undefined,
+                day2: e.features![0].properties!.day2 ?? undefined,
+                year1: e.features![0].properties!.year1 ?? undefined,
+                year2: e.features![0].properties!.year2 ?? undefined,
+                descriptio: e.features![0].properties!.descriptio ?? undefined,
+                type: popUpType,
+              });
+              clickVisible = true;
+              setPopUpVisible(clickVisible);
+            }
+          });
+        }
       }
     }
   }
@@ -638,7 +637,8 @@ export default function Home() {
     ];
 
     activeLayerIds.forEach(lid => {
-      if(currBeforeMap.current?.getLayer(lid) !== null) {
+      if((currBeforeMap.current?.getLayer(lid) !== null) && (currBeforeMap.current?.getLayer(lid)?.filter !== undefined)) 
+      {
         currBeforeMap.current?.setFilter(lid, dateFilter);
       }
     })
@@ -798,17 +798,21 @@ export default function Home() {
             (currSectionLayers ?? []).map(secLayer => {
 
               return (
-                <SectionLayerComponent activeLayers={activeLayerIds} activeLayerCallback={(newActiveLayers: string[]) => {
+                <SectionLayerComponent 
+                activeLayers={activeLayerIds} 
+                activeLayerCallback={(newActiveLayers: string[]) => {
                   console.log('layers selected: ', newActiveLayers);
                   setActiveLayerIds(newActiveLayers);
-                } } layersHeader={secLayer.label} layer={secLayer}
+                } } 
+                layersHeader={secLayer.label} 
+                layer={secLayer}
                 openWindow={beforeModalOpen}
-            editFormVisibleCallback={(isOpen: boolean) => {
-              setEditFormOpen(isOpen);
-            }}
-            editFormIdCallback={(id: string) => {
-              setEditFormId(id);
-            }}/>
+                editFormVisibleCallback={(isOpen: boolean) => {
+                  setEditFormOpen(isOpen);
+                }}
+                editFormIdCallback={(id: string) => {
+                  setEditFormId(id);
+                }}/>
               )
             })
           }

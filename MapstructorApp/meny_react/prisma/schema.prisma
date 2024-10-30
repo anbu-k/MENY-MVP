@@ -102,4 +102,7 @@ model Layer {
   sourceId         String
   paint            String?
   sourceLayer      String
+  hover            Boolean
+  time             Boolean
+  click            Boolean
 }

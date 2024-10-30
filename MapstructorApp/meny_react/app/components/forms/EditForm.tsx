@@ -18,7 +18,10 @@ const EditForm = (props: {id: string, afterSubmit: (formVisible: boolean) => voi
         sourceLayer: "",
         sourceType: "",
         sourceUrl: "",
-        type: "",});
+        type: "",
+        hover: false,
+        click: false,
+        time: false,});
     const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
@@ -52,6 +55,9 @@ const EditForm = (props: {id: string, afterSubmit: (formVisible: boolean) => voi
         sourceId: layer.sourceId,
         paint: layer.paint,
         sourceLayer: layer.sourceLayer,
+        hover: layer.hover,
+        click: layer.click,
+        time: layer.time,
         },
       
       onSubmit: async (values) => {
@@ -82,6 +88,16 @@ const EditForm = (props: {id: string, afterSubmit: (formVisible: boolean) => voi
         marginBottom: '10px',
         fontFamily: 'Arial, sans-serif',
         fontSize: '14px',
+      };
+
+      const checkboxStyling: CSSProperties = {
+        padding: '8px',
+        border: '1px solid #ccc',
+        borderRadius: '4px',
+        width: '20%',
+        height: '25px',
+        boxSizing: 'border-box',
+        cursor: 'pointer',
       };
     
       const labelStyling: CSSProperties = {
@@ -238,6 +254,36 @@ const EditForm = (props: {id: string, afterSubmit: (formVisible: boolean) => voi
                     style={boxStyling}
                   />
                 </div> */}
+
+                <div style={{ display: 'flex', marginBottom: '10px' }}>
+                  <label htmlFor="hover" style={labelStyling}>Hover:</label>
+                  <input
+                    type="checkbox"
+                    id="hover"
+                    name="hover"
+                    onChange={formik.handleChange}
+                    checked={formik.values.hover}
+                    style={checkboxStyling}
+                  />
+                  <label htmlFor="click" style={labelStyling}>Click:</label>
+                  <input
+                    type="checkbox"
+                    id="click"
+                    name="click"
+                    onChange={formik.handleChange}
+                    checked={formik.values.click}
+                    style={checkboxStyling}
+                  />
+                  <label htmlFor="time" style={labelStyling}>Time:</label>
+                  <input
+                    type="checkbox"
+                    id="time"
+                    name="time"
+                    onChange={formik.handleChange}
+                    checked={formik.values.time}
+                    style={checkboxStyling}
+                  />
+                </div>
                 <button
                   style={buttonStyling}
                   onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = buttonHoverStyling.backgroundColor!)}
