@@ -17,6 +17,7 @@ export default function LayerForm() {
       sourceLayer: '',
       fillColor: '#e3ed58',  // Default fill color
       fillOpacity: 0.5,  // Default opacity
+      fillOutlineColor: '#FF0000',  // Default outline color
     },
     
     onSubmit: async (values) => {
@@ -25,6 +26,7 @@ export default function LayerForm() {
         paint: {
           'fill-color': values.fillColor,
           'fill-opacity': values.fillOpacity,
+          'fill-outline-color': values.fillOutlineColor,
         },
       };
 
@@ -224,6 +226,19 @@ export default function LayerForm() {
           max="1"
           step="0.1"
           style={boxStyling}
+        />
+      </div>
+
+      {/* Outline Color Picker */}
+      <div style={{ marginBottom: '15px' }}>
+        <label htmlFor="fillOutlineColor" style={labelStyling}>Outline Color:</label>
+        <input
+          type="color"
+          id="fillOutlineColor"
+          name="fillOutlineColor"
+          onChange={formik.handleChange}
+          value={formik.values.fillOutlineColor}
+          style={{ ...boxStyling, padding: '5px' }}
         />
       </div>
 

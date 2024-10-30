@@ -120,7 +120,7 @@ export default function Home() {
             0.8,
             0.45,
           ],
-          "fill-outline-color": "#FF0000",
+          "fill-outline-color": layerConfig.paint?.['fill-outline-color'] ?? "#FF0000",  // Default outline color,
         }
       }
 
