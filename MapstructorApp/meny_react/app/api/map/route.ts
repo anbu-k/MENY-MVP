@@ -3,16 +3,16 @@ import { NextResponse } from "next/server";
 
 const prisma = new PrismaClient();
 
-export async function GET() {
-  const groups = await prisma.mapFilterGroup.findMany({ //find all groups 
-    include: {
-        maps: true,             // Include associated maps
-        mapfilteritems: true,   // Include associated MapFilterItems
-    },
-});
+export async function GET(request: Request) {//get
+    const groups = await prisma.mapFilterGroup.findMany({ //find all groups 
+        include: {
+            maps: true,             // Include associated maps
+            mapfilteritems: true,   // Include associated MapFilterItems
+        },
+    }); 
 
     return NextResponse.json({
-      groups
+        groups
     })
 }
 
@@ -20,9 +20,10 @@ export async function POST(request: Request) { // create
   try {
       const group: MapFilterGroup = await request.json(); // parse the JSON
 
+      console.log(group);
       const existingGroup = await prisma.mapFilterGroup.findFirst({ //check if group exsit 
           where: {
-              mapId: group.mapId,
+            groupId: group.groupId,
           },
       });
 
@@ -30,16 +31,16 @@ export async function POST(request: Request) { // create
           console.log("ERROR: ATTEMPTED REPEATED RECORDS -- SENDING 400");
           console.error("REPEATED RECORD ERROR: Missing required fields");
           return NextResponse.json({
-              message: "Already exists - send a put request",
+              message: "group ID exists",
               error: "REPEATED RECORDS ARE NOT ALLOWED",
           }, { status: 400 });
       }
 
-      const newMap = await prisma.mapFilterGroup.create({ //creates the group and its nested tables
+      const newgroup = await prisma.mapFilterGroup.create({ //creates the group and its nested tables
         data: {
             groupName: group.groupName,
             label: group.label,
-            mapId: group.mapId,
+            groupId: group.groupId,
             maps: {
                 create: group.maps?.map(m => ({ //creates the maps
                     mapId: m.mapId,
@@ -55,11 +56,11 @@ export async function POST(request: Request) { // create
                 create: group.mapfilteritems?.map(item => ({ //creates the items
                     itemName: item.itemName,
                     label: item.label,
+                    itemId: item.itemId,
                     defaultCheckedForBeforeMap: item.defaultCheckedForBeforeMap,
                     defaultCheckedForAfterMap: item.defaultCheckedForAfterMap,
                     showInfoButton: item.showInfoButton,
                     showZoomButton: item.showZoomButton,
-                    mapId: item.mapId, // Use the mapId of the group for the connection
                 })) || [],
             },
         },
@@ -67,7 +68,7 @@ export async function POST(request: Request) { // create
 
       return NextResponse.json({ // send success and the new map data back 
           message: "Success",
-          map_id: newMap.id,
+          map_id: newgroup
       });
       
   } catch (error) { // catch error if try fails
@@ -79,100 +80,166 @@ export async function POST(request: Request) { // create
   }
 }
 
-//Outdated do not use!!!!!!!!!!!!!!!!!
-// export async function DELETE(request: Request){ //delete 
-//     const m: Map = await request.json();
+export async function DELETE(request: Request){ //delete 
+    const g = await request.json();
 
-//     console.log("<================== DELETE ==================>: ", m.id);//logging
+    let delitemId: string = g.itemId;
+    let delmapid:string  = g.mapId;
+    
+    let message:string = "failed";
+
+    console.log("DELETE:", delmapid, g.groupId);//logging
 
     
-//     try{
-//         if (m.id == undefined) { //check to see if the JSON is vaild
-//             console.log("ERROR: MISSING ID DATA -- SENDING 400");
-//             console.error("Validation error: Missing required fields", m);
-//             return NextResponse.json({ //sends error and 400 (Bad Request) if not
-//                 message: "Invalid data: ",
-//                 error: "Missing required fields",
-//             }, { status: 400 });
-//         }
+    try{
+        if (!g.groupId && (!g.mapId || !g.itemId)) { //check to see if the JSON is vaild
+            console.log("ERROR: MISSING ID DATA -- SENDING 400");
+            console.error("Validation error: Missing required fields");
+            return NextResponse.json({ //sends error and 400 (Bad Request) if not
+                message: "Invalid data",
+                error: "Missing required fields",
+            }, { status: 400 });
+        }
 
-//         const delmap = await prisma.map.delete({ //find and delete the map id that was sent
-//             where: {
-//               id: m.id,
-//             },
-//           })
+        if(delmapid !== undefined){//want to delete a map
+            console.log("delete map")
+           await prisma.map.deleteMany({
+                where: {
+                    groupId: g.groupId,
+                    mapId: delmapid, 
+                },
+            });
 
-//           console.log("<================== DELETE COMPLETE ==================>: ", m.id);//sucess delete map
+            message = "deleted map";
+        }
 
-//         return NextResponse.json({ //send success and the delmap data back 
-//             message: "Success",
-//             data: delmap
-//         });
-//     }
-//     catch (error: any) { //catch error if try fails
-//         console.error("Error Deleting map:", error); //log to server
-//         return NextResponse.json({ //send 500 (Internal Server Error) and what the error is to frontend
-//             message: "Failed to Deleting map",
-//             error: error.message,
-//         }, { status: 500 });
-//     } 
-// }
+        else if(delitemId !== undefined){ //want to delete a item
+            console.log("delete item")
+            await prisma.mapFilterItem.deleteMany({
+                where: {
+                    groupId: g.groupId,
+                    itemId: delitemId, 
+                },
+            });
 
-// export async function PUT(request: Request){ //modify
-//     const m: Map = await request.json();
+            message = "deleted item";
+        }
+
+        else{ //delete group
+            console.log("delete group")
+            await prisma.$transaction([ 
+                prisma.map.deleteMany({ where: { groupId: g.groupId } }),
+                prisma.mapFilterItem.deleteMany({ where: { groupId: g.groupId } }),
+                prisma.mapFilterGroup.deleteMany({ where: { groupId: g.groupId } })
+            ]);
+            message = "deleted group";
+        }
+
+          console.log("DELETE COMPLETE: ", g.groupId);//sucess delete map
+
+        return NextResponse.json({ //send success and the delmap data back 
+            message: message,
+            data: g.groupId
+        });
+    }
+    catch (error: any) { //catch error if try fails
+        console.error("Error Deleting:", error); //log to server
+        return NextResponse.json({ //send 500 (Internal Server Error) and what the error is to frontend
+            message: "Failed to delete",
+            error: error.message,
+        }, { status: 500 });
+    } 
+}
+
+export async function PUT(request: Request){ //modify
+    const g  = await request.json();
     
+    const gmap = { 
+        groupId: g.groupId,
+        longitude: g.longitude,
+        latitude: g.latitude,
+        mapName: g.mapName,
+        mapId: g.mapId,
+        zoom: g.zoom,
+        bearing: g.bearing,
+        styleId: g.styleId,
+    }
 
-//     console.log("<================== PUT ==================>: ",m.id);
+    const gitem = {
+        itemName                   :  g.itemName,
+        groupId                    :  g.groupId,
+        label                      :  g.label,
+        defaultCheckedForBeforeMap :  g.defaultCheckedForBeforeMap,
+        defaultCheckedForAfterMap  :  g.defaultCheckedForAfterMap,
+        showInfoButton             :  g.showInfoButton,
+        showZoomButton             :  g.showZoomButton,
+        itemId                     :  g.itemId,
+    }
 
-//     try{
-//         if (!m.id || !m.name || m.styleId == '' || !m.longitude || !m.latitude || !m.zoom || !m.bearing
-//         ){ //check to see if the JSON is vaild
-//             console.log("ERROR: MISSING DATA -- SENDING 400");
-//             console.error("Validation error: Missing required fields", m);
-//             return NextResponse.json({ //sends error and 400 (Bad Request) if not
-//                 message: "Invalid data: ",
-//                 error: "Missing required fields",
-//             }, { status: 400 });
-//         }
+    console.log("PUT \n");
 
-//     // console.log(await prisma.map.findFirst({where:{id: m.id}})); //DEBUG
+    try{
+        if (!g.groupId && (!g.mapId || !g.itemId)){ //check to see if the JSON is vaild
+            console.log("ERROR: MISSING DATA -- SENDING 400");
+            console.error("Validation error: Missing required fields");
+            return NextResponse.json({ //sends error and 400 (Bad Request) if not
+                message: "Invalid data",
+                error: "Missing required fields",
+            }, { status: 400 });
+        }
 
-//         if(await prisma.map.findFirst({
-//             where:{
-//                 id: m.id
-//             }
-//         }) == undefined){
-//             console.log("ERROR: Map does not exist -- SENDING 400");
-//             console.error("Map does not exsit in database, please do a post request", m);
-//             return NextResponse.json({ //sends error and 400 (Bad Request) if not
-//                 message: "Map Not In Database: ",
-//                 error: "Map does not exsit in database, please do a post request",
-//             }, { status: 400 });
-//         }
-//             const mod_map = await prisma.map.update({
-//                 where: { id: m.id },
-//                 data: {
-//                     name: m.name,
-//                     styleId: m.styleId,
-//                     longitude: m.longitude,
-//                     latitude: m.latitude,
-//                     zoom: m.zoom,
-//                     bearing: m.bearing
-//                 },
-//               });
-            
-//             // console.log(await prisma.map.findFirst({where:{id: m.id}}));
-//               console.log("<================== PUT COMPELETE==================>: ",m.id);
-//               return NextResponse.json({ //send success and the newmap data back 
-//                 message: "Success",
-//                 data: mod_map
-//                 });
-//     }
-//     catch (error: any) { //catch error if try fails
-//         console.error("Error Updating map:", error); //log to server
-//         return NextResponse.json({ //send 500 (Internal Server Error) and what the error is to frontend
-//             message: "Failed to Updating map",
-//             error: error.message,
-//         }, { status: 500 });
-//     } 
-// }
+        if(g.mapId){
+            console.log(" Map upsert ");
+            await prisma.map.upsert({
+                where: {
+                    mapId: g.mapId,
+                    groupId: g.groupId
+                  },
+                  update:
+                    gmap,
+                  create: 
+                    gmap,
+            });
+        }
+
+        if(g.itemId){
+          console.log(" item upsert ");
+          await prisma.mapFilterItem.upsert({
+              where: {
+                  itemId: g.itemId,
+                  groupId: g.groupId
+                },
+                update:
+                  gitem,
+                create: 
+                  gitem,
+          });
+      }
+        
+        //update a group
+            console.log("group update")
+            await prisma.mapFilterGroup.updateMany({
+                where: {
+                    groupId: g.groupId
+                  },
+                  data: {
+                    groupName: g.groupName,
+                    label: g.label
+                  },
+            });
+
+        // console.log(await prisma.map.findFirst({where:{id: m.id}}));
+        console.log(" PUT COMPELETE ");
+        return NextResponse.json({ //send success and the newmap data back 
+        message: "Success",
+        data: g.groupId
+        });
+}
+    catch (error: any) { //catch error if try fails
+        console.error("Error Updating map:", error); //log to server
+        return NextResponse.json({ //send 500 (Internal Server Error) and what the error is to frontend
+            message: "Failed to Updating map",
+            error: error.message,
+        }, { status: 500 });
+    } 
+}

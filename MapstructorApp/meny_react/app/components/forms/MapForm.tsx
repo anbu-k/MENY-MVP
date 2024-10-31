@@ -11,46 +11,62 @@ const POSTMapForm = () => {
 
   const formik = useFormik({
     initialValues: {
-      name: '',
-      longitude: 0,
+      name:                    undefined,
+      longitude:               0,
       latitude:                0,
-      mapId:                  '',
+      mapId:                   undefined,
+      itemId:                  undefined,
+      itemName:                undefined,
+      itemLabel:               undefined,
+      groupid:                 undefined,
       zoom:                    0,
       bearing:                 0,
-      styleId:                 '',
-      groupValue:               '',
-      newGroupName:            '',
-      newGroupLabel:           ''
+      styleId:                 undefined,
+      groupValue:              undefined,
+      newGroupName:            undefined,
+      newGroupLabel:           undefined
     },
     
     onSubmit: async (values) => {
+
+      let map;
+      let item;
+
+      if(values.mapId){ //to add more maps then appen to map and make struct or some idk
+        map = [{
+          longitude: values.longitude,
+          groupId: `unique-map-id-${values.newGroupName}-${values.name}`,
+          latitude: values.latitude,
+          mapName: values.name,
+          mapId: values.mapId,
+          zoom: values.zoom,
+          bearing: values.bearing,
+          styleId: values.styleId
+        }]
+      }
+      if(values.itemId){
+        item = [{
+          itemName: values.itemName, 
+          groupId: `unique-map-id-${values.newGroupName}-${values.name}`,
+          label: values.itemLabel, 
+          itemId: values.itemId, 
+          defaultCheckedForBeforeMap: true, //change
+          defaultCheckedForAfterMap: false, //change
+          showInfoButton: true, //change
+          showZoomButton: false //change
+        }]
+      }
+
       try {
         // If we are creating a new group, need to hit a different endpoint
+
         if(values.groupValue === 'newGroup') {
           const serializedBody = {
             groupName: values.newGroupName,
             label: values.newGroupLabel,
-            mapId: `unique-map-id-${values.newGroupName}-${values.name}`,
-            mapfilteritems: [
-              {
-                itemName: values.name,
-                label: values.name,
-                defaultCheckedForBeforeMap: true,
-                defaultCheckedForAfterMap: false,
-                showInfoButton: true,
-                showZoomButton: false
-              }
-            ],
-            maps: [
-              {
-                longitude: values.longitude,
-                latitude: values.latitude,
-                mapName: values.name,
-                zoom: values.zoom,
-                bearing: values.bearing,
-                styleId: values.styleId
-              }
-            ]
+            groupId: `unique-map-id-${values.newGroupName}-${values.name}`,
+            mapfilteritems: item,
+            maps: map
           }
 
           const response = await fetch('api/map', {
@@ -68,19 +84,30 @@ const POSTMapForm = () => {
           const data = await response.json();
           setResponseMessage(`Success - map ID: ${data.message}`); 
           formik.resetForm(); 
-        } else {
+        } 
+        
+        else {//fix to send whole group to be updated
+
           const serializedBody = {
-            name: values.name,
+            mapName: values.name,
+            groupId: values.groupValue,
             longitude: values.longitude,
             latitude: values.latitude,
             mapId: values.mapId,
             zoom: values.zoom,
             bearing: values.bearing,
             styleId: values.styleId,
+            itemName: values.itemName, 
+            label: values.itemLabel, 
+            itemId: values.itemId, 
+            defaultCheckedForBeforeMap: true, //change
+            defaultCheckedForAfterMap: false, //change
+            showInfoButton: true, //change
+            showZoomButton: false //change
           }
 
           const response = await fetch('api/map', {
-            method: 'POST',
+            method: 'PUT',
             headers: {
               'Content-Type': 'application/json',
             },
@@ -180,7 +207,7 @@ return (
         </div>
         
         <div style={{ marginBottom: '15px' }}>
-            <label htmlFor="mapId" style={labelStyling}>Info ID:</label>
+            <label htmlFor="mapId" style={labelStyling}>Map ID:</label>
             <input type="text" id="mapId" name="mapId" onChange={formik.handleChange} value={formik.values.mapId} style={boxStyling} />
         </div>
 
@@ -199,6 +226,24 @@ return (
             <input type="text" id="styleId" name="styleId" onChange={formik.handleChange} value={formik.values.styleId} style={boxStyling} />
         </div>
 
+
+        <div style={{ marginBottom: '15px' }}>
+            <label htmlFor="itemId" style={labelStyling}>Item ID:</label>
+            <input type="text" id="itemId" name="itemId" onChange={formik.handleChange} value={formik.values.itemId} style={boxStyling} />
+        </div>
+
+        <div style={{ marginBottom: '15px' }}>
+            <label htmlFor="itemName" style={labelStyling}>Item name:</label>
+            <input type="text" id="itemName" name="itemName" onChange={formik.handleChange} value={formik.values.itemName} style={boxStyling} />
+        </div>
+
+        <div style={{ marginBottom: '15px' }}>
+            <label htmlFor="itemLabel" style={labelStyling}>Item label:</label>
+            <input type="text" id="itemLabel" name="itemLabel" onChange={formik.handleChange} value={formik.values.itemLabel} style={boxStyling} />
+        </div>
+
+
+
               {/* Dropdown for Type */}
         <div style={{ marginBottom: '15px' }}>
           <label htmlFor="groupValue" style={labelStyling}>Group:</label>
@@ -214,7 +259,7 @@ return (
             {
               (existingGroups ?? []).map(grp => (
                 <>
-                  <option value={grp.groupName}>{grp.label}</ option>
+                  <option key={grp.groupId} value={grp.groupId}>{grp.groupName}</ option>
                 </>
               ))
             }
@@ -222,7 +267,7 @@ return (
         </div>
 
       {
-        ((formik.values.groupValue ?? '') === 'newGroup') && (
+        ((formik.values.groupValue ?? undefined) === 'newGroup') && (
           <>
             <div style={{ marginBottom: '15px' }}>
               <label htmlFor="newGroupName" style={labelStyling}>New Group Name:</label>
