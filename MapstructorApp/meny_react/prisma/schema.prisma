@@ -67,6 +67,7 @@ model LayerSectionData {
   section       LayerSection? @relation(fields: [sectionName], references: [name])
   sectionName   String
   iconColor     String
+  iconType      String
   label         String
   longitude     Float?
   latitude      Float?
