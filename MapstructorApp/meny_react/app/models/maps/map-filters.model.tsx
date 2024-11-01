@@ -5,6 +5,7 @@ export type MapFiltersGroup = {
     id: number,
     name: string,
     label: string,
+    groupId: string,
     maps: MapItem[],
     mapfilteritems: MapFilterItem[]
 }
