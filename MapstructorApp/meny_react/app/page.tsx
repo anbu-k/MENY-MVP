@@ -142,86 +142,53 @@ export default function Home() {
         } else {
           map.current.addLayer(layerStuff as any)
         }
-        let hoverStyleString: string;
-        /**
-         * This is gross and needs to be redone
-         * Popups type needs to be reactified
-         * Right now I pass the e event into the popup props
-         * and determine type by the type field
-         * Same think with hover popup styling Idk how we
-         * want to drive this.
-         */
-        if(layerConfig.layerName === "dutch_grants-5ehfqe")
-          {
-            popUpType = "dutch-grant";
-            hoverStyleString = "<div class='infoLayerDutchGrantsPopUp'><b>Name:</b> {name}<br><b>Dutch Grant Lot:</b> {Lot}</div>";
-          }
-          else if (layerConfig.layerName === "lot_events-bf43eb")
-          {
-            popUpType = "lot-event"
-            hoverStyleString = "<div class='demoLayerInfoPopUp'><b><h2>Taxlot: <a href='https://encyclopedia.nahc-mapping.org/taxlot/{TAXLOT}' target='_blank'>{TAXLOT}</a></h2></b></div>";
-          }
-          else
-          {
-            popUpType = "castello-taxlot"
-            hoverStyleString = "<div class='infoLayerCastelloPopUp'><b>Taxlot (1660):</b> <br/> {LOT2}</div>";
-          }
-        if(layerConfig.hover)
+        const handleEvent = createHandleEvent(map, layerConfig);
+        map.current.on("mousemove", layerConfig.id, handleEvent);
+        map.current.on("mouseleave", layerConfig.id, handleEvent);
+        map.current.on("click", layerConfig.id, handleEvent);
+        // Store the reference to the handler in a way you can access it later if needed
+        (map.current as any)._eventHandlers = (map.current as any)._eventHandlers || {};
+        (map.current as any)._eventHandlers[layerConfig.id] = handleEvent;
+      }
+    }
+  }
+
+  function createHandleEvent(map: MutableRefObject<mapboxgl.Map | null>, layerConfig: PrismaLayer) {
+    let hoveredId: string | number | null = null;
+    let hoverStyleString: string;
+    var popUpType: "castello-taxlot" | "lot-event" | "long-island-native-groups" | "dutch-grant";
+    var clickVisible: boolean = popUpVisible;
+    var previousNid: number | string | undefined;
+    var previousName: string | undefined;
+    let hoverPopup = new mapboxgl.Popup({ closeOnClick: false, closeButton: false});
+    let clickHoverPopUp = new mapboxgl.Popup({ closeOnClick: false, closeButton: false});
+    /**
+     * This is gross and needs to be redone
+     * Popups type needs to be reactified
+     * Right now I pass the e event into the popup props
+     * and determine type by the type field
+     * Same think with hover popup styling Idk how we
+     * want to drive this.
+     */
+    if(layerConfig.layerName === "dutch_grants-5ehfqe")
+    {
+      popUpType = "dutch-grant";
+      hoverStyleString = "<div class='infoLayerDutchGrantsPopUp'><b>Name:</b> {name}<br><b>Dutch Grant Lot:</b> {Lot}</div>";
+    }
+    else if (layerConfig.layerName === "lot_events-bf43eb")
+    {
+      popUpType = "lot-event"
+      hoverStyleString = "<div class='demoLayerInfoPopUp'><b><h2>Taxlot: <a href='https://encyclopedia.nahc-mapping.org/taxlot/{TAXLOT}' target='_blank'>{TAXLOT}</a></h2></b></div>";
+    }
+    else
+    {
+      popUpType = "castello-taxlot"
+      hoverStyleString = "<div class='infoLayerCastelloPopUp'><b>Taxlot (1660):</b> <br/> {LOT2}</div>";
+    }
+    return (e: any) => {
+        if (e.type === 'click' && layerConfig.click) 
         {
-          let hoverPopup = new mapboxgl.Popup({ closeOnClick: false, closeButton: false});
-          /**
-           * Mouse move event triggers hover functionality. 
-           * It tracks the hovered id and sets the "hover" field on the map 
-           * layer with specified layerConfig.id to true
-           * Probably need field to determine if layer needs hover functionality
-           */
-          map.current.on("mousemove", layerConfig.id, (e) => {
-            if (e.features?.length) {
-              if (hoveredId !== null) {
-                map.current!.setFeatureState({ source: layerConfig.id, sourceLayer: layerConfig.sourceLayer, id: hoveredId }, { hover: false });
-              }
-      
-              if (e.features[0].id !== undefined) {
-                hoveredId = e.features[0].id;
-                map.current!.setFeatureState({ source: layerConfig.id, sourceLayer: layerConfig.sourceLayer, id: hoveredId }, { hover: true });
-                map.current!.getCanvas().style.cursor = "pointer";
-              }
-              hoverPopup
-              .setHTML(hoverStyleString)
-              .setLngLat(e.lngLat)
-              .addTo(map.current!);
-            }
-            
-          });
-          /**
-           * Mouse leave event ends hover functionality. 
-           * It tracks the hovered id and sets the "hover" field on the map 
-           * layer with specified layerConfig.id to false
-           * Probably need field to determine if layer needs hover functionality
-           */
-          map.current.on("mouseleave", layerConfig.id, () => {
-            map.current!.getCanvas().style.cursor = "";
-            if (hoveredId) {
-              map.current!.setFeatureState({ source: layerConfig.id, sourceLayer: layerConfig.sourceLayer, id: hoveredId  }, { hover: false });
-              hoveredId = null;
-            }
-            hoverPopup.remove();
-          });
-        }
-        /**
-         * Code below handles click events
-         * Probably need some sort of field in database that
-         * indicates if a layer needs to have click events or not
-         */
-        if(layerConfig.click)
-        {
-          var clickVisible: boolean = popUpVisible;
-          var popUpType: "castello-taxlot" | "lot-event" | "long-island-native-groups" | "dutch-grant";
-          var previousNid: number | string | undefined;
-          var previousName: string | undefined;
-          let clickHoverPopUp = new mapboxgl.Popup({ closeOnClick: false, closeButton: false});
-          map.current.on("click", layerConfig.id, (e) => {
-            if(clickHoverPopUp.isOpen())
+          if(clickHoverPopUp.isOpen())
             {
               clickHoverPopUp.remove();
             }
@@ -282,16 +249,56 @@ export default function Home() {
               clickVisible = true;
               setPopUpVisible(clickVisible);
             }
-          });
+        } 
+        else if (e.type === 'mousemove' && layerConfig.hover) 
+        {
+          if (e.features?.length) {
+            if (hoveredId !== null) {
+              map.current!.setFeatureState({ source: layerConfig.id, sourceLayer: layerConfig.sourceLayer, id: hoveredId }, { hover: false });
+            }
+    
+            if (e.features[0].id !== undefined) {
+              hoveredId = e.features[0].id;
+              map.current!.setFeatureState({ source: layerConfig.id, sourceLayer: layerConfig.sourceLayer, id: hoveredId }, { hover: true });
+              map.current!.getCanvas().style.cursor = "pointer";
+            }
+            hoverPopup
+            .setHTML(hoverStyleString)
+            .setLngLat(e.lngLat)
+            .addTo(map.current!);
+          }
         }
-      }
-    }
-  }
+        else if (e.type === 'mouseleave' && layerConfig.hover) 
+        {
+          map.current!.getCanvas().style.cursor = "";
+            if (hoveredId) {
+              map.current!.setFeatureState({ source: layerConfig.id, sourceLayer: layerConfig.sourceLayer, id: hoveredId  }, { hover: false });
+              hoveredId = null;
+            }
+            hoverPopup.remove();
+        }
+    };
+}
 
   const removeMapLayer = (map: MutableRefObject<mapboxgl.Map | null>, id: string) => {
     if (map === null) return;
-      map.current?.removeLayer(id);
-      map.current?.removeSource(id);
+    //Remove the layer
+    if (map.current!.getLayer(id)) {
+      //Retrieve the stored event handlers
+      const handler = (map.current as any)._eventHandlers?.[id];
+        
+      //Remove event listeners if the handler exists
+      if (handler) {
+          map.current!.off('mousemove', id, handler);
+          map.current!.off('mouseleave', id, handler);
+          map.current!.off('click', id, handler);
+      }
+      //Remove layer and source from map
+      map.current!.removeLayer(id);
+      map.current!.removeSource(id);
+      //Clean up the stored handler
+      delete (map.current as any)._eventHandlers[id];
+  }
   }
 
   const addAllMapLayers = () => {

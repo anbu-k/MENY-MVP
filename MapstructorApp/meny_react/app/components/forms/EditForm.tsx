@@ -105,6 +105,7 @@ const EditForm = (props: {id: string, afterSubmit: (formVisible: boolean) => voi
         marginBottom: '5px',
         fontWeight: 'bold',
         color: '#333',
+        minWidth: '70px',
       };
     
       const buttonStyling: CSSProperties = {
@@ -255,7 +256,7 @@ const EditForm = (props: {id: string, afterSubmit: (formVisible: boolean) => voi
                   />
                 </div> */}
 
-                <div style={{ display: 'flex', marginBottom: '10px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
                   <label htmlFor="hover" style={labelStyling}>Hover:</label>
                   <input
                     type="checkbox"
@@ -265,7 +266,10 @@ const EditForm = (props: {id: string, afterSubmit: (formVisible: boolean) => voi
                     checked={formik.values.hover}
                     style={checkboxStyling}
                   />
-                  <label htmlFor="click" style={labelStyling}>Click:</label>
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
+                <label htmlFor="click" style={labelStyling}>Click:</label>
                   <input
                     type="checkbox"
                     id="click"
@@ -274,15 +278,18 @@ const EditForm = (props: {id: string, afterSubmit: (formVisible: boolean) => voi
                     checked={formik.values.click}
                     style={checkboxStyling}
                   />
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
                   <label htmlFor="time" style={labelStyling}>Time:</label>
-                  <input
-                    type="checkbox"
-                    id="time"
-                    name="time"
-                    onChange={formik.handleChange}
-                    checked={formik.values.time}
-                    style={checkboxStyling}
-                  />
+                    <input
+                      type="checkbox"
+                      id="time"
+                      name="time"
+                      onChange={formik.handleChange}
+                      checked={formik.values.time}
+                      style={checkboxStyling}
+                    />
                 </div>
                 <button
                   style={buttonStyling}

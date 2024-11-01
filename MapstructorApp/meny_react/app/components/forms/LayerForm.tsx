@@ -34,7 +34,7 @@ export default function LayerForm() {
         });
         alert('Layer added successfully');
         formik.resetForm();
-      } catch (error) {
+      } catch (error: any) {
         alert(`Error: ${error.message}`);
       }
     },

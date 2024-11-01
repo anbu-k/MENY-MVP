@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+import { Layer, PrismaClient } from "@prisma/client";
 import { NextResponse } from "next/server";
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function GET(request: Request, context: any) {
@@ -39,24 +39,24 @@ export async function DELETE(context: any) {
 
 export async function PUT(request: Request, context: any) {
     const { params } = context;
-    const Layer:Layer = await request.json()
+    const Layerr: Layer = await request.json()
     const prisma = new PrismaClient();
     const layer = await prisma.layer.update({
         where: {
             id: params.id
         },
         data: {
-            layerName: Layer.layerName,
-            type: Layer.type,
-            sectionName: Layer.sectionName,
-            sourceType: Layer.sourceType,
-            sourceUrl: Layer.sourceUrl,
-            sourceId: Layer.sourceId,
-            paint: Layer.paint,
-            sourceLayer: Layer.sourceLayer,
-            hover: Layer.hover,
-            time: Layer.time,
-            click: Layer.click
+            layerName: Layerr.layerName,
+            type: Layerr.type,
+            sectionName: Layerr.sectionName,
+            sourceType: Layerr.sourceType,
+            sourceUrl: Layerr.sourceUrl,
+            sourceId: Layerr.sourceId,
+            paint: Layerr.paint,
+            sourceLayer: Layerr.sourceLayer,
+            hover: Layerr.hover,
+            time: Layerr.time,
+            click: Layerr.click
         }
     })
 
