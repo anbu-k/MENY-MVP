@@ -15,12 +15,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-//switch around the models to
-//          MapFilterGroup
-//               |
-//          list of maps
-//               |
-//        list of mapFilterItems
 
 model MapFilterGroup {
   id             String          @id @default(auto()) @map("_id") @db.ObjectId
