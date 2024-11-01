@@ -1,5 +1,6 @@
 export type MapItem = {
     name: string,
+    groupId: string,
     mapId: string,
     center: [long: number, lat: number],
     zoom: number,
