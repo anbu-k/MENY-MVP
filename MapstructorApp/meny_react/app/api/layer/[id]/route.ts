@@ -53,7 +53,10 @@ export async function PUT(request: Request, context: any) {
             sourceUrl: Layer.sourceUrl,
             sourceId: Layer.sourceId,
             paint: Layer.paint,
-            sourceLayer: Layer.sourceLayer
+            sourceLayer: Layer.sourceLayer,
+            hover: Layer.hover,
+            time: Layer.time,
+            click: Layer.click
         }
     })
 
