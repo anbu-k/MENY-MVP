@@ -23,24 +23,6 @@ import MapFormButton from './components/forms/buttons/map-form-button.component'
 import {Map as PrismaMap, Layer as PrismaLayer, LayerSectionData as PrismaLayerSectionData, LayerGroup as PrismaLayerGroup, MapFilterGroup as PrismaMapFilterGroup, MapFilterItem as PrismaMapFilterItem, MapFilterItem} from '@prisma/client';
 import EditForm from './components/forms/EditForm';
 import './popup.css';
-// Remove this when we have a way to get layers correctly
-
-const manhattaSectionGroups: SectionLayerGroup[] = [
-  {
-    id: '0',
-    label: "1609 | Manhatta",
-    iconColor: IconColors.YELLOW,
-    iconType: FontAwesomeLayerIcons.PLUS_SQUARE,
-    isSolid: true,
-    items: []
-  }
-]
-
-const manhattaLayer: SectionLayer = {
-  id:'0',
-  label: "MANHATTAN",
-  groups: manhattaSectionGroups
-}
 
 const beforeMapItem: MapItem = {
   name: '1660 Original Castello Plan',
@@ -348,13 +330,14 @@ export default function Home() {
             console.log('all groups: ', groups);
 
             let sectionLayers: SectionLayer[] = groups.map((grp, idx) => {
+              console.log(grp);
               individualItems.push(
                 grp.childLayers.map((z: PrismaLayerSectionData, z_idx: number) => {
-                console.log(z);
+                console.log('z: ', z);
                 let newDBMap: SectionLayerItem = {
                   id: z_idx,
                   label: z.layerName,
-                  iconColor: IconColors.YELLOW,
+                  iconColor: z.iconColor ? (Object.entries(IconColors)?.find(x => x.at(0) == z.iconColor))?.[1] ?? IconColors.YELLOW  : IconColors.YELLOW,
                   iconType: FontAwesomeLayerIcons.PLUS_SQUARE,
                   isSolid: false
                 };
@@ -365,10 +348,11 @@ export default function Home() {
                 id: idx,
                 label: grp.name,
                 groups: grp.childLayers.map((x: PrismaLayerGroup, x_idx: number) => {
+                  console.log('xxxxx', x)
                   let mappedLayerGroup: SectionLayerGroup = {
                     id: x_idx,
                     label: x.name,
-                    iconColor: IconColors.YELLOW,
+                    iconColor: x.iconColor ? (Object.entries(IconColors)?.find(x => x.at(0) == x.iconColor))?.[1] ?? IconColors.YELLOW  : IconColors.YELLOW,
                     iconType: FontAwesomeLayerIcons.PLUS_SQUARE,
                     isSolid: true,
                     items: x.layers.map((y: PrismaLayerSectionData, y_idx: number) => {
@@ -377,7 +361,7 @@ export default function Home() {
                         id: y_idx,
                         layerId: y.id,
                         label: y.layerName,
-                        iconColor: IconColors.YELLOW,
+                        iconColor: y.iconColor ? (Object.entries(IconColors)?.find(x => x.at(0) == y.iconColor))?.[1] ?? IconColors.YELLOW  : IconColors.YELLOW,
                         iconType: FontAwesomeLayerIcons.PLUS_SQUARE,
                         isSolid: false
                       };
