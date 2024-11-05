@@ -27,7 +27,9 @@ export async function POST(request: Request) {
         await prisma.layerGroup.create({
             data: {
                 name:LayerGroup.name,
-                layerSectionName:LayerGroup.layerSectionName
+                layerSectionName:LayerGroup.layerSectionName,
+                longitude:LayerGroup.longitude,
+                latitude:LayerGroup.latitude
             }
         })
         return NextResponse.json({
