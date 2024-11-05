@@ -1,6 +1,7 @@
 import { useFormik } from 'formik';
 import { CSSProperties, useState } from 'react';
 import ColorPickerButton from './color-picker/color-picker-button.component';
+import { LayerGroup } from '@prisma/client';
 
 
 type LayerType = 'symbol' | 'fill' | 'line' | 'circle' | 'heatmap' | 'fill-extrusion' | 'raster' | 'raster-particle' | 'hillshade' | 'model' | 'background' | 'sky' | 'slot' | 'clip';
@@ -23,19 +24,42 @@ export default function LayerForm() {
     },
     
     onSubmit: async (values) => {
+      let group: LayerGroup[] = [
+        {
+          id: '671a920bd1082df4116d7035',
+          name: 'testing stuff',
+          layerSectionName: 'Anotha section',
+        }
+      ];
+
       try {
-        const response = await fetch('api/layer', {
+        await fetch('api/LayerGroup', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify(values),
+          body: JSON.stringify(group),
         });
         alert('Layer added successfully');
         formik.resetForm();
       } catch (error) {
         alert(`Error: ${error.message}`);
       }
+      
+
+      // try {
+      //   await fetch('api/layer', {
+      //     method: 'POST',
+      //     headers: {
+      //       'Content-Type': 'application/json',
+      //     },
+      //     body: JSON.stringify(values),
+      //   });
+      //   alert('Layer added successfully');
+      //   formik.resetForm();
+      // } catch (error) {
+      //   alert(`Error: ${error.message}`);
+      // }
     },
   });
 

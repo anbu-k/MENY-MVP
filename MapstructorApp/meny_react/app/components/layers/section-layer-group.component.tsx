@@ -8,6 +8,8 @@ import { faCrosshairs, faInfoCircle, faPenToSquare } from "@fortawesome/free-sol
 import { getFontawesomeIcon } from "@/app/helpers/font-awesome.helper";
 import { FontAwesomeLayerIcons } from "@/app/models/font-awesome.model";
 import { IconColors } from "@/app/models/colors.model";
+import NewSectionLayerGroupItem from "../new-section-layer-group-item.component";
+import LayerFormButton from "../forms/buttons/layer-form-button.component";
 
 type SectionLayerGroupsProps = {
     layersHeader: string,
@@ -15,6 +17,8 @@ type SectionLayerGroupsProps = {
     activeLayerCallback: (activeLayers: string[]) => void,
     activeLayers: string[],
     openWindow: () => void,
+    beforeOpen: () => void,
+    afterClose: () => void,
     editFormVisibleCallback: (isOpen: boolean) => void,
     editFormIdCallback: (id: string) => void,
 }
@@ -80,10 +84,11 @@ const SectionLayerGroupComponent = (props: SectionLayerGroupsProps) => {
                 </div>
             </div>
             {
-                layerIsOpen && props.group.items.map(item => {
+                layerIsOpen && props.group.items.map((item, idx) => {
                     return (
                         <>
-                            <SectionLayerGroupItemComponent 
+                            <SectionLayerGroupItemComponent
+                            key={'seclaygroupitem'+idx}
                             activeLayers={props.activeLayers} 
                             activeLayerCallback={props.activeLayerCallback} 
                             item={item} 
@@ -93,6 +98,12 @@ const SectionLayerGroupComponent = (props: SectionLayerGroupsProps) => {
                         </>
                     )
                 })
+            }
+            {
+                layerIsOpen &&
+                (
+                    <NewSectionLayerGroupItem beforeOpen={props.beforeOpen} afterClose={props.afterClose}></NewSectionLayerGroupItem>
+                )
             }
         </>
     )

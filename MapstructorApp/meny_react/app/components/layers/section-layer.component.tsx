@@ -11,6 +11,8 @@ type SectionLayerProps = {
     activeLayerCallback: (activeLayers: string[]) => void,
     activeLayers: string[],
     openWindow: () => void,
+    beforeOpen: () => void,
+    afterClose: () => void,
     editFormVisibleCallback: (isOpen: boolean) => void,
     editFormIdCallback: (id: string) => void,
 }
@@ -37,6 +39,8 @@ const SectionLayerComponent = (props: SectionLayerProps) => {
                     layersHeader={props.layersHeader} 
                     group={grp} 
                     openWindow={props.openWindow}
+                    beforeOpen={props.beforeOpen}
+                    afterClose={props.afterClose}
                     editFormVisibleCallback={props.editFormVisibleCallback}
                     editFormIdCallback={props.editFormIdCallback}/>
                 ))

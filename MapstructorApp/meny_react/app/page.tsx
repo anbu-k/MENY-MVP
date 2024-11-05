@@ -31,6 +31,7 @@ const beforeMapItem: MapItem = {
   zoom: 15.09,
   bearing: -51.3,
   styleId: 'cjooubzup2kx52sqdf9zmmv2j',
+  groupId: ''
 }
 
 const afterMapItem: MapItem = {
@@ -40,6 +41,7 @@ const afterMapItem: MapItem = {
   zoom: 15.09,
   bearing: -51.3,
   styleId: 'cjowjzrig5pje2rmmnjb5b0y2',
+  groupId: ''
 }
 
 mapboxgl.accessToken = 'pk.eyJ1IjoibWFwbnkiLCJhIjoiY2xtMG93amk4MnBrZTNnczUzY2VvYjg0ciJ9.MDMHYBlVbG14TJD120t6NQ';
@@ -444,6 +446,16 @@ export default function Home() {
     });
   }
 
+  const beforeLayerFormModalOpen = () => {
+    console.log('shouldnt be visible')
+    setLayerPanelVisible(false);
+    setPopUpVisible(false);
+  }
+  const afterLayerFormModalCloseLayers = () => {
+    setLayerPanelVisible(true);
+    setPopUpVisible(true);
+  }
+
   const beforeModalOpen = () => {
     setLayerPanelVisible(false);
     setPopUpVisible(false);
@@ -631,11 +643,11 @@ export default function Home() {
   }, [currDate, activeLayerIds])
 
   // Necessary for the Modal to know what to hide
-  Modal.setAppElement('#app-body');
+  Modal.setAppElement('#app-body-main');
 
   return (
     <>
-    <div id='app-body'>
+    <div id='app-body-main'>
       <input className="checker" type="checkbox" id="o" hidden />
       <div className="modal">
         <div className="modal-body">
@@ -711,11 +723,6 @@ export default function Home() {
               width="18"
           /></a>
 
-          <LayerFormButton
-          beforeOpen={beforeModalOpen}
-          afterClose={afterModalCloseLayers}
-          ></LayerFormButton>
-
           <MapFormButton
           beforeOpen={beforeModalOpen}
           afterClose={afterModalCloseMaps}
@@ -774,7 +781,7 @@ export default function Home() {
           <SliderPopUp popUpProps={popUp}/>
       </CSSTransition>}
 
-      {layerPanelVisible && (<div id="studioMenu">
+      <div id="studioMenu" style={{ visibility: layerPanelVisible ? 'visible' : 'hidden' }}>
         <FontAwesomeIcon id="mobi-hide-sidebar" icon={faArrowCircleLeft} />
         <p className="title">LAYERS</p>
         <br />
@@ -785,16 +792,17 @@ export default function Home() {
 
               return (
                 <SectionLayerComponent activeLayers={activeLayerIds} activeLayerCallback={(newActiveLayers: string[]) => {
-                  console.log('layers selected: ', newActiveLayers);
                   setActiveLayerIds(newActiveLayers);
                 } } layersHeader={secLayer.label} layer={secLayer}
+                beforeOpen={beforeLayerFormModalOpen}
+                afterClose={afterLayerFormModalCloseLayers}
                 openWindow={beforeModalOpen}
-            editFormVisibleCallback={(isOpen: boolean) => {
-              setEditFormOpen(isOpen);
-            }}
-            editFormIdCallback={(id: string) => {
-              setEditFormId(id);
-            }}/>
+                editFormVisibleCallback={(isOpen: boolean) => {
+                  setEditFormOpen(isOpen);
+                }}
+                editFormIdCallback={(id: string) => {
+                  setEditFormId(id);
+                }}/>
               )
             })
           }
@@ -819,7 +827,7 @@ export default function Home() {
             }
           })
         }} />
-      </div>)}
+      </div>
 
       <MapComparisonComponent
         comparisonContainerRef={comparisonContainerRef}
