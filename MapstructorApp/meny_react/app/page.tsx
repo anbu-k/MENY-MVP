@@ -23,6 +23,8 @@ import MapFormButton from './components/forms/buttons/map-form-button.component'
 import {Map as PrismaMap, Layer as PrismaLayer, LayerSectionData as PrismaLayerSectionData, LayerGroup as PrismaLayerGroup, MapFilterGroup as PrismaMapFilterGroup, MapFilterItem as PrismaMapFilterItem, MapFilterItem} from '@prisma/client';
 import EditForm from './components/forms/EditForm';
 import './popup.css';
+import { getFontawesomeIcon } from './helpers/font-awesome.helper';
+import NewLayerSectionForm from './components/forms/NewLayerSectionForm';
 
 const beforeMapItem: MapItem = {
   name: '1660 Original Castello Plan',
@@ -67,6 +69,7 @@ export default function Home() {
   const currAfterMap = useRef<mapboxgl.Map | null>(null);
   const [editFormOpen, setEditFormOpen] = useState(false);
   const [editFormId, setEditFormId] = useState("");
+  const [groupFormOpen, setGroupFormOpen] = useState<boolean>(false);
 
   const setMapStyle = (map: MutableRefObject<mapboxgl.Map | null>, mapId: string) => {
     if(map?.current) {
@@ -805,6 +808,18 @@ export default function Home() {
                 }}/>
               )
             })
+          }
+          {
+            !groupFormOpen &&
+            <div style={{paddingLeft: '15px', paddingRight: '10px', textAlign: 'center'}}>
+              <a style={{width: '100%', backgroundColor: 'grey', color: 'white', margin: 'auto', padding: '2px 7px 2px 7px'}} onClick={() => setGroupFormOpen(true)}>
+                  <FontAwesomeIcon icon={getFontawesomeIcon(FontAwesomeLayerIcons.PLUS_SQUARE, true)}></FontAwesomeIcon> New Group Folder
+              </a>
+            </div>
+          }
+          {
+            groupFormOpen &&
+            <NewLayerSectionForm afterSubmit={() => setGroupFormOpen(false)}></NewLayerSectionForm>
           }
         </>
 
