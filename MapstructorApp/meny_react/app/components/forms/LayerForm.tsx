@@ -4,9 +4,12 @@ import { CSSProperties, useState } from 'react';
 
 type LayerType = 'symbol' | 'fill' | 'line' | 'circle' | 'heatmap' | 'fill-extrusion' | 'raster' | 'raster-particle' | 'hillshade' | 'model' | 'background' | 'sky' | 'slot' | 'clip';
 type SourceType = 'vector' | 'raster' | 'raster-dem' | 'raster-array' | 'geojson' | 'video' | 'image' | 'model' | 'batched-model';
+import { LayerSectionData } from '@prisma/client';
 
 export default function LayerForm() {
   const [showNewSourceInput, setShowNewSourceInput] = useState(false);
+
+  const [existingLayerSectionData, setExistingLayerSectionData] = useState<LayerSectionData[]>([]);
 
   const formik = useFormik({
     initialValues: {

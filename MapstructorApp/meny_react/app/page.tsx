@@ -23,6 +23,7 @@ import MapFormButton from './components/forms/buttons/map-form-button.component'
 import {Map as PrismaMap, Layer as PrismaLayer, LayerSectionData as PrismaLayerSectionData, LayerGroup as PrismaLayerGroup, MapFilterGroup as PrismaMapFilterGroup, MapFilterItem as PrismaMapFilterItem, MapFilterItem} from '@prisma/client';
 import EditForm from './components/forms/EditForm';
 import './popup.css';
+import EditSectionData from './components/forms/EditSectionData';
 // Remove this when we have a way to get layers correctly
 
 const manhattaSectionGroups: SectionLayerGroup[] = [
@@ -83,6 +84,9 @@ export default function Home() {
   const currAfterMap = useRef<mapboxgl.Map | null>(null);
   const [editFormOpen, setEditFormOpen] = useState(false);
   const [editFormId, setEditFormId] = useState("");
+
+  const [editSectionDataFormOpen, setEditSectionDataFormOpen] = useState(false);
+  const [editSectionDataFormId, setEditSectionDataFormId] = useState("");
 
   const setMapStyle = (map: MutableRefObject<mapboxgl.Map | null>, mapId: string) => {
     if(map?.current) {
@@ -759,6 +763,32 @@ export default function Home() {
               removeMapLayer(currBeforeMap, editFormId);
               removeMapLayer(currAfterMap, editFormId);
               setEditFormId("");
+              afterModalCloseLayers();
+            }}/>
+          </Modal>
+          
+          <Modal
+            style={{
+                content: {
+                    width: '30%',
+                    right: '5px'
+                }
+            }}
+            isOpen={editSectionDataFormOpen}
+            onRequestClose={() => {
+              setEditSectionDataFormOpen(false);
+              setEditSectionDataFormId("");
+              afterModalCloseLayers();
+            }}
+            contentLabel='New Layer Section Data'
+            >
+            <EditSectionData
+            id={editSectionDataFormId}
+            afterSubmit={(closeForm: boolean) => {
+              setEditSectionDataFormOpen(closeForm);
+              removeMapLayer(currBeforeMap, editFormId);
+              removeMapLayer(currAfterMap, editFormId);
+              setEditSectionDataFormId("");
               afterModalCloseLayers();
             }}/>
           </Modal>
