@@ -3,6 +3,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useState } from "react";
 import { faMinusSquare, faPlusSquare, faPlayCircle } from "@fortawesome/free-regular-svg-icons";
 import SectionLayerGroupComponent from "./section-layer-group.component";
+import NewSectionLayerGroup from "../new-section-layer-group.component";
 
 
 type SectionLayerProps = {
@@ -11,6 +12,8 @@ type SectionLayerProps = {
     activeLayerCallback: (activeLayers: string[]) => void,
     activeLayers: string[],
     openWindow: () => void,
+    beforeOpen: () => void,
+    afterClose: () => void,
     editFormVisibleCallback: (isOpen: boolean) => void,
     editFormIdCallback: (id: string) => void,
 }
@@ -30,16 +33,28 @@ const SectionLayerComponent = (props: SectionLayerProps) => {
             {
                 layerIsOpen &&
                 props.layer.groups.map((grp, idx) => (
-                    <SectionLayerGroupComponent 
-                    key={`section-layer-component-${idx}`} 
-                    activeLayers={props.activeLayers} 
-                    activeLayerCallback={props.activeLayerCallback} 
-                    layersHeader={props.layersHeader} 
-                    group={grp} 
-                    openWindow={props.openWindow}
-                    editFormVisibleCallback={props.editFormVisibleCallback}
-                    editFormIdCallback={props.editFormIdCallback}/>
+                    <SectionLayerGroupComponent
+                        key={`section-layer-component-${idx}`}
+                        activeLayers={props.activeLayers}
+                        activeLayerCallback={props.activeLayerCallback}
+                        layersHeader={props.layersHeader}
+                        group={grp}
+                        openWindow={props.openWindow}
+                        beforeOpen={props.beforeOpen}
+                        afterClose={props.afterClose}
+                        editFormVisibleCallback={props.editFormVisibleCallback}
+                        editFormIdCallback={props.editFormIdCallback}
+                        sectionName={props.layer.id}/>
                 ))
+            }
+            {
+                layerIsOpen && (
+                    <NewSectionLayerGroup
+                        beforeOpen={props.beforeOpen}
+                        afterClose={props.afterClose}
+                        sectionLayerName={props.layer.label}
+                    ></NewSectionLayerGroup>
+                )
             }
         </>
     )

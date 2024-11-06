@@ -1,12 +1,18 @@
 import { useFormik } from 'formik';
 import { CSSProperties, useState } from 'react';
-
+import ColorPickerButton from './color-picker/color-picker-button.component';
+import { LayerGroup } from '@prisma/client';
+import { LayerSectionData } from '@prisma/client';
 
 type LayerType = 'symbol' | 'fill' | 'line' | 'circle' | 'heatmap' | 'fill-extrusion' | 'raster' | 'raster-particle' | 'hillshade' | 'model' | 'background' | 'sky' | 'slot' | 'clip';
 type SourceType = 'vector' | 'raster' | 'raster-dem' | 'raster-array' | 'geojson' | 'video' | 'image' | 'model' | 'batched-model';
-import { LayerSectionData } from '@prisma/client';
 
-export default function LayerForm() {
+type LayerFormProps = {
+  groupName: string;
+  sectionName: string;
+}
+
+export default function LayerForm(props: LayerFormProps) {
   const [showNewSourceInput, setShowNewSourceInput] = useState(false);
 
   const [existingLayerSectionData, setExistingLayerSectionData] = useState<LayerSectionData[]>([]);
@@ -24,11 +30,25 @@ export default function LayerForm() {
       hover: false,
       click: false,
       time: false,
+      iconColor: ''
     },
     
     onSubmit: async (values) => {
+      let layerVals = {
+        layerName: values.layerName,
+        sectionName: props.sectionName,
+        sourceUrl: values.sourceUrl,
+        type: values.type,
+        paint: values.paint,
+        sourceType: values.sourceType,
+        sourceId: values.sourceId,
+        sourceLayer: values.sourceLayer,
+        hover: values.hover,
+        time: values.time,
+        click: values.click
+      }
       try {
-        const response = await fetch('api/layer', {
+        await fetch('api/layer', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -37,7 +57,7 @@ export default function LayerForm() {
         });
         alert('Layer added successfully');
         formik.resetForm();
-      } catch (error: any) {
+      } catch (error) {
         alert(`Error: ${error.message}`);
       }
     },
@@ -275,6 +295,21 @@ export default function LayerForm() {
           </div>
         )}
       </div> */}
+
+      <div style={{ marginBottom: '15px' }}>
+        <label htmlFor="iconColor" style={labelStyling}>Icon Color:</label>
+        <div
+          id="sourceLayer"
+        >
+        <ColorPickerButton callback={(newColor: string) => {
+          formik.setValues({
+            ...formik.values,
+            iconColor: newColor
+          });
+          console.log(formik.values);
+        }}></ColorPickerButton>
+        </div>
+      </div>
 
       <button
         style={buttonStyling}
