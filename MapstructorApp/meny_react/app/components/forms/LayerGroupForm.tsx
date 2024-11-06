@@ -58,7 +58,7 @@ const NewLayerGroupForm = (props: NewLayerGroupFormProps) => {
                     name: values.name,
                     layerSectionName: props.sectionLayerName,
                     longitude: values.longitude,
-                    latitude: values.latitude
+                    latitude: values.latitude,
                 }
                 try{
                     await fetch('http://localhost:3000/api/LayerGroup/', {

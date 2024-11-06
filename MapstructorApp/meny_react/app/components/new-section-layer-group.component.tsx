@@ -36,7 +36,7 @@ const NewSectionLayerGroup = (props: LayerFormButtonProps) => {
         <>
             <div style={{paddingLeft: '15px', paddingRight: '10px', textAlign: 'center'}}>
                 <a style={{width: '100%', backgroundColor: 'grey', color: 'white', margin: 'auto', padding: '2px 7px 2px 7px'}} onClick={openWindow}>
-                    <FontAwesomeIcon icon={getFontawesomeIcon(FontAwesomeLayerIcons.PLUS_SQUARE, true)}></FontAwesomeIcon> New Layer
+                    <FontAwesomeIcon icon={getFontawesomeIcon(FontAwesomeLayerIcons.PLUS_SQUARE, true)}></FontAwesomeIcon> New Group
                 </a>
             </div>
             <Modal

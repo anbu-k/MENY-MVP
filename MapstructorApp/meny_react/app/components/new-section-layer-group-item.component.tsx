@@ -6,6 +6,8 @@ import { FontAwesomeLayerIcons } from "../models/font-awesome.model";
 import { getFontawesomeIcon } from "../helpers/font-awesome.helper";
 
 type LayerFormButtonProps = {
+    groupName: string,
+    sectionName: string,
     beforeOpen: () => void,
     afterClose: () => void,
 }
@@ -48,7 +50,7 @@ const NewSectionLayerGroupItem = (props: LayerFormButtonProps) => {
                 onRequestClose={closeWindow}
                 contentLabel='New Layer'
             >
-                <LayerForm></LayerForm>
+                <LayerForm groupName={props.groupName} sectionName={props.sectionName}></LayerForm>
             </Modal>
         </>
     )

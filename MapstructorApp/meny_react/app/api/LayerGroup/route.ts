@@ -42,3 +42,29 @@ export async function POST(request: Request) {
     }
 
 }
+
+export async function PUT(request: Request) {
+    const LayerGroup:LayerGroup = await request.json()
+    const prisma = new PrismaClient()
+
+    try {
+        await prisma.layerGroup.update({
+            where: {
+                id: LayerGroup.id
+            },
+            data: {
+                name:LayerGroup.name,
+                layerSectionName:LayerGroup.layerSectionName,
+                longitude:LayerGroup.longitude,
+                latitude:LayerGroup.latitude  
+            }
+        })
+        return NextResponse.json({
+            message: "Success"
+        })
+    }
+    catch(e) {
+        console.log(e)
+        throw(e)
+    }
+}

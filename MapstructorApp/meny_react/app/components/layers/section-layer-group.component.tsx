@@ -13,6 +13,7 @@ import LayerFormButton from "../forms/buttons/layer-form-button.component";
 
 type SectionLayerGroupsProps = {
     layersHeader: string,
+    sectionName: string,
     group: SectionLayerGroup,
     activeLayerCallback: (activeLayers: string[]) => void,
     activeLayers: string[],
@@ -100,9 +101,9 @@ const SectionLayerGroupComponent = (props: SectionLayerGroupsProps) => {
                 })
             }
             {
-                layerIsOpen &&
+                (layerIsOpen || props.group?.items?.length == 0) &&
                 (
-                    <NewSectionLayerGroupItem beforeOpen={props.beforeOpen} afterClose={props.afterClose}></NewSectionLayerGroupItem>
+                    <NewSectionLayerGroupItem beforeOpen={props.beforeOpen} afterClose={props.afterClose} groupName={props.group.id} sectionName={props.sectionName}></NewSectionLayerGroupItem>
                 )
             }
         </>

@@ -33,17 +33,18 @@ const SectionLayerComponent = (props: SectionLayerProps) => {
             {
                 layerIsOpen &&
                 props.layer.groups.map((grp, idx) => (
-                    <SectionLayerGroupComponent 
-                    key={`section-layer-component-${idx}`} 
-                    activeLayers={props.activeLayers} 
-                    activeLayerCallback={props.activeLayerCallback} 
-                    layersHeader={props.layersHeader} 
-                    group={grp} 
-                    openWindow={props.openWindow}
-                    beforeOpen={props.beforeOpen}
-                    afterClose={props.afterClose}
-                    editFormVisibleCallback={props.editFormVisibleCallback}
-                    editFormIdCallback={props.editFormIdCallback}/>
+                    <SectionLayerGroupComponent
+                        key={`section-layer-component-${idx}`}
+                        activeLayers={props.activeLayers}
+                        activeLayerCallback={props.activeLayerCallback}
+                        layersHeader={props.layersHeader}
+                        group={grp}
+                        openWindow={props.openWindow}
+                        beforeOpen={props.beforeOpen}
+                        afterClose={props.afterClose}
+                        editFormVisibleCallback={props.editFormVisibleCallback}
+                        editFormIdCallback={props.editFormIdCallback}
+                        sectionName={props.layer.id}/>
                 ))
             }
             {

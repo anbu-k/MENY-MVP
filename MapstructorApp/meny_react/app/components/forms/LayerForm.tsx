@@ -2,13 +2,20 @@ import { useFormik } from 'formik';
 import { CSSProperties, useState } from 'react';
 import ColorPickerButton from './color-picker/color-picker-button.component';
 import { LayerGroup } from '@prisma/client';
-
+import { LayerSectionData } from '@prisma/client';
 
 type LayerType = 'symbol' | 'fill' | 'line' | 'circle' | 'heatmap' | 'fill-extrusion' | 'raster' | 'raster-particle' | 'hillshade' | 'model' | 'background' | 'sky' | 'slot' | 'clip';
 type SourceType = 'vector' | 'raster' | 'raster-dem' | 'raster-array' | 'geojson' | 'video' | 'image' | 'model' | 'batched-model';
 
-export default function LayerForm() {
+type LayerFormProps = {
+  groupName: string;
+  sectionName: string;
+}
+
+export default function LayerForm(props: LayerFormProps) {
   const [showNewSourceInput, setShowNewSourceInput] = useState(false);
+
+  const [existingLayerSectionData, setExistingLayerSectionData] = useState<LayerSectionData[]>([]);
 
   const formik = useFormik({
     initialValues: {
@@ -20,46 +27,39 @@ export default function LayerForm() {
       sourceId: '',
       paint: '',
       sourceLayer: '',
+      hover: false,
+      click: false,
+      time: false,
       iconColor: ''
     },
     
     onSubmit: async (values) => {
-      let group: LayerGroup[] = [
-        {
-          id: '671a920bd1082df4116d7035',
-          name: 'testing stuff',
-          layerSectionName: 'Anotha section',
-        }
-      ];
-
+      let layerVals = {
+        layerName: values.layerName,
+        sectionName: props.sectionName,
+        sourceUrl: values.sourceUrl,
+        type: values.type,
+        paint: values.paint,
+        sourceType: values.sourceType,
+        sourceId: values.sourceId,
+        sourceLayer: values.sourceLayer,
+        hover: values.hover,
+        time: values.time,
+        click: values.click
+      }
       try {
-        await fetch('api/LayerGroup', {
+        await fetch('api/layer', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify(group),
+          body: JSON.stringify(values),
         });
         alert('Layer added successfully');
         formik.resetForm();
       } catch (error) {
         alert(`Error: ${error.message}`);
       }
-      
-
-      // try {
-      //   await fetch('api/layer', {
-      //     method: 'POST',
-      //     headers: {
-      //       'Content-Type': 'application/json',
-      //     },
-      //     body: JSON.stringify(values),
-      //   });
-      //   alert('Layer added successfully');
-      //   formik.resetForm();
-      // } catch (error) {
-      //   alert(`Error: ${error.message}`);
-      // }
     },
   });
 
@@ -74,11 +74,22 @@ export default function LayerForm() {
     fontSize: '14px',
   };
 
+  const checkboxStyling: CSSProperties = {
+    padding: '8px',
+    border: '1px solid #ccc',
+    borderRadius: '4px',
+    width: '20%',
+    height: '25px',
+    boxSizing: 'border-box',
+    cursor: 'pointer',
+  };
+
   const labelStyling: CSSProperties = {
     display: 'block',
     marginBottom: '5px',
     fontWeight: 'bold',
     color: '#333',
+    minWidth: '70px',
   };
 
   const buttonStyling: CSSProperties = {
@@ -213,6 +224,42 @@ export default function LayerForm() {
         />
       </div>
 
+      <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
+        <label htmlFor="hover" style={labelStyling}>Hover:</label>
+        <input
+          type="checkbox"
+          id="hover"
+          name="hover"
+          onChange={formik.handleChange}
+          checked={formik.values.hover}
+          style={checkboxStyling}
+        />
+      </div>
+
+      <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
+      <label htmlFor="click" style={labelStyling}>Click:</label>
+        <input
+          type="checkbox"
+          id="click"
+          name="click"
+          onChange={formik.handleChange}
+          checked={formik.values.click}
+          style={checkboxStyling}
+        />
+      </div>
+
+      <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
+        <label htmlFor="time" style={labelStyling}>Time:</label>
+          <input
+            type="checkbox"
+            id="time"
+            name="time"
+            onChange={formik.handleChange}
+            checked={formik.values.time}
+            style={checkboxStyling}
+          />
+      </div>
+
       {/* <div style={{ marginBottom: '15px' }}>
         <label htmlFor="paint" style={labelStyling}>Paint:</label>
         <input
@@ -226,7 +273,7 @@ export default function LayerForm() {
       </div> */}
 
       {/* Option to create a new source */}
-      <div style={{ marginBottom: '15px' }}>
+      {/* <div style={{ marginBottom: '15px' }}>
         <button
           type="button"
           style={buttonStyling}
@@ -247,7 +294,7 @@ export default function LayerForm() {
             />
           </div>
         )}
-      </div>
+      </div> */}
 
       <div style={{ marginBottom: '15px' }}>
         <label htmlFor="iconColor" style={labelStyling}>Icon Color:</label>
