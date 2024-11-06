@@ -3,7 +3,8 @@ import {
     faMinusSquare,
     faPlayCircle,
     faPlusSquare,
-    faSquare
+    faSquare,
+    faCheckSquare
 } from "@fortawesome/free-regular-svg-icons";
 import { FontAwesomeLayerIcons } from "../models/font-awesome.model";
 import {
@@ -16,6 +17,7 @@ import {
     faPlayCircle as faPlayCircleSolid,
     faGlobe,
     faPenToSquare,
+    faCheck as faCheckSolid
 } from "@fortawesome/free-solid-svg-icons";
 
 export function getFontawesomeIcon(iconVal: FontAwesomeLayerIcons, solid: boolean = false) {
@@ -46,6 +48,9 @@ export function getFontawesomeIcon(iconVal: FontAwesomeLayerIcons, solid: boolea
             return faGlobe
         case FontAwesomeLayerIcons[FontAwesomeLayerIcons.PEN_TO_SQUARE]:
             return faPenToSquare
+        case FontAwesomeLayerIcons[FontAwesomeLayerIcons.CHECKMARK]:
+            if(solid) return faCheckSquare;
+            return faCheckSolid;
     }
     return faSquare;
 }

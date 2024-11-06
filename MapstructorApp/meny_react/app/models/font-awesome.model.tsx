@@ -9,4 +9,5 @@ export enum FontAwesomeLayerIcons {
     COMMENT_DOTS,
     GLOBE,
     PEN_TO_SQUARE,
+    CHECKMARK
 }

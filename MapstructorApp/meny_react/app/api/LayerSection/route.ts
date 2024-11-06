@@ -42,5 +42,28 @@ export async function POST(request: Request) {
     })
 }
 
+export async function PUT(request: Request) {
+    const layerSection:LayerSection = await request.json();
+    const prisma = new PrismaClient();
+    try {
+        await prisma.layerSection.update({
+            where: {
+                id: layerSection.id
+            },
+            data: {
+                name:layerSection.name
+            }
+        })
+        return NextResponse.json({
+            message: "Success"
+        })
+    }
+    catch(e) {
+        console.log(e)
+        throw(e)
+    }
+    
+}
+
 
 
