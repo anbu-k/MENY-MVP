@@ -20,7 +20,7 @@ import { MapItem, MapZoomProps } from './models/maps/map.model';
 import LayerFormButton from './components/forms/buttons/layer-form-button.component';
 import Modal from 'react-modal';
 import MapFormButton from './components/forms/buttons/map-form-button.component';
-import {Map as PrismaMap, Layer as PrismaLayer, LayerSectionData as PrismaLayerSectionData, LayerGroup as PrismaLayerGroup, MapFilterGroup as PrismaMapFilterGroup, MapFilterItem as PrismaMapFilterItem, MapFilterItem} from '@prisma/client';
+import {Map as PrismaMap, LayerSection as PrismaLayerSection, Layer as PrismaLayer, LayerSectionData as PrismaLayerSectionData, LayerGroup as PrismaLayerGroup, MapFilterGroup as PrismaMapFilterGroup, MapFilterItem as PrismaMapFilterItem, MapFilterItem, LayerSection} from '@prisma/client';
 import EditForm from './components/forms/EditForm';
 import './popup.css';
 import { getFontawesomeIcon } from './helpers/font-awesome.helper';
@@ -291,104 +291,48 @@ export default function Home() {
     }
   }
 
-  const getLayers = () => {
-    fetch('http://localhost:3000/api/layer', {
-      method: 'GET',
-      headers: {
-          'Content-Type': 'application/json',
-      }
-    }).then(layers => {
-        layers.json().then(parsed => {
-          if(parsed !== null && parsed.layer !== null && parsed.layer.length > 0) {
-            setCurrLayers(parsed.layer);
-            let mappedLayerItems: SectionLayerItem[] = parsed.layer.map((x: PrismaLayer) => {
-              let sectionItem: SectionLayerItem = {
-                id: x.id,
-                label: x.layerName,
-                iconColor: IconColors.BLUE,
-                iconType: FontAwesomeLayerIcons.PLUS_SQUARE,
-                isSolid: false
-              }
-            })
-          }
-        }).catch(err => {
-          console.error('failed to convert to json: ', err)
-        })
-    }).catch(err => {
-      console.error(err);
-    })
-  }
-
-  const getLayerGroups = () => {
-    fetch('http://localhost:3000/api/LayerGroup', {
+  const getLayerSections = () => {
+    fetch('http://localhost:3000/api/LayerSection', {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
       }
-    }).then(groups => {
-      console.log('groups found')
-        groups.json()?.then(parsed => {
-          if(!!parsed && !!parsed.groups && parsed.groups.length) {
-            let groups: PrismaLayerGroup[] = parsed.groups;
-            let individualItems: SectionLayerItem[] = []
+    }).then(sections => {
+      sections.json()?.then(parsed => {
+        if(!!parsed && !!parsed.LayerSections && parsed.LayerSections.length > 0) {
+          let sections: PrismaLayerSection[] = parsed.LayerSections;
 
-            console.log('all groups: ', groups);
-
-            let sectionLayers: SectionLayer[] = groups.map((grp, idx) => {
-              console.log(grp);
-              individualItems.push(
-                grp.childLayers.map((z: PrismaLayerSectionData, z_idx: number) => {
-                console.log('z: ', z);
-                let newDBMap: SectionLayerItem = {
-                  id: z_idx,
-                  label: z.layerName,
-                  iconColor: z.iconColor ? (Object.entries(IconColors)?.find(x => x.at(0) == z.iconColor))?.[1] ?? IconColors.YELLOW  : IconColors.YELLOW,
+          let returnSectionLayers: SectionLayer[] = sections.map((x, idx_x) => {
+            let layer: SectionLayer = {
+              id: x.id,
+              label: x.name,
+              groups: x.layerGroups.map((y, idx_y) => {
+                let mappedGroup: SectionLayerGroup = {
+                  id: y.id,
+                  label: y.name,
+                  iconColor: y.iconColor ? (Object.entries(IconColors)?.find(x => x.at(0) == y.iconColor))?.[1] ?? IconColors.YELLOW  : IconColors.YELLOW,
                   iconType: FontAwesomeLayerIcons.PLUS_SQUARE,
-                  isSolid: false
-                };
-                return newDBMap;
-              }))
-
-              let sectionLayer: SectionLayer = {
-                id: idx,
-                label: grp.name,
-                groups: grp.childLayers.map((x: PrismaLayerGroup, x_idx: number) => {
-                  console.log('xxxxx', x)
-                  let mappedLayerGroup: SectionLayerGroup = {
-                    id: x_idx,
-                    label: x.name,
-                    iconColor: x.iconColor ? (Object.entries(IconColors)?.find(x => x.at(0) == x.iconColor))?.[1] ?? IconColors.YELLOW  : IconColors.YELLOW,
-                    iconType: FontAwesomeLayerIcons.PLUS_SQUARE,
-                    isSolid: true,
-                    items: x.layers.map((y: PrismaLayerSectionData, y_idx: number) => {
-                      console.log(y);
-                      let newDBMap: SectionLayerItem = {
-                        id: y_idx,
-                        layerId: y.id,
-                        label: y.layerName,
-                        iconColor: y.iconColor ? (Object.entries(IconColors)?.find(x => x.at(0) == y.iconColor))?.[1] ?? IconColors.YELLOW  : IconColors.YELLOW,
-                        iconType: FontAwesomeLayerIcons.PLUS_SQUARE,
-                        isSolid: false
-                      };
-                      return newDBMap;
-                    }),
-                  }
-    
-                  return mappedLayerGroup;
-                })
-              }
-
-              return sectionLayer;
-            })
-
-            console.log('sectionLAyers: ', sectionLayers);
-            setSectionLayers(sectionLayers)
-          }
-        }).catch(err => {
-          console.error('failed to convert to json: ', err)
-        })
-    }).catch(err => {
-      console.error(err);
+                  isSolid: true,
+                  items: y.childLayers?.map((z: PrismaLayerSectionData, z_idx: number) => {
+                    let newDBMap: SectionLayerItem = {
+                      id: z.id,
+                      layerId: z.id,
+                      label: z.name,
+                      iconColor: z.iconColor ? (Object.entries(IconColors)?.find(a => a.at(0) == z.iconColor))?.[1] ?? IconColors.YELLOW  : IconColors.YELLOW,
+                      iconType: FontAwesomeLayerIcons.PLUS_SQUARE,
+                      isSolid: false
+                    };
+                    return newDBMap;
+                  }) ?? []
+                }
+                return mappedGroup
+              })
+            }
+            return layer;
+          })
+          setSectionLayers(returnSectionLayers)
+        }
+      });
     })
   }
 
@@ -473,7 +417,6 @@ export default function Home() {
 
   const afterModalCloseLayers = () => {
     afterModalClose();
-    getLayers();
   }
 
   const afterModalCloseMaps = () => {
@@ -488,8 +431,7 @@ export default function Home() {
   useEffect(() => {
     getMaps();
     console.log('getting layer groups')
-    getLayerGroups();
-    getLayers();
+    getLayerSections();
   }, [])
 
   /**
