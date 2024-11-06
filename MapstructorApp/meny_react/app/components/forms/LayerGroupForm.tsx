@@ -7,7 +7,7 @@ import { CSSProperties } from "react";
 
 type NewLayerGroupFormProps = {
     sectionLayerName: string;
-    afterSubmit: () => void
+    // afterSubmit: () => void
 }
 
 const boxStyling: CSSProperties = {
@@ -47,14 +47,18 @@ const NewLayerGroupForm = (props: NewLayerGroupFormProps) => {
     const formik = useFormik({
         enableReinitialize: true,
         initialValues: {
-            name: ''
+            name: '',
+            longitude: '',
+            latitude: ''
         },
           
         onSubmit: async (values) => {
             if(values.name?.length > 0) {
                 const resultingLayerGroup: LayerGroup = {
                     name: values.name,
-                    layerSectionName: props.sectionLayerName
+                    layerSectionName: props.sectionLayerName,
+                    longitude: values.longitude,
+                    latitude: values.latitude
                 }
                 try{
                     await fetch('http://localhost:3000/api/LayerGroup/', {
@@ -64,7 +68,7 @@ const NewLayerGroupForm = (props: NewLayerGroupFormProps) => {
                         },
                         body: JSON.stringify(resultingLayerGroup)
                     });
-                    props.afterSubmit();
+                    //props.afterSubmit();
                 }
                 catch (error: any)
                 {
@@ -77,13 +81,35 @@ const NewLayerGroupForm = (props: NewLayerGroupFormProps) => {
     return (
         <form onSubmit={formik.handleSubmit} style={{ margin: '0 auto' }}>
                 <div style={{ marginBottom: '15px' }}>
-                <label htmlFor="layerName" style={labelStyling}>Name:</label>
+                <label htmlFor="name" style={labelStyling}>Name:</label>
                 <input
                     type="text"
                     id="name"
                     name="name"
                     onChange={formik.handleChange}
                     value={formik.values.name}
+                    style={boxStyling}
+                />
+                </div>
+                <div style={{ marginBottom: '15px' }}>
+                <label htmlFor="longitude" style={labelStyling}>Longitude:</label>
+                <input
+                    type="text"
+                    id="longitude"
+                    name="longitude"
+                    onChange={formik.handleChange}
+                    value={formik.values.longitude}
+                    style={boxStyling}
+                />
+                </div>
+                <div style={{ marginBottom: '15px' }}>
+                <label htmlFor="latitude" style={labelStyling}>Latitude:</label>
+                <input
+                    type="text"
+                    id="latitude"
+                    name="latitude"
+                    onChange={formik.handleChange}
+                    value={formik.values.latitude}
                     style={boxStyling}
                 />
                 </div>
@@ -97,3 +123,5 @@ const NewLayerGroupForm = (props: NewLayerGroupFormProps) => {
         </form>
     )
 }
+
+export default NewLayerGroupForm;

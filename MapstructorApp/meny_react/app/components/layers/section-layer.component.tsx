@@ -3,6 +3,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useState } from "react";
 import { faMinusSquare, faPlusSquare, faPlayCircle } from "@fortawesome/free-regular-svg-icons";
 import SectionLayerGroupComponent from "./section-layer-group.component";
+import NewSectionLayerGroup from "../new-section-layer-group.component";
 
 
 type SectionLayerProps = {
@@ -44,6 +45,15 @@ const SectionLayerComponent = (props: SectionLayerProps) => {
                     editFormVisibleCallback={props.editFormVisibleCallback}
                     editFormIdCallback={props.editFormIdCallback}/>
                 ))
+            }
+            {
+                layerIsOpen && (
+                    <NewSectionLayerGroup
+                        beforeOpen={props.beforeOpen}
+                        afterClose={props.afterClose}
+                        sectionLayerName={props.layer.label}
+                    ></NewSectionLayerGroup>
+                )
             }
         </>
     )
