@@ -63,7 +63,7 @@ model LayerSection {
 model LayerSectionData {
   id            String        @id @default(auto()) @map("_id") @db.ObjectId
   name          String        @unique
-  section       LayerSection? @relation(fields: [sectionName], references: [name])
+  section       LayerSection? @relation(fields: [sectionName], references: [name], onDelete: Cascade, onUpdate: Cascade)
   sectionName   String
   iconColor     String
   iconType      String
@@ -72,7 +72,7 @@ model LayerSectionData {
   latitude      Float?
   zoom          Float?
   bearing       Float?
-  groupName     LayerGroup?   @relation(fields: [topLayerClass], references: [name])
+  groupName     LayerGroup?   @relation(fields: [topLayerClass], references: [name], onDelete: Cascade, onUpdate: Cascade)
   topLayerClass String?
   infoId        String?
   layers        Layer[]
@@ -83,7 +83,7 @@ model LayerGroup {
   id               String             @id @default(auto()) @map("_id") @db.ObjectId
   name             String             @unique
   childLayers      LayerSectionData[]
-  layerSection     LayerSection       @relation(fields: [layerSectionName], references: [name])
+  layerSection     LayerSection       @relation(fields: [layerSectionName], references: [name], onDelete: Cascade, onUpdate: Cascade)
   layerSectionName String
   longitude        String?
   latitude         String?
@@ -93,7 +93,7 @@ model Layer {
   id               String            @id @default(auto()) @map("_id") @db.ObjectId
   layerName        String
   type             String
-  LayerSectionData LayerSectionData? @relation(fields: [sectionName], references: [name])
+  LayerSectionData LayerSectionData? @relation(fields: [sectionName], references: [name], onDelete: Cascade, onUpdate: Cascade)
   sectionName      String?
   sourceType       String
   sourceUrl        String
