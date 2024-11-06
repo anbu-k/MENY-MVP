@@ -24,7 +24,7 @@
     position: absolute;
     display: block;
     /* top: 80px; */
-    top: 60px;
+    top: 87px;
     right: 0;
   
     /* Standard */
@@ -40,21 +40,24 @@
     background-color: #fff !important;
     z-index: 100;
   }
+
+  #popupHeader {
+    font-size: 18px;
+    font-weight: bold;
+    padding-top: 14px;
+  }
   
   .rightInfoBarBorder {
     border: solid #ffffff 3px;
   }
-#demoLayerInfo,
-#infoLayerCastello,
-#infoLayerGrantLots,
-#infoLayerDutchGrants,
-#infoLayerGravesend,
-#infoLayerNativeGroups,
-#infoLayerKarl,
-#infoLayerFarms,
-#infoLayerCurrLots,
-#infoLayerSettlements,
-#infoLayerInfoPoint {
+
+#yellowSliderPopup,
+#greenSliderPopup,
+#pinkSliderPopup,
+#blueSliderPopup,
+#orangeSliderPopup,
+#mintSliderPopup,
+#lavenderSliderPopup {
   padding: 5px;
   margin-top: 1px;
   margin-bottom: 1px;
@@ -76,3 +79,51 @@
   -webkit-hyphens: auto;
   hyphens: auto;
 }
+
+.yellowHoverPopup,
+.greenHoverPopup,
+.pinkHoverPopup,
+.blueHoverPopup,
+.orangeHoverPopup,
+.mintHoverPopup,
+.lavenderHoverPopup {
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#greenSliderPopup,
+.greenHoverPopup {
+  background-color: rgb(50, 205, 50, 0.3); /* #32CD32 LimeGreen */
+  border: solid #32cd32 2px;
+}
+#pinkSliderPopup,
+.pinkHoverPopup {
+  background-color: rgb(255, 192, 203, 0.3); /* #FFC0CB Pink */
+  border: solid pink 2px;
+}
+#blueSliderPopup,
+.blueHoverPopup {
+  background-color: rgb(11, 14, 229, 0.2); /* #0b0ee5 */
+  border: solid #0b0ee5 2px;
+}
+#orangeSliderPopup,
+.orangeHoverPopup {
+  background-color: #e5870b33; /* #e5870b */
+  border: solid #e5870b 2px;
+}
+#mintSliderPopup,
+.mintHoverPopup {
+  background-color: rgb(102, 205, 170, 0.3); /* #66CDAA MediumAquamarine */
+  border: solid #66cdaa 2px;
+}
+#yellowSliderPopup,
+.yellowHoverPopup {
+  background-color: rgb(255, 255, 0, 0.5); /* #FFFF00 Yellow */
+  border: solid #ffff00 2px;
+}
+#lavenderSliderPopup,
+.lavenderHoverPopup {
+  background-color: rgb(123, 104, 238, 0.3); /* #7B68EE MediumSlateBlue */
+  border: solid #7b68ee 2px;
+}
+

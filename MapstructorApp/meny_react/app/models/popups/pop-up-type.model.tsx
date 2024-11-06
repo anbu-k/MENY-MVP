@@ -1,0 +1,1 @@
+export type PopupType = "yellow" | "blue" | "green" | "pink" | "mint" | "lavender";
