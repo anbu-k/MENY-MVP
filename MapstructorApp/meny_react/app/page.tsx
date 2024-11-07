@@ -20,7 +20,7 @@ import { MapItem, MapZoomProps } from './models/maps/map.model';
 import LayerFormButton from './components/forms/buttons/layer-form-button.component';
 import Modal from 'react-modal';
 import MapFormButton from './components/forms/buttons/map-form-button.component';
-import {Map as PrismaMap, LayerSection as PrismaLayerSection, LayerData as PrismaLayer, LayerGroup as PrismaLayerGroup, MapFilterGroup as PrismaMapFilterGroup, MapFilterItem as PrismaMapFilterItem, MapFilterItem, LayerSection} from '@prisma/client';
+import {Map as PrismaMap, LayerSection as PrismaLayerSection, LayerData as PrismaLayer, LayerGroup as PrismaLayerGroup, MapFilterGroup as PrismaMapFilterGroup, MapFilterItem as PrismaMapFilterItem, MapFilterItem, LayerSection, hoverItem} from '@prisma/client';
 import EditForm from './components/forms/EditForm';
 import './popup.css';
 import { PopupType } from './models/popups/pop-up-type.model';
@@ -155,7 +155,7 @@ export default function Home() {
     let clickHoverPopUp = new mapboxgl.Popup({ closeOnClick: false, closeButton: false});
     //Determine clickPopup styling vs hoverPopup styling
     //They're the same right now
-    popUpType = "purple";
+    popUpType = layerConfig.clickStyle as PopupType;
     return (e: any) => {
         if (e.type === 'click' && layerConfig.click) 
         {
@@ -186,7 +186,7 @@ export default function Home() {
               previousName = e.features![0].properties!.name ?? undefined;
               previousNid = e.features![0].properties!.nid ?? undefined;
               setPopUp({
-                layerName: layerConfig.layerName,
+                layerName: layerConfig.clickHeader,
                 nid: e.features![0].properties!.nid ?? undefined,
                 type: popUpType,
               });
@@ -196,113 +196,107 @@ export default function Home() {
         } 
         else if (e.type === 'mousemove' && layerConfig.hover) 
         {
-          hoverStyleString = "<div class='" + popUpType + "HoverPopup'>";
+          hoverStyleString = "<div class='" + layerConfig.hoverStyle + "HoverPopup'>";
           //Setup some sort of check on LayerConfig
           //Sample data maybe? [{label: "", type: "LOT"}, {label: "Name", type: "NAME"}, {label: "", type: "DATE-START"}, {label: "", type: "DATE-END"}]
-          /** layerConfig.hoverContent.map((item: hoverItem) => {
-           *    if(item.label.length !== 0)
-           *    {
-           *      hoverStyleString += "<b>" + item.label + ":</b> ";
-           *    }
-           *    if(item.type === "NAME")
-           *    {
-           *      //NAME CHECK
-           *    }
-           *    else if(item.type === "LOT")
-           *    {
-           *      //LOT CHECK
-           *    }
-           *    else if(item.type === "DATE-START")
-           *    {
-           *      //START DATE CHECK
-           *    }
-           *    else if(item.type === "DATE-END")
-           *    {
-           *      //END DATE CHECK
-           *    }
-           *    else if(item.type === "ADDRESS")
-           *    {
-           *      //ADDRESS CHECK
-           *    }
-           * });
-           */
-          /**
-           * NAME INFORMATION IMPORTED FROM MENY
-           * e.features[0].properties.name
-           * e.features[0].properties.Name 
-           * e.features[0].properties.NAME
-           * e.features[0].properties.To
-           */ 
-          if(e.features[0].properties.name !== undefined)
-          {
-            hoverStyleString +="<b>Name:</b> " + e.features[0].properties.name + "<br>";
-          }
-          else if(e.features[0].properties.Name !== undefined)
-          {
-            hoverStyleString +="<b>Name:</b> " + e.features[0].properties.Name + "<br>";
-          }
-          else if(e.features[0].properties.NAME !== undefined)
-          {
-            hoverStyleString +="<b>Name:</b> " + e.features[0].properties.NAME + "<br>";
-          }
-          else if(e.features[0].properties.To !== undefined)
-          {
-            hoverStyleString +="<b>Name:</b> " + e.features[0].properties.To + "<br>";
-          }
-          /**
-           * LOT INFORMATION IMPORTED FROM MENY
-           * e.features[0].properties.LOT2
-           * e.features[0].properties.TAXLOT
-           * e.features[0].properties.Lot
-           * e.features[0].properties.dutchlot
-           * e.features[0].properties.lot2
-           */
-          if(e.features[0].properties.LOT2 !== undefined)
-          {
-            hoverStyleString +="<b>Lot:</b> " + e.features[0].properties.LOT2 + "<br>";
-          }
-          else if(e.features[0].properties.TAXLOT !== undefined)
-          {
-            hoverStyleString +="<b>Lot:</b> " + e.features[0].properties.TAXLOT + "<br>";
-          }
-          else if(e.features[0].properties.Lot !== undefined)
-          {
-            hoverStyleString +="<b>Lot:</b> " + e.features[0].properties.Lot + "<br>";
-          }
-          else if(e.features[0].properties.dutchlot !== undefined)
-          {
-            hoverStyleString +="<b>Lot:</b> " + e.features[0].properties.dutchlot + "<br>";
-          }
-          else if(e.features[0].properties.lot2 !== undefined)
-          {
-            hoverStyleString +="<b>Lot:</b> " + e.features[0].properties.lot2 + "<br>";
-          }
-          /**
-           * DATE START INFORMATION IMPORTED FROM MENY
-           * e.features[0].properties.day1
-           * e.features[0].properties.year1
-           */
-          if(e.features[0].properties.day1 !== undefined && e.features[0].properties.year1 !== undefined)
-          {
-            hoverStyleString +="<b>Date Start:</b> " + e.features[0].properties.day1 + ", " + e.features[0].properties.year1 + "<br>";
-          }
-          /**
-           * DATE END INFORMATION IMPORTED FROM MENY
-           * e.features[0].properties.day2
-           * e.features[0].properties.year2
-           */
-          if(e.features[0].properties.day2 !== undefined && e.features[0].properties.year2 !== undefined)
-          {
-            hoverStyleString +="<b>Date End:</b> " + e.features[0].properties.day2 + ", " + e.features[0].properties.year2 + "<br>";
-          }
-          /**
-           * ADDRESS INFORMATION IMPORTED FROM MENY
-           * e.features[0].properties.Address
-           */
-          if(e.features[0].properties.Address !== undefined)
-          {
-            hoverStyleString +="<b>Address:</b> " + e.features[0].properties.Address + "<br>";
-          }
+          layerConfig.hoverContent.map((item: hoverItem) => {
+            if(item.label.length !== 0)
+            {
+              hoverStyleString += "<b>" + item.label + ":</b> ";
+            }
+            if(item.type === "NAME")
+            {
+              /**
+               * NAME INFORMATION IMPORTED FROM MENY
+               * e.features[0].properties.name
+               * e.features[0].properties.Name 
+               * e.features[0].properties.NAME
+               * e.features[0].properties.To
+               */ 
+              if(e.features[0].properties.name !== undefined)
+              {
+                hoverStyleString += e.features[0].properties.name + "<br>";
+              }
+              else if(e.features[0].properties.Name !== undefined)
+              {
+                hoverStyleString += e.features[0].properties.Name + "<br>";
+              }
+              else if(e.features[0].properties.NAME !== undefined)
+              {
+                hoverStyleString += e.features[0].properties.NAME + "<br>";
+              }
+              else if(e.features[0].properties.To !== undefined)
+              {
+                hoverStyleString += e.features[0].properties.To + "<br>";
+              }
+            }
+            else if(item.type === "LOT")
+            {
+              /**
+               * LOT INFORMATION IMPORTED FROM MENY
+               * e.features[0].properties.LOT2
+               * e.features[0].properties.TAXLOT
+               * e.features[0].properties.Lot
+               * e.features[0].properties.dutchlot
+               * e.features[0].properties.lot2
+               */
+              if(e.features[0].properties.LOT2 !== undefined)
+              {
+                hoverStyleString += e.features[0].properties.LOT2 + "<br>";
+              }
+              else if(e.features[0].properties.TAXLOT !== undefined)
+              {
+                hoverStyleString += e.features[0].properties.TAXLOT + "<br>";
+              }
+              else if(e.features[0].properties.Lot !== undefined)
+              {
+                hoverStyleString += e.features[0].properties.Lot + "<br>";
+              }
+              else if(e.features[0].properties.dutchlot !== undefined)
+              {
+                hoverStyleString += e.features[0].properties.dutchlot + "<br>";
+              }
+              else if(e.features[0].properties.lot2 !== undefined)
+              {
+                hoverStyleString += e.features[0].properties.lot2 + "<br>";
+              }
+            }
+            else if(item.type === "DATE-START")
+            {
+              /**
+               * DATE START INFORMATION IMPORTED FROM MENY
+               * e.features[0].properties.day1
+               * e.features[0].properties.year1
+               */
+              if(e.features[0].properties.day1 !== undefined && e.features[0].properties.year1 !== undefined)
+              {
+                hoverStyleString += e.features[0].properties.day1 + ", " + e.features[0].properties.year1 + "<br>";
+              }
+            }
+            else if(item.type === "DATE-END")
+            {
+              /**
+               * DATE END INFORMATION IMPORTED FROM MENY
+               * e.features[0].properties.day2
+               * e.features[0].properties.year2
+               */
+              if(e.features[0].properties.day2 !== undefined && e.features[0].properties.year2 !== undefined)
+              {
+                hoverStyleString += e.features[0].properties.day2 + ", " + e.features[0].properties.year2 + "<br>";
+              }
+            }
+            else if(item.type === "ADDRESS")
+            {
+              /**
+               * ADDRESS INFORMATION IMPORTED FROM MENY
+               * e.features[0].properties.Address
+               */
+              if(e.features[0].properties.Address !== undefined)
+              {
+                hoverStyleString += e.features[0].properties.Address + "<br>";
+              }
+            }
+          });
           hoverStyleString += "</div>";
           if (e.features?.length) {
             if (hoveredId !== null) {

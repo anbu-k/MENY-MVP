@@ -36,7 +36,11 @@ export async function POST(request: Request) {
                 sourceLayer:layerData.sourceLayer,
                 hover:layerData.hover,
                 time:layerData.time,
-                click:layerData.click
+                click:layerData.click,
+                hoverStyle:layerData.hoverStyle,
+                clickStyle:layerData.clickStyle,
+                clickHeader:layerData.clickHeader,
+                hoverContent:layerData.hoverContent
             }
         })
         return NextResponse.json({

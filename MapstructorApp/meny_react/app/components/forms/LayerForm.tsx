@@ -321,6 +321,7 @@ export default function LayerForm(props: LayerFormProps) {
                   value={formik.values.hoverStyle}
                   style={boxStyling}
                 >
+                  <option value="">Select Color</option>
                   <option value="yellow">Yellow</option>
                   <option value="orange">Orange</option>
                   <option value="light-red">Light Red</option>
@@ -424,6 +425,7 @@ export default function LayerForm(props: LayerFormProps) {
                   value={formik.values.clickStyle}
                   style={boxStyling}
                 >
+                  <option value="">Select Color</option>
                   <option value="yellow">Yellow</option>
                   <option value="orange">Orange</option>
                   <option value="light-red">Light Red</option>

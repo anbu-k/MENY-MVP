@@ -36,7 +36,6 @@ export async function PUT(request: Request, context: any) {
             groupName: Layerr.groupName,
             topLayerClass: Layerr.topLayerClass,
             infoId: Layerr.infoId,
-            type: Layerr.type,
             sourceType: Layerr.sourceType,
             sourceUrl: Layerr.sourceUrl,
             sourceId: Layerr.sourceId,
@@ -44,7 +43,11 @@ export async function PUT(request: Request, context: any) {
             sourceLayer: Layerr.sourceLayer,
             hover: Layerr.hover,
             time: Layerr.time,
-            click: Layerr.click
+            click: Layerr.click,
+            hoverStyle:Layerr.hoverStyle,
+            clickStyle:Layerr.clickStyle,
+            clickHeader:Layerr.clickHeader,
+            hoverContent:Layerr.hoverContent
         }
     })
 

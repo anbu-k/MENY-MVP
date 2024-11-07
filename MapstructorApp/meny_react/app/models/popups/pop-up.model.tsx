@@ -8,7 +8,7 @@ import { PopupType } from "./pop-up-type.model";
 
 //hard code a type based on which clickHandle function we're in.
 export type GenericPopUpProps = {
-    layerName: string;
+    layerName: string | null;
     type: PopupType,
     nid: number | string | undefined,
 }
