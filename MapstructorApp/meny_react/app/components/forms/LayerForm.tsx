@@ -19,16 +19,27 @@ export default function LayerForm() {
       fillColor: '#e3ed58',  // Default fill color
       fillOpacity: 0.5,  // Default opacity
       fillOutlineColor: '#FF0000',  // Default outline color
+      textColor: '#000080',          // Default text color (for symbol layers)
+      textHaloColor: '#ffffff',      // Default text halo color
+      textHaloWidth: 2               // Default text halo width
     },
     
     onSubmit: async (values) => {
+      // Formats the paint property based on layer type
+      const paint: any = {};
+      if (values.type === 'fill') {
+        paint['fill-color'] = values.fillColor;
+        paint['fill-opacity'] = values.fillOpacity;
+        paint['fill-outline-color'] = values.fillOutlineColor;
+      } else if (values.type === 'symbol') {
+        paint['text-color'] = values.textColor;
+        paint['text-halo-color'] = values.textHaloColor;
+        paint['text-halo-width'] = values.textHaloWidth;
+      }
+
       const formattedLayer = {
         ...values,
-        paint: {
-          'fill-color': values.fillColor,
-          'fill-opacity': values.fillOpacity,
-          'fill-outline-color': values.fillOutlineColor,
-        },
+        paint,
       };
 
       try {
@@ -113,7 +124,10 @@ export default function LayerForm() {
         <select
           id="type"
           name="type"
-          onChange={formik.handleChange}
+          onChange={(e) => {
+            formik.handleChange(e);
+            setShowPaintOptions(e.target.value === 'fill' || e.target.value === 'symbol'); // Shows paint options for fill and symbol
+          }}
           value={formik.values.type}
           style={boxStyling}
         >
@@ -174,7 +188,7 @@ export default function LayerForm() {
         />
       </div>
 
-     {/* Paint Options Header */}
+      {/* Paint Options Header */}
       <div
         style={paintHeaderStyle}
         onClick={() => setShowPaintOptions(!showPaintOptions)}
@@ -183,50 +197,100 @@ export default function LayerForm() {
         <span>{showPaintOptions ? '▲' : '▼'}</span>
       </div>
 
-      {/* Conditional Paint Settings with Extra Margin */}
+      {/*  Paint Settings based on the Layer Type */}
       {showPaintOptions && (
-        <div style={{ marginBottom: '20px' }}> {/* Add bottom margin for spacing */}
-          {/* Background Fill Color Picker */}
-          <div style={{ marginBottom: '15px' }}>
-            <label htmlFor="fillColor" style={labelStyling}>Background Fill Color:</label>
-            <input
-              type="color"
-              id="fillColor"
-              name="fillColor"
-              onChange={formik.handleChange}
-              value={formik.values.fillColor}
-              style={{ ...boxStyling, padding: '5px' }}
-            />
-          </div>
+        <div style={{ marginBottom: '20px' }}>
+          {formik.values.type === 'fill' && (
+            <>
+              {/* Background Fill Colors Picker */}
+              <div style={{ marginBottom: '15px' }}>
+                <label htmlFor="fillColor" style={labelStyling}>Background Fill Color:</label>
+                <input
+                  type="color"
+                  id="fillColor"
+                  name="fillColor"
+                  onChange={formik.handleChange}
+                  value={formik.values.fillColor}
+                  style={{ ...boxStyling, padding: '5px' }}
+                />
+              </div>
 
-          {/* Fill Opacity Input */}
-          <div style={{ marginBottom: '15px' }}>
-            <label htmlFor="fillOpacity" style={labelStyling}>Fill Opacity:</label>
-            <input
-              type="number"
-              id="fillOpacity"
-              name="fillOpacity"
-              onChange={formik.handleChange}
-              value={formik.values.fillOpacity}
-              min="0"
-              max="1"
-              step="0.1"
-              style={boxStyling}
-            />
-          </div>
+              {/* Fill Opacity Input */}
+              <div style={{ marginBottom: '15px' }}>
+                <label htmlFor="fillOpacity" style={labelStyling}>Fill Opacity:</label>
+                <input
+                  type="number"
+                  id="fillOpacity"
+                  name="fillOpacity"
+                  onChange={formik.handleChange}
+                  value={formik.values.fillOpacity}
+                  min="0"
+                  max="1"
+                  step="0.1"
+                  style={boxStyling}
+                />
+              </div>
 
-          {/* Outline Color Picker */}
-          <div style={{ marginBottom: '15px' }}>
-            <label htmlFor="fillOutlineColor" style={labelStyling}>Outline Color:</label>
-            <input
-              type="color"
-              id="fillOutlineColor"
-              name="fillOutlineColor"
-              onChange={formik.handleChange}
-              value={formik.values.fillOutlineColor}
-              style={{ ...boxStyling, padding: '5px' }}
-            />
-          </div>
+              {/* Outline Color Picker */}
+              <div style={{ marginBottom: '15px' }}>
+                <label htmlFor="fillOutlineColor" style={labelStyling}>Outline Color:</label>
+                <input
+                  type="color"
+                  id="fillOutlineColor"
+                  name="fillOutlineColor"
+                  onChange={formik.handleChange}
+                  value={formik.values.fillOutlineColor}
+                  style={{ ...boxStyling, padding: '5px' }}
+                />
+              </div>
+            </>
+          )}
+
+          {formik.values.type === 'symbol' && (
+            <>
+              {/* Text Color */}
+              <div style={{ marginBottom: '15px' }}>
+                <label htmlFor="textColor" style={labelStyling}>Text Color:</label>
+                <input
+                  type="color"
+                  id="textColor"
+                  name="textColor"
+                  onChange={formik.handleChange}
+                  value={formik.values.textColor}
+                  style={{ ...boxStyling, padding: '5px' }}
+                />
+              </div>
+
+              {/* Text Halo Color */}
+              <div style={{ marginBottom: '15px' }}>
+                <label htmlFor="textHaloColor" style={labelStyling}>Text Halo Color:</label>
+                <input
+                  type="color"
+                  id="textHaloColor"
+                  name="textHaloColor"
+                  onChange={formik.handleChange}
+                  value={formik.values.textHaloColor}
+                  style={{ ...boxStyling, padding: '5px' }}
+                />
+              </div>
+
+              {/* Text Halo Width */}
+              <div style={{ marginBottom: '15px' }}>
+                <label htmlFor="textHaloWidth" style={labelStyling}>Text Halo Width:</label>
+                <input
+                  type="number"
+                  id="textHaloWidth"
+                  name="textHaloWidth"
+                  onChange={formik.handleChange}
+                  value={formik.values.textHaloWidth}
+                  min="0"
+                  max="10"
+                  step="0.5"
+                  style={boxStyling}
+                />
+              </div>
+            </>
+          )}
         </div>
       )}
 
