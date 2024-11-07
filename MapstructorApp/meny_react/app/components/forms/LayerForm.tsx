@@ -259,8 +259,46 @@ export default function LayerForm(props: LayerFormProps) {
           />
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
-          <label htmlFor="hover" style={labelStyling}>Hover:</label>
+      <div style={{ marginBottom: '15px' }}>
+        <label htmlFor="iconColor" style={labelStyling}>Icon Color:</label>
+        <div
+          id="sourceLayer"
+        >
+        <ColorPickerButton callback={(newColor: string) => {
+          formik.setValues({
+            ...formik.values,
+            iconColor: newColor
+          });
+        }}></ColorPickerButton>
+        </div>
+      </div>
+
+      <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
+        <label htmlFor="hover" style={labelStyling}>Hover:</label>
+        <input
+          type="checkbox"
+          id="hover"
+          name="hover"
+          onChange={formik.handleChange}
+          checked={formik.values.hover}
+          style={checkboxStyling}
+        />
+      </div>
+
+      <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
+      <label htmlFor="click" style={labelStyling}>Click:</label>
+        <input
+          type="checkbox"
+          id="click"
+          name="click"
+          onChange={formik.handleChange}
+          checked={formik.values.click}
+          style={checkboxStyling}
+        />
+      </div>
+
+      <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
+        <label htmlFor="time" style={labelStyling}>Time:</label>
           <input
             type="checkbox"
             id="hover"
