@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react"; 
+import React, { useState, useRef, useEffect } from "react";
 import moment from "moment";
 import DatePanelComponent from "./date-panel/date-panel.component";
 import "../../slider-timeline-date.css";
@@ -16,8 +16,10 @@ type SliderWithDatePanelProps = {
 };
 
 const SliderWithDatePanel: React.FC<SliderWithDatePanelProps> = (props) => {
-  const [currDate, setCurrDate] = useState<moment.Moment | null>(moment("1663-06-01", "YYYY-MM-DD")); 
-  const [sliderValue, setSliderValue] = useState<number>(0); 
+  const [currDate, setCurrDate] = useState<moment.Moment | null>(
+    moment("1663-06-01", "YYYY-MM-DD")
+  );
+  const [sliderValue, setSliderValue] = useState<number>(0);
   const [isDragging, setIsDragging] = useState<boolean>(false);
   const [sliderColor, setSliderColor] = useState<string>("gray"); // Start gray on page load
   const sliderRef = useRef<HTMLDivElement>(null);
@@ -25,43 +27,49 @@ const SliderWithDatePanel: React.FC<SliderWithDatePanelProps> = (props) => {
   const minYear = 1626;
   const maxYear = 1700;
   const totalYears = maxYear - minYear + 1;
-  const totalDaysInYear = 365; 
+  const totalDaysInYear = 365;
 
   const totalSliderSteps = totalYears * totalDaysInYear;
 
   const calculateSliderPosition = (date: moment.Moment) => {
     const year = date.year();
     const dayOfYear = date.dayOfYear();
-    const yearOffset = year - minYear; 
-    return (yearOffset * totalDaysInYear) + dayOfYear;
+    const yearOffset = year - minYear;
+    return yearOffset * totalDaysInYear + dayOfYear;
   };
 
   const middleYear = Math.floor((minYear + maxYear) / 2);
-  const middleDate = moment(`${middleYear}-06-01`, "YYYY-MM-DD"); 
+  const middleDate = moment(`${middleYear}-06-01`, "YYYY-MM-DD");
   const middleSliderPosition = calculateSliderPosition(middleDate);
 
   const updateDate = (position: number) => {
     const yearOffset = position / totalDaysInYear;
     const newYear = minYear + Math.floor(yearOffset);
     const dayOfYear = Math.round((yearOffset % 1) * totalDaysInYear);
-    
-    const newDate = newYear === maxYear 
-      ? moment("1700-01-01", "YYYY-MM-DD") 
-      : moment().year(newYear).dayOfYear(Math.min(dayOfYear + 1, totalDaysInYear));
+
+    const newDate =
+      newYear === maxYear
+        ? moment("1700-01-01", "YYYY-MM-DD")
+        : moment()
+            .year(newYear)
+            .dayOfYear(Math.min(dayOfYear + 1, totalDaysInYear));
 
     setCurrDate(newDate);
     props.callback(newDate);
   };
 
   const moveSlider = (positionX: number, sliderWidth: number) => {
-    const position = Math.min((positionX / sliderWidth) * totalSliderSteps, totalSliderSteps - 1);
+    const position = Math.min(
+      (positionX / sliderWidth) * totalSliderSteps,
+      totalSliderSteps - 1
+    );
     setSliderValue(position);
-    updateDate(position); 
+    updateDate(position);
   };
 
   const handleMouseDown = (e: React.MouseEvent) => {
     setIsDragging(true);
-    setSliderColor("darkorange"); 
+    setSliderColor("darkorange");
     const slider = sliderRef.current;
     if (slider) {
       const rect = slider.getBoundingClientRect();
@@ -75,7 +83,7 @@ const SliderWithDatePanel: React.FC<SliderWithDatePanelProps> = (props) => {
       const rect = slider.getBoundingClientRect();
       moveSlider(e.clientX - rect.left, rect.width);
     }
-  }, 10); 
+  }, 10);
 
   const handleMouseUp = () => {
     setIsDragging(false);
@@ -94,14 +102,14 @@ const SliderWithDatePanel: React.FC<SliderWithDatePanelProps> = (props) => {
     const slider = sliderRef.current;
     if (slider) {
       const rect = slider.getBoundingClientRect();
-      const clickX = e.clientX - rect.left; 
+      const clickX = e.clientX - rect.left;
       moveSlider(clickX, rect.width);
     }
   };
 
   useEffect(() => {
-    setSliderValue(middleSliderPosition); 
-    updateDate(middleSliderPosition); 
+    setSliderValue(middleSliderPosition);
+    updateDate(middleSliderPosition);
   }, [middleSliderPosition]);
 
   return (
@@ -119,7 +127,9 @@ const SliderWithDatePanel: React.FC<SliderWithDatePanelProps> = (props) => {
             <span className="timeline-ruler"></span>
           </div>
           <div className="year">
-            <span id="ruler-date3">&nbsp; ⇦ &nbsp; TIME &nbsp; SLIDE &nbsp; ⇨</span>
+            <span id="ruler-date3">
+              &nbsp; ⇦ &nbsp; TIME &nbsp; SLIDE &nbsp; ⇨
+            </span>
             <span className="timeline-ruler"></span>
           </div>
           <div className="year">
@@ -141,12 +151,16 @@ const SliderWithDatePanel: React.FC<SliderWithDatePanelProps> = (props) => {
           <div className="slider-track-horizontal"></div>
           <div
             className="slider-handle-horizontal"
-            style={{ 
-              left: `${(sliderValue / totalSliderSteps) * 100}%`, 
-              backgroundColor: sliderColor 
-            }} 
-            onMouseEnter={() => setSliderColor(isDragging ? "darkorange" : "#007aff")} 
-            onMouseLeave={() => setSliderColor(isDragging ? "darkorange" : "gray")} 
+            style={{
+              left: `${(sliderValue / totalSliderSteps) * 100}%`,
+              backgroundColor: sliderColor,
+            }}
+            onMouseEnter={() =>
+              setSliderColor(isDragging ? "darkorange" : "#007aff")
+            }
+            onMouseLeave={() =>
+              setSliderColor(isDragging ? "darkorange" : "gray")
+            }
           ></div>
         </div>
       </div>

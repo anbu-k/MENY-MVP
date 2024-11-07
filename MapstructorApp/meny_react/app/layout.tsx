@@ -27,8 +27,8 @@ export default function RootLayout({
     <html lang="en">
       <head>
         <meta
-        name="description"
-        content="New Amsterdam - Early New York Interactive Map with History Timeline"
+          name="description"
+          content="New Amsterdam - Early New York Interactive Map with History Timeline"
         />
         <meta charSet="utf-8" />
         <meta
@@ -66,7 +66,7 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-status-bar-style" content="black" />
       </head>
       <body
-        id='app-body'
+        id="app-body"
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         {children}
