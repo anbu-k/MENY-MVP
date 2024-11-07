@@ -10,7 +10,7 @@ export type SectionLayer = {
 export type SectionLayerItem = {
     id: string,
     label: string,
-    iconColor: IconColors,
+    iconColor: IconColors | string,
     iconType: FontAwesomeLayerIcons,
     isSolid: boolean,
     layerId?: string,
@@ -19,7 +19,7 @@ export type SectionLayerItem = {
 export type SectionLayerGroup = {
     id: string,
     label: string,
-    iconColor: IconColors,
+    iconColor: IconColors | string,
     iconType: FontAwesomeLayerIcons,
     isSolid: boolean,
     items: SectionLayerItem[]

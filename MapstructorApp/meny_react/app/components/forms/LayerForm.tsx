@@ -250,6 +250,20 @@ export default function LayerForm(props: LayerFormProps) {
         />
       </div>
 
+      <div style={{ marginBottom: '15px' }}>
+        <label htmlFor="iconColor" style={labelStyling}>Icon Color:</label>
+        <div
+          id="sourceLayer"
+        >
+        <ColorPickerButton callback={(newColor: string) => {
+          formik.setValues({
+            ...formik.values,
+            iconColor: newColor
+          });
+        }}></ColorPickerButton>
+        </div>
+      </div>
+
       <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
         <label htmlFor="hover" style={labelStyling}>Hover:</label>
         <input

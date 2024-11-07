@@ -319,7 +319,7 @@ export default function Home() {
                 let mappedGroup: SectionLayerGroup = {
                   id: y.id,
                   label: y.name,
-                  iconColor: y.iconColor ? (Object.entries(IconColors)?.find(x => x.at(0) == y.iconColor))?.[1] ?? IconColors.YELLOW  : IconColors.YELLOW,
+                  iconColor: y.iconColor ?? IconColors.YELLOW,
                   iconType: FontAwesomeLayerIcons.PLUS_SQUARE,
                   isSolid: true,
                   items: y.layers?.map((z: PrismaLayer, z_idx: number) => {
@@ -328,7 +328,7 @@ export default function Home() {
                       id: z.id,
                       layerId: z.id,
                       label: z.label,
-                      iconColor: z.iconColor ? (Object.entries(IconColors)?.find(a => a.at(0) == z.iconColor))?.[1] ?? IconColors.YELLOW  : IconColors.YELLOW,
+                      iconColor: z.iconColor ?? IconColors.YELLOW,
                       iconType: FontAwesomeLayerIcons.PLUS_SQUARE,
                       isSolid: false
                     };
@@ -340,6 +340,7 @@ export default function Home() {
             }
             return layer;
           })
+          console.log(returnSectionLayers);
           setSectionLayers(returnSectionLayers)
         }
       });
