@@ -20,7 +20,7 @@ import { MapItem, MapZoomProps } from './models/maps/map.model';
 import LayerFormButton from './components/forms/buttons/layer-form-button.component';
 import Modal from 'react-modal';
 import MapFormButton from './components/forms/buttons/map-form-button.component';
-import {Map as PrismaMap, LayerSection as PrismaLayerSection, Layer as PrismaLayer, LayerSectionData as PrismaLayerSectionData, LayerGroup as PrismaLayerGroup, MapFilterGroup as PrismaMapFilterGroup, MapFilterItem as PrismaMapFilterItem, MapFilterItem, LayerSection} from '@prisma/client';
+import {Map as PrismaMap, LayerSection as PrismaLayerSection, LayerData as PrismaLayer, LayerGroup as PrismaLayerGroup, MapFilterGroup as PrismaMapFilterGroup, MapFilterItem as PrismaMapFilterItem, MapFilterItem, LayerSection} from '@prisma/client';
 import EditForm from './components/forms/EditForm';
 import './popup.css';
 import { getFontawesomeIcon } from './helpers/font-awesome.helper';
@@ -53,6 +53,7 @@ export default function Home() {
   const [currDate, setCurrDate] = useState<moment.Moment | null>(null);
   const [popUp, setPopUp] = useState<GenericPopUpProps | null>(null);
   const [popUpVisible, setPopUpVisible] = useState(false);
+  const [layerPopupBefore, setLayerPopupBefore] = useState(false);
   const [layerPanelVisible, setLayerPanelVisible] = useState(true);
   const [MapboxCompare, setMapboxCompare] = useState<any>(null);
   const beforeMapContainerRef = useRef<HTMLDivElement>(null);
@@ -98,7 +99,7 @@ export default function Home() {
           url: layerConfig.sourceUrl,
         },
         layout: {
-          visibility: "visible"
+          visibility: "none"
         },
         "source-layer": layerConfig.sourceLayer,
         paint: {
@@ -287,7 +288,7 @@ export default function Home() {
       map.current!.removeSource(id);
       //Clean up the stored handler
       delete (map.current as any)._eventHandlers[id];
-  }
+    }
   }
 
   const addAllMapLayers = () => {
@@ -310,22 +311,23 @@ export default function Home() {
         if(!!parsed && !!parsed.LayerSections && parsed.LayerSections.length > 0) {
           let sections: PrismaLayerSection[] = parsed.LayerSections;
 
-          let returnSectionLayers: SectionLayer[] = sections.map((x, idx_x) => {
+          let returnSectionLayers: SectionLayer[] = sections.map((x: PrismaLayerSection, idx_x) => {
             let layer: SectionLayer = {
               id: x.id,
               label: x.name,
-              groups: x.layerGroups.map((y, idx_y) => {
+              groups: x.layerGroups.map((y: PrismaLayerGroup, idx_y: number) => {
                 let mappedGroup: SectionLayerGroup = {
                   id: y.id,
                   label: y.name,
                   iconColor: y.iconColor ? (Object.entries(IconColors)?.find(x => x.at(0) == y.iconColor))?.[1] ?? IconColors.YELLOW  : IconColors.YELLOW,
                   iconType: FontAwesomeLayerIcons.PLUS_SQUARE,
                   isSolid: true,
-                  items: y.childLayers?.map((z: PrismaLayerSectionData, z_idx: number) => {
+                  items: y.layers?.map((z: PrismaLayer, z_idx: number) => {
+                    setCurrLayers(currLayers => [...currLayers, z]);
                     let newDBMap: SectionLayerItem = {
                       id: z.id,
                       layerId: z.id,
-                      label: z.name,
+                      label: z.label,
                       iconColor: z.iconColor ? (Object.entries(IconColors)?.find(a => a.at(0) == z.iconColor))?.[1] ?? IconColors.YELLOW  : IconColors.YELLOW,
                       iconType: FontAwesomeLayerIcons.PLUS_SQUARE,
                       isSolid: false
@@ -404,27 +406,33 @@ export default function Home() {
   const beforeLayerFormModalOpen = () => {
     console.log('shouldnt be visible')
     setLayerPanelVisible(false);
-    setPopUpVisible(false);
+    setLayerPopupBefore(popUpVisible);        //Store popupVisibile before value to call after modal closes
+    setPopUpVisible(false);                   //Then set popupVisible to false
   }
   const afterLayerFormModalCloseLayers = () => {
     setLayerPanelVisible(true);
-    setPopUpVisible(true);
+    setPopUpVisible(layerPopupBefore);        //After modal close set popupVisible to whatever it was before modal call
+    setCurrLayers([]);
+    getLayerSections();
   }
 
   const beforeModalOpen = () => {
     setLayerPanelVisible(false);
-    setPopUpVisible(false);
+    setLayerPopupBefore(popUpVisible);    //Store popupVisibile before value to call after modal closes
+    setPopUpVisible(false);               //Then set popupVisible to false
     setModalOpen(true);
   }
 
   const afterModalClose = () => {
     setLayerPanelVisible(true);
-    setPopUpVisible(true);
+    setPopUpVisible(layerPopupBefore);    //After modal close set popupVisible to whatever it was before modal call
     setModalOpen(false);
   }
 
   const afterModalCloseLayers = () => {
     afterModalClose();
+    setCurrLayers([]);
+    getLayerSections();
   }
 
   const afterModalCloseMaps = () => {

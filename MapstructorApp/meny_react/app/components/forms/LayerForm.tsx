@@ -2,7 +2,6 @@ import { useFormik } from 'formik';
 import { CSSProperties, useState } from 'react';
 import ColorPickerButton from './color-picker/color-picker-button.component';
 import { LayerGroup } from '@prisma/client';
-import { LayerSectionData } from '@prisma/client';
 
 type LayerType = 'symbol' | 'fill' | 'line' | 'circle' | 'heatmap' | 'fill-extrusion' | 'raster' | 'raster-particle' | 'hillshade' | 'model' | 'background' | 'sky' | 'slot' | 'clip';
 type SourceType = 'vector' | 'raster' | 'raster-dem' | 'raster-array' | 'geojson' | 'video' | 'image' | 'model' | 'batched-model';
@@ -13,7 +12,6 @@ type LayerFormProps = {
 }
 
 export default function LayerForm(props: LayerFormProps) {
-  const [showNewSourceInput, setShowNewSourceInput] = useState(false);
 
   const formik = useFormik({
     initialValues: {
@@ -41,7 +39,7 @@ export default function LayerForm(props: LayerFormProps) {
     onSubmit: async (values) => {
       
       let layerVals = {
-        layerName: values.layerName,
+        name: values.name,
         sectionName: props.sectionName,
         sourceUrl: values.sourceUrl,
         type: values.type,
@@ -63,7 +61,7 @@ export default function LayerForm(props: LayerFormProps) {
         });
         alert('Layer added successfully');
         formik.resetForm();
-      } catch (error) {
+      } catch (error: any) {
         alert(`Error: ${error.message}`);
       }
     },
@@ -154,14 +152,138 @@ export default function LayerForm(props: LayerFormProps) {
         <input type="number" id="bearing" name="bearing" onChange={formik.handleChange} value={formik.values.bearing} style={boxStyling} />
       </div>
 
+      {/* Got rid of this cause I don't think we need to show this
       <div style={{ marginBottom: '15px' }}>
         <label htmlFor="topLayerClass" style={labelStyling}>Top Layer Class:</label>
         <input disabled type="text" id="topLayerClass" name="topLayerClass" onChange={formik.handleChange} value={formik.values.topLayerClass} style={boxStyling} />
-      </div>
+      </div> */}
 
       <div style={{ marginBottom: '15px' }}>
         <label htmlFor="infoId" style={labelStyling}>Info ID:</label>
         <input type="text" id="infoId" name="infoId" onChange={formik.handleChange} value={formik.values.infoId} style={boxStyling} />
+      </div>
+
+      {/* Dropdown for Type */}
+      <div style={{ marginBottom: '15px' }}>
+        <label htmlFor="type" style={labelStyling}>Type:</label>
+        <select
+          id="type"
+          name="type"
+          onChange={formik.handleChange}
+          value={formik.values.type}
+          style={boxStyling}
+        >
+          <option value="">Select Type</option>
+          <option value="symbol">Symbol</option>
+          <option value="fill">Fill</option>
+          <option value="line">Line</option>
+          <option value="circle">Circle</option>
+          <option value="heatmap">Heatmap</option>
+          <option value="fill-extrusion">Fill-Extrusion</option>
+          <option value="raster">Raster</option>
+          <option value="raster-particle">Raster-Particle</option>
+          <option value="hillshade">Hillshade</option>
+          <option value="model">Model</option>
+          <option value="background">Background</option>
+          <option value="sky">Sky</option>
+          <option value="slot">Slot</option>
+          <option value="clip">Clip</option>
+        </select>
+      </div>
+
+      {/* Dropdown for Source Type */}
+      <div style={{ marginBottom: '15px' }}>
+        <label htmlFor="sourceType" style={labelStyling}>Source Type:</label>
+        <select
+          id="sourceType"
+          name="sourceType"
+          onChange={formik.handleChange}
+          value={formik.values.sourceType}
+          style={boxStyling}
+        >
+          <option value="">Select Source Type</option>
+          <option value="vector">Vector</option>
+          <option value="raster">Raster</option>
+          <option value="raster-dem">Raster-DEM</option>
+          <option value="raster-array">Raster-Array</option>
+          <option value="geojson">GeoJSON</option>
+          <option value="video">Video</option>
+          <option value="image">Image</option>
+          <option value="model">Model</option>
+          <option value="batched-model">Batched-Model</option>
+        </select>
+      </div>
+
+      <div style={{ marginBottom: '15px' }}>
+        <label htmlFor="sourceUrl" style={labelStyling}>Source URL:</label>
+        <input
+          type="text"
+          id="sourceUrl"
+          name="sourceUrl"
+          onChange={formik.handleChange}
+          value={formik.values.sourceUrl}
+          style={boxStyling}
+        />
+      </div>
+
+      <div style={{ marginBottom: '15px' }}>
+        <label htmlFor="sourceId" style={labelStyling}>Source ID:</label>
+        <input
+          type="text"
+          id="sourceId"
+          name="sourceId"
+          onChange={formik.handleChange}
+          value={formik.values.sourceId}
+          style={boxStyling}
+        />
+      </div>
+
+      <div style={{ marginBottom: '15px' }}>
+        <label htmlFor="sourceLayer" style={labelStyling}>Source Layer:</label>
+        <input
+          type="text"
+          id="sourceLayer"
+          name="sourceLayer"
+          onChange={formik.handleChange}
+          value={formik.values.sourceLayer}
+          style={boxStyling}
+        />
+      </div>
+
+      <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
+        <label htmlFor="hover" style={labelStyling}>Hover:</label>
+        <input
+          type="checkbox"
+          id="hover"
+          name="hover"
+          onChange={formik.handleChange}
+          checked={formik.values.hover}
+          style={checkboxStyling}
+        />
+      </div>
+
+      <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
+      <label htmlFor="click" style={labelStyling}>Click:</label>
+        <input
+          type="checkbox"
+          id="click"
+          name="click"
+          onChange={formik.handleChange}
+          checked={formik.values.click}
+          style={checkboxStyling}
+        />
+      </div>
+
+      <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
+        <label htmlFor="time" style={labelStyling}>Time:</label>
+          <input
+            type="checkbox"
+            id="time"
+            name="time"
+            onChange={formik.handleChange}
+            checked={formik.values.time}
+            style={checkboxStyling}
+          />
       </div>
 
       <button
