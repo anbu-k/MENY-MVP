@@ -328,6 +328,9 @@ export default function Home() {
                       id: z.id,
                       layerId: z.id,
                       label: z.label,
+                      center: [z.longitude ?? 0, z.latitude ?? 0],
+                      zoom: z.zoom ?? 0,
+                      bearing: z.bearing ?? 0,
                       iconColor: z.iconColor ?? IconColors.YELLOW,
                       iconType: FontAwesomeLayerIcons.PLUS_SQUARE,
                       isSolid: false
@@ -763,9 +766,20 @@ export default function Home() {
                 openWindow={beforeModalOpen}
                 editFormVisibleCallback={(isOpen: boolean) => {
                   setEditFormOpen(isOpen);
-                }}
+                } }
                 editFormIdCallback={(id: string) => {
                   setEditFormId(id);
+                } } mapZoomCallback={(zoomProps: MapZoomProps) => {
+                  currBeforeMap.current?.easeTo({
+                    center: zoomProps.center,
+                    zoom: zoomProps.zoom,
+                    speed: zoomProps.speed,
+                    curve: zoomProps.curve,
+                    duration: zoomProps.duration,
+                    easing(t) {
+                      return t;
+                    }
+                  })
                 }}/>
               )
             })

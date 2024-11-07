@@ -12,6 +12,9 @@ export type SectionLayerItem = {
     label: string,
     iconColor: IconColors | string,
     iconType: FontAwesomeLayerIcons,
+    center: [long: number, lat: number],
+    zoom: number,
+    bearing: number,
     isSolid: boolean,
     layerId?: string,
 }

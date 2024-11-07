@@ -5,6 +5,7 @@ import { faMinusSquare, faPlusSquare, faPlayCircle } from "@fortawesome/free-reg
 import { faCrosshairs, faInfoCircle } from "@fortawesome/free-solid-svg-icons";
 import { getFontawesomeIcon } from "@/app/helpers/font-awesome.helper";
 import { FontAwesomeLayerIcons } from "@/app/models/font-awesome.model";
+import { MapZoomProps } from "@/app/models/maps/map.model";
 
 type SectionLayerGroupItemProps = {
     item: SectionLayerItem,
@@ -13,6 +14,7 @@ type SectionLayerGroupItemProps = {
     openWindow: () => void,
     editFormVisibleCallback: (isOpen: boolean) => void,
     editFormIdCallback: (id: string) => void,
+    mapZoomCallback:(zoomProps: MapZoomProps) => void
 }
 
 const SectionLayerGroupItemComponent = (props: SectionLayerGroupItemProps) => {
@@ -68,7 +70,15 @@ const SectionLayerGroupItemComponent = (props: SectionLayerGroupItemProps) => {
                         title="Zoom to Layer"
                         color="blue"
                         icon={getFontawesomeIcon(FontAwesomeLayerIcons.CROSSHAIRS)}
-                        onClick={() => {}/*zoomtocenter(layerData.zoomTo || "N/A")*/} // Edit zoomFunctions.js to create this function
+                        onClick={() => {
+                            props.mapZoomCallback({
+                                center: props.item.center,
+                                zoom: props.item.zoom,
+                                speed: 0.2,
+                                curve: 1,
+                                duration: 2500,
+                            })
+                        }}
                         />
                         <FontAwesomeIcon
                         className="layer-info trigger-popup"

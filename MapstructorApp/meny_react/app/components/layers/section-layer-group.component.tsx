@@ -10,6 +10,7 @@ import { FontAwesomeLayerIcons } from "@/app/models/font-awesome.model";
 import { IconColors } from "@/app/models/colors.model";
 import NewSectionLayerGroupItem from "../new-section-layer-group-item.component";
 import LayerFormButton from "../forms/buttons/layer-form-button.component";
+import { MapZoomProps } from "@/app/models/maps/map.model";
 
 type SectionLayerGroupsProps = {
     layersHeader: string,
@@ -22,6 +23,7 @@ type SectionLayerGroupsProps = {
     afterClose: () => void,
     editFormVisibleCallback: (isOpen: boolean) => void,
     editFormIdCallback: (id: string) => void,
+    mapZoomCallback:(zoomProps: MapZoomProps) => void
 }
 
 const SectionLayerGroupComponent = (props: SectionLayerGroupsProps) => {
@@ -89,13 +91,14 @@ const SectionLayerGroupComponent = (props: SectionLayerGroupsProps) => {
                     return (
                         <>
                             <SectionLayerGroupItemComponent
-                            key={'seclaygroupitem'+idx}
-                            activeLayers={props.activeLayers} 
-                            activeLayerCallback={props.activeLayerCallback} 
-                            item={item} 
-                            openWindow={props.openWindow}
-                            editFormVisibleCallback={props.editFormVisibleCallback}
-                            editFormIdCallback={props.editFormIdCallback}/>
+                                key={'seclaygroupitem' + idx}
+                                activeLayers={props.activeLayers}
+                                activeLayerCallback={props.activeLayerCallback}
+                                item={item}
+                                openWindow={props.openWindow}
+                                editFormVisibleCallback={props.editFormVisibleCallback}
+                                editFormIdCallback={props.editFormIdCallback}
+                                mapZoomCallback={props.mapZoomCallback}/>
                         </>
                     )
                 })
