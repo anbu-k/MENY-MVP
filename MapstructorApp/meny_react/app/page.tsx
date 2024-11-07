@@ -798,7 +798,8 @@ export default function Home() {
             (currSectionLayers ?? []).map(secLayer => {
 
               return (
-                <SectionLayerComponent activeLayers={activeLayerIds} activeLayerCallback={(newActiveLayers: string[]) => {
+                <SectionLayerComponent activeLayers={activeLayerIds} 
+                activeLayerCallback={(newActiveLayers: string[]) => {
                   console.log('layers selected: ', newActiveLayers);
                   setActiveLayerIds(newActiveLayers);
                 } } layersHeader={secLayer.label} layer={secLayer}

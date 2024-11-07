@@ -89,6 +89,11 @@ model LayerGroup {
   latitude         String?
 }
 
+type HoverItem {
+  label            String
+  type             String
+}
+
 model Layer {
   id               String            @id @default(auto()) @map("_id") @db.ObjectId
   layerName        String
@@ -103,4 +108,9 @@ model Layer {
   hover            Boolean
   time             Boolean
   click            Boolean
+  hoverStyle       String?
+  clickStyle       String?
+  clickHeader      String?
+  hoverContent     HoverItem[]
 }
+

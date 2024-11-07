@@ -27,7 +27,11 @@ export async function POST(request: Request) {
             sourceLayer:Layer.sourceLayer,
             hover: Layer.hover,
             time: Layer.time,
-            click: Layer.click
+            click: Layer.click,
+            hoverStyle: Layer.hoverStyle,
+            clickStyle: Layer.clickStyle,
+            clickHeader: Layer.clickHeader,
+            hoverContent: Layer.hoverContent,
         },
     })
     return NextResponse.json({
