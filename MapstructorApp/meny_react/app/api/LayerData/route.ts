@@ -29,7 +29,7 @@ export async function POST(request: Request) {
                 topLayerClass:layerData.topLayerClass,
                 infoId:layerData.infoId,
                 type:layerData.type,
-                sourceType:layerData.sourceId,
+                sourceType:layerData.sourceType,
                 sourceUrl:layerData.sourceUrl,
                 sourceId:layerData.sourceId,
                 paint:layerData.paint,

@@ -14,3 +14,41 @@ export async function GET(request: Request, context: any) {
         layerData
     })
 }
+
+export async function PUT(request: Request, context: any) {
+    const { params } = context;
+    const Layerr: LayerData = await request.json()
+    const prisma = new PrismaClient();
+    const layer = await prisma.layerData.update({
+        where: {
+            id: params.id
+        },
+        data: {
+            name: Layerr.name,
+            type: Layerr.type,
+            iconColor: Layerr.iconColor,
+            iconType: Layerr.iconType,
+            label: Layerr.label,
+            longitude: Layerr.longitude,
+            latitude: Layerr.latitude,
+            zoom: Layerr.zoom,
+            bearing: Layerr.bearing,
+            groupName: Layerr.groupName,
+            topLayerClass: Layerr.topLayerClass,
+            infoId: Layerr.infoId,
+            type: Layerr.type,
+            sourceType: Layerr.sourceType,
+            sourceUrl: Layerr.sourceUrl,
+            sourceId: Layerr.sourceId,
+            paint: Layerr.paint,
+            sourceLayer: Layerr.sourceLayer,
+            hover: Layerr.hover,
+            time: Layerr.time,
+            click: Layerr.click
+        }
+    })
+
+    return NextResponse.json({
+        layer
+    })
+}

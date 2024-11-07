@@ -1,6 +1,6 @@
 import { useFormik } from "formik"
 import { CSSProperties, useEffect, useState } from "react";
-import {Layer as PrismaLayer} from '@prisma/client';
+import {LayerData as PrismaLayer} from '@prisma/client';
 import { json } from "stream/consumers";
 import Loader from "../loading/loading.component";
 
@@ -10,28 +10,36 @@ type SourceType = 'vector' | 'raster' | 'raster-dem' | 'raster-array' | 'geojson
 
 const EditForm = (props: {id: string, afterSubmit: (formVisible: boolean) => void}) => {
     const [layer, setLayer] = useState<PrismaLayer>({
-        id: "",
-        layerName: "",
-        paint: "",
-        sectionName: "",
-        sourceId: "",
-        sourceLayer: "",
-        sourceType: "",
-        sourceUrl: "",
-        type: "",
-        hover: false,
-        click: false,
-        time: false,});
+      id: '',
+      name: '',
+      iconColor: '',
+      iconType: '',
+      label: '',
+      longitude: 0,
+      latitude: 0,
+      zoom: 0,
+      bearing: 0,
+      topLayerClass: '',
+      infoId: '',
+      type: '' as LayerType,
+      sourceType: '' as SourceType,
+      sourceUrl: '',
+      sourceId: '',
+      paint: '',
+      sourceLayer: '',
+      hover: false,
+      click: false,
+      time: false,});
     const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
         const fetchData = async () => {
             setIsLoading(true);
             try {
-                await fetch('http://localhost:3000/api/layer/' + props.id)
+                await fetch('http://localhost:3000/api/LayerData/' + props.id)
                 .then((response) => {
                 response.json()?.then(parsed => {
-                    setLayer(parsed.layer);
+                    setLayer(parsed.layerData);
                 })
             });
             } catch (error) {
@@ -47,9 +55,18 @@ const EditForm = (props: {id: string, afterSubmit: (formVisible: boolean) => voi
     const formik = useFormik({
     enableReinitialize: true,
     initialValues: {
-        layerName: layer.layerName,
+        id: layer.id,
+        name: layer.name,
+        iconColor: layer.iconColor,
+        iconType: layer.iconType,
+        label: layer.label,
+        longitude: layer.longitude as number,
+        latitude: layer.latitude as number,
+        zoom: layer.zoom as number,
+        bearing: layer.bearing as number,
+        topLayerClass: layer.topLayerClass,
+        infoId: layer.infoId as string,
         type: layer.type as LayerType,
-        sectionName: layer.sectionName,
         sourceType: layer.sourceType as SourceType,
         sourceUrl: layer.sourceUrl,
         sourceId: layer.sourceId,
@@ -62,7 +79,7 @@ const EditForm = (props: {id: string, afterSubmit: (formVisible: boolean) => voi
       
       onSubmit: async (values) => {
         try{
-          await fetch('http://localhost:3000/api/layer/' + props.id, {
+          await fetch('http://localhost:3000/api/LayerData/' + props.id, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -130,19 +147,46 @@ const EditForm = (props: {id: string, afterSubmit: (formVisible: boolean) => voi
             ) : (    
                 <form onSubmit={formik.handleSubmit} style={{ maxWidth: '400px', margin: '0 auto' }}>
                 <h2 style={{ paddingBottom: '8px', color: '#333', textAlign: 'center' }}>
-                  <strong>Edit {layer?.layerName}</strong>
+                  <strong>Edit {layer?.label}</strong>
                 </h2>
-          
                 <div style={{ marginBottom: '15px' }}>
-                  <label htmlFor="layerName" style={labelStyling}>Layer Name:</label>
-                  <input
-                    type="text"
-                    id="layerName"
-                    name="layerName"
-                    onChange={formik.handleChange}
-                    value={formik.values.layerName}
-                    style={boxStyling}
-                  />
+                  <label htmlFor="name" style={labelStyling}>Name:</label>
+                  <input type="text" id="name" name="name" onChange={formik.handleChange} value={formik.values.name} style={boxStyling} />
+                </div>
+
+                <div style={{ marginBottom: '15px' }}>
+                  <label htmlFor="iconType" style={labelStyling}>Icon Type:</label>
+                  <input type="text" id="iconType" name="iconType" onChange={formik.handleChange} value={formik.values.iconType} style={boxStyling} />
+                </div>
+                
+                <div style={{ marginBottom: '15px' }}>
+                  <label htmlFor="label" style={labelStyling}>Label:</label>
+                  <input type="text" id="label" name="label" onChange={formik.handleChange} value={formik.values.label} style={boxStyling} />
+                </div>
+
+                <div style={{ marginBottom: '15px' }}>
+                  <label htmlFor="longitude" style={labelStyling}>Longitude:</label>
+                  <input type="number" id="longitude" name="longitude" onChange={formik.handleChange} value={formik.values.longitude} style={boxStyling} />
+                </div>
+
+                <div style={{ marginBottom: '15px' }}>
+                  <label htmlFor="latitude" style={labelStyling}>Latitude:</label>
+                  <input type="number" id="latitude" name="latitude" onChange={formik.handleChange} value={formik.values.latitude} style={boxStyling} />
+                </div>
+
+                <div style={{ marginBottom: '15px' }}>
+                  <label htmlFor="zoom" style={labelStyling}>Zoom:</label>
+                  <input type="number" id="zoom" name="zoom" onChange={formik.handleChange} value={formik.values.zoom} style={boxStyling} />
+                </div>
+
+                <div style={{ marginBottom: '15px' }}>
+                  <label htmlFor="bearing" style={labelStyling}>Bearing:</label>
+                  <input type="number" id="bearing" name="bearing" onChange={formik.handleChange} value={formik.values.bearing} style={boxStyling} />
+                </div>
+
+                <div style={{ marginBottom: '15px' }}>
+                  <label htmlFor="infoId" style={labelStyling}>Info ID:</label>
+                  <input type="text" id="infoId" name="infoId" onChange={formik.handleChange} value={formik.values.infoId} style={boxStyling} />
                 </div>
           
                 {/* Dropdown for Type */}
