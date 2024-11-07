@@ -7,11 +7,7 @@ export async function GET() {
     const prisma = new PrismaClient();
     const groups = (await prisma.layerGroup.findMany({
         include: {
-            childLayers: {
-                include: {
-                    layers: true
-                }
-            }
+            layers:true
         }
     }))
 
@@ -24,16 +20,18 @@ export async function POST(request: Request) {
     const LayerGroup:LayerGroup = await request.json()
     const prisma = new PrismaClient(); 
     try{
-        await prisma.layerGroup.create({
+        const r = await prisma.layerGroup.create({
             data: {
                 name:LayerGroup.name,
                 layerSectionName:LayerGroup.layerSectionName,
                 longitude:LayerGroup.longitude,
-                latitude:LayerGroup.latitude
+                latitude:LayerGroup.latitude,
+                zoom:LayerGroup.zoom,
+                bearing:LayerGroup.bearing
             }
         })
         return NextResponse.json({
-            message: "Success"
+            r
         })
     }
     
@@ -48,7 +46,7 @@ export async function PUT(request: Request) {
     const prisma = new PrismaClient()
 
     try {
-        await prisma.layerGroup.update({
+        const r = await prisma.layerGroup.update({
             where: {
                 id: LayerGroup.id
             },
@@ -56,11 +54,13 @@ export async function PUT(request: Request) {
                 name:LayerGroup.name,
                 layerSectionName:LayerGroup.layerSectionName,
                 longitude:LayerGroup.longitude,
-                latitude:LayerGroup.latitude  
+                latitude:LayerGroup.latitude,
+                zoom:LayerGroup.zoom,
+                bearing:LayerGroup.bearing  
             }
         })
         return NextResponse.json({
-            message: "Success"
+            r
         })
     }
     catch(e) {

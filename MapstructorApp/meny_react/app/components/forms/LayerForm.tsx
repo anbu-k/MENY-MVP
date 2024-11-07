@@ -2,7 +2,6 @@ import { FieldArray, FormikProvider, useFormik } from 'formik';
 import { CSSProperties, useState } from 'react';
 import ColorPickerButton from './color-picker/color-picker-button.component';
 import { LayerGroup } from '@prisma/client';
-import { LayerSectionData } from '@prisma/client';
 
 type LayerType = 'symbol' | 'fill' | 'line' | 'circle' | 'heatmap' | 'fill-extrusion' | 'raster' | 'raster-particle' | 'hillshade' | 'model' | 'background' | 'sky' | 'slot' | 'clip';
 type SourceType = 'vector' | 'raster' | 'raster-dem' | 'raster-array' | 'geojson' | 'video' | 'image' | 'model' | 'batched-model';
@@ -13,15 +12,20 @@ type LayerFormProps = {
 }
 
 export default function LayerForm(props: LayerFormProps) {
-  const [showNewSourceInput, setShowNewSourceInput] = useState(false);
-
-  const [existingLayerSectionData, setExistingLayerSectionData] = useState<LayerSectionData[]>([]);
 
   const formik = useFormik({
     initialValues: {
-      layerName: '',
+      name: '',
+      iconColor: '',
+      iconType: '',
+      label: '',
+      longitude: 0,
+      latitude: 0,
+      zoom: 0,
+      bearing: 0,
+      topLayerClass: props.groupName,
+      infoId: '',
       type: '' as LayerType,
-      sectionName: '',
       sourceType: '' as SourceType,
       sourceUrl: '',
       sourceId: '',
@@ -30,7 +34,6 @@ export default function LayerForm(props: LayerFormProps) {
       hover: false,
       click: false,
       time: false,
-      iconColor: '',
       hoverStyle: '',
       clickStyle: '',
       clickHeader: '',
@@ -38,8 +41,9 @@ export default function LayerForm(props: LayerFormProps) {
     },
     
     onSubmit: async (values) => {
+      
       let layerVals = {
-        layerName: values.layerName,
+        name: values.name,
         sectionName: props.sectionName,
         sourceUrl: values.sourceUrl,
         type: values.type,
@@ -56,7 +60,7 @@ export default function LayerForm(props: LayerFormProps) {
         hoverContent: values.hoverContent,
       }
       try {
-        await fetch('api/layer', {
+        await fetch('api/LayerData', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -65,7 +69,7 @@ export default function LayerForm(props: LayerFormProps) {
         });
         alert('Layer added successfully');
         formik.resetForm();
-      } catch (error : any) {
+      } catch (error: any) {
         alert(`Error: ${error.message}`);
       }
     },
@@ -122,17 +126,51 @@ export default function LayerForm(props: LayerFormProps) {
           <strong>Add New Layer</strong>
         </h2>
 
-        <div style={{ marginBottom: '15px' }}>
-          <label htmlFor="layerName" style={labelStyling}>Layer Name:</label>
-          <input
-            type="text"
-            id="layerName"
-            name="layerName"
-            onChange={formik.handleChange}
-            value={formik.values.layerName}
-            style={boxStyling}
-          />
-        </div>
+      <div style={{ marginBottom: '15px' }}>
+        <label htmlFor="name" style={labelStyling}>Name:</label>
+        <input type="text" id="name" name="name" onChange={formik.handleChange} value={formik.values.name} style={boxStyling} />
+      </div>
+
+      <div style={{ marginBottom: '15px' }}>
+        <label htmlFor="iconType" style={labelStyling}>Icon Type:</label>
+        <input type="text" id="iconType" name="iconType" onChange={formik.handleChange} value={formik.values.iconType} style={boxStyling} />
+      </div>
+      
+      <div style={{ marginBottom: '15px' }}>
+        <label htmlFor="label" style={labelStyling}>Label:</label>
+        <input type="text" id="label" name="label" onChange={formik.handleChange} value={formik.values.label} style={boxStyling} />
+      </div>
+
+      <div style={{ marginBottom: '15px' }}>
+        <label htmlFor="longitude" style={labelStyling}>Longitude:</label>
+        <input type="number" id="longitude" name="longitude" onChange={formik.handleChange} value={formik.values.longitude} style={boxStyling} />
+      </div>
+
+      <div style={{ marginBottom: '15px' }}>
+        <label htmlFor="latitude" style={labelStyling}>Latitude:</label>
+        <input type="number" id="latitude" name="latitude" onChange={formik.handleChange} value={formik.values.latitude} style={boxStyling} />
+      </div>
+
+      <div style={{ marginBottom: '15px' }}>
+        <label htmlFor="zoom" style={labelStyling}>Zoom:</label>
+        <input type="number" id="zoom" name="zoom" onChange={formik.handleChange} value={formik.values.zoom} style={boxStyling} />
+      </div>
+
+      <div style={{ marginBottom: '15px' }}>
+        <label htmlFor="bearing" style={labelStyling}>Bearing:</label>
+        <input type="number" id="bearing" name="bearing" onChange={formik.handleChange} value={formik.values.bearing} style={boxStyling} />
+      </div>
+
+      {/* Got rid of this cause I don't think we need to show this
+      <div style={{ marginBottom: '15px' }}>
+        <label htmlFor="topLayerClass" style={labelStyling}>Top Layer Class:</label>
+        <input disabled type="text" id="topLayerClass" name="topLayerClass" onChange={formik.handleChange} value={formik.values.topLayerClass} style={boxStyling} />
+      </div> */}
+
+      <div style={{ marginBottom: '15px' }}>
+        <label htmlFor="infoId" style={labelStyling}>Info ID:</label>
+        <input type="text" id="infoId" name="infoId" onChange={formik.handleChange} value={formik.values.infoId} style={boxStyling} />
+      </div>
 
         {/* Dropdown for Type */}
         <div style={{ marginBottom: '15px' }}>
@@ -162,40 +200,28 @@ export default function LayerForm(props: LayerFormProps) {
           </select>
         </div>
 
-        {/* <div style={{ marginBottom: '15px' }}>
-          <label htmlFor="sectionName" style={labelStyling}>Section Name:</label>
-          <input
-            type="text"
-            id="sectionName"
-            name="sectionName"
-            onChange={formik.handleChange}
-            value={formik.values.sectionName}
-            style={boxStyling}
-          />
-        </div> */}
-
-        {/* Dropdown for Source Type */}
-        <div style={{ marginBottom: '15px' }}>
-          <label htmlFor="sourceType" style={labelStyling}>Source Type:</label>
-          <select
-            id="sourceType"
-            name="sourceType"
-            onChange={formik.handleChange}
-            value={formik.values.sourceType}
-            style={boxStyling}
-          >
-            <option value="">Select Source Type</option>
-            <option value="vector">Vector</option>
-            <option value="raster">Raster</option>
-            <option value="raster-dem">Raster-DEM</option>
-            <option value="raster-array">Raster-Array</option>
-            <option value="geojson">GeoJSON</option>
-            <option value="video">Video</option>
-            <option value="image">Image</option>
-            <option value="model">Model</option>
-            <option value="batched-model">Batched-Model</option>
-          </select>
-        </div>
+      {/* Dropdown for Source Type */}
+      <div style={{ marginBottom: '15px' }}>
+        <label htmlFor="sourceType" style={labelStyling}>Source Type:</label>
+        <select
+          id="sourceType"
+          name="sourceType"
+          onChange={formik.handleChange}
+          value={formik.values.sourceType}
+          style={boxStyling}
+        >
+          <option value="">Select Source Type</option>
+          <option value="vector">Vector</option>
+          <option value="raster">Raster</option>
+          <option value="raster-dem">Raster-DEM</option>
+          <option value="raster-array">Raster-Array</option>
+          <option value="geojson">GeoJSON</option>
+          <option value="video">Video</option>
+          <option value="image">Image</option>
+          <option value="model">Model</option>
+          <option value="batched-model">Batched-Model</option>
+        </select>
+      </div>
 
         <div style={{ marginBottom: '15px' }}>
           <label htmlFor="sourceUrl" style={labelStyling}>Source URL:</label>

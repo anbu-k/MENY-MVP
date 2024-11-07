@@ -14,7 +14,6 @@ const SliderPopUp = (props: GenericPopUpProps) => {
     });
   
     if (renderedEntity) {
-        console.log(renderedEntity);
           const html: string = renderedEntity;
         //   console.log("Redered Entity:")
         //   console.log(res[0].rendered_entity);

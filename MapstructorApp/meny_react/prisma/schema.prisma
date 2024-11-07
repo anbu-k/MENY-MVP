@@ -54,17 +54,26 @@ model MapFilterItem {
 }
 
 model LayerSection {
-  id            String             @id @default(auto()) @map("_id") @db.ObjectId
-  name          String             @unique
-  layerGroups   LayerGroup[]
-  layerSections LayerSectionData[]
+  id          String       @id @default(auto()) @map("_id") @db.ObjectId
+  name        String       @unique
+  layerGroups LayerGroup[]
 }
 
-model LayerSectionData {
-  id            String        @id @default(auto()) @map("_id") @db.ObjectId
-  name          String        @unique
-  section       LayerSection? @relation(fields: [sectionName], references: [name], onDelete: Cascade, onUpdate: Cascade)
-  sectionName   String
+model LayerGroup {
+  id               String       @id @default(auto()) @map("_id") @db.ObjectId
+  name             String       @unique
+  layers           LayerData[]
+  layerSection     LayerSection @relation(fields: [layerSectionName], references: [name], onDelete: Cascade, onUpdate: Cascade)
+  layerSectionName String
+  longitude        String?
+  latitude         String?
+  zoom             Float?
+  bearing          Float?
+}
+
+model LayerData {
+  id            String      @id @default(auto()) @map("_id") @db.ObjectId
+  name          String      @unique
   iconColor     String
   iconType      String
   label         String
@@ -72,45 +81,17 @@ model LayerSectionData {
   latitude      Float?
   zoom          Float?
   bearing       Float?
-  groupName     LayerGroup?   @relation(fields: [topLayerClass], references: [name], onDelete: Cascade, onUpdate: Cascade)
+  groupName     LayerGroup? @relation(fields: [topLayerClass], references: [name], onDelete: Cascade, onUpdate: Cascade)
   topLayerClass String?
   infoId        String?
-  layers        Layer[]
-}
-
-//groups the layers under the Section
-model LayerGroup {
-  id               String             @id @default(auto()) @map("_id") @db.ObjectId
-  name             String             @unique
-  childLayers      LayerSectionData[]
-  layerSection     LayerSection       @relation(fields: [layerSectionName], references: [name], onDelete: Cascade, onUpdate: Cascade)
-  layerSectionName String
-  longitude        String?
-  latitude         String?
-}
-
-type HoverItem {
-  label            String
-  type             String
-}
-
-model Layer {
-  id               String            @id @default(auto()) @map("_id") @db.ObjectId
-  layerName        String
-  type             String
-  LayerSectionData LayerSectionData? @relation(fields: [sectionName], references: [name], onDelete: Cascade, onUpdate: Cascade)
-  sectionName      String?
-  sourceType       String
-  sourceUrl        String
-  sourceId         String
-  paint            String?
-  sourceLayer      String
-  hover            Boolean
-  time             Boolean
-  click            Boolean
-  hoverStyle       String?
-  clickStyle       String?
-  clickHeader      String?
-  hoverContent     HoverItem[]
+  type          String
+  sourceType    String
+  sourceUrl     String
+  sourceId      String
+  paint         String?
+  sourceLayer   String
+  hover         Boolean
+  time          Boolean
+  click         Boolean
 }
 
