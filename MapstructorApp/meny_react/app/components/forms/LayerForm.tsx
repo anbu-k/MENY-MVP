@@ -25,7 +25,7 @@ export default function LayerForm(props: LayerFormProps) {
       latitude: 0,
       zoom: 0,
       bearing: 0,
-      topLayerClass: '',
+      topLayerClass: props.groupName,
       infoId: '',
       type: '' as LayerType,
       sourceType: '' as SourceType,
@@ -39,6 +39,7 @@ export default function LayerForm(props: LayerFormProps) {
     },
     
     onSubmit: async (values) => {
+      
       let layerVals = {
         layerName: values.layerName,
         sectionName: props.sectionName,
@@ -53,7 +54,7 @@ export default function LayerForm(props: LayerFormProps) {
         click: values.click
       }
       try {
-        await fetch('api/layer', {
+        await fetch('api/LayerData', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -155,7 +156,7 @@ export default function LayerForm(props: LayerFormProps) {
 
       <div style={{ marginBottom: '15px' }}>
         <label htmlFor="topLayerClass" style={labelStyling}>Top Layer Class:</label>
-        <input type="text" id="topLayerClass" name="topLayerClass" onChange={formik.handleChange} value={formik.values.topLayerClass} style={boxStyling} />
+        <input disabled type="text" id="topLayerClass" name="topLayerClass" onChange={formik.handleChange} value={formik.values.topLayerClass} style={boxStyling} />
       </div>
 
       <div style={{ marginBottom: '15px' }}>
