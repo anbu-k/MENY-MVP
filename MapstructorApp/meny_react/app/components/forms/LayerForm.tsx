@@ -6,6 +6,7 @@ type SourceType = 'vector' | 'raster' | 'raster-dem' | 'raster-array' | 'geojson
 
 export default function LayerForm() {
   const [showNewSourceInput, setShowNewSourceInput] = useState(false);
+  const [showPaintOptions, setShowPaintOptions] = useState(false); // State to control paint options visibility
 
   const formik = useFormik({
     initialValues: {
@@ -79,6 +80,14 @@ export default function LayerForm() {
     backgroundColor: '#0056b3',
   };
 
+  const paintHeaderStyle: CSSProperties = {
+    ...labelStyling,
+    cursor: 'pointer',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  };
+
   return (
     <form onSubmit={formik.handleSubmit} style={{ maxWidth: '400px', margin: '0 auto' }}>
       <h2 style={{ paddingBottom: '8px', color: '#333', textAlign: 'center' }}>
@@ -126,41 +135,6 @@ export default function LayerForm() {
         </select>
       </div>
 
-      {/* <div style={{ marginBottom: '15px' }}>
-        <label htmlFor="paint" style={labelStyling}>Paint:</label>
-        <input
-          type="text"
-          id="paint"
-          name="paint"
-          onChange={formik.handleChange}
-          value={formik.values.paint}
-          style={boxStyling}
-        />
-      </div> */}
-
-      {/* Dropdown for Source Type */}
-      <div style={{ marginBottom: '15px' }}>
-        <label htmlFor="sourceType" style={labelStyling}>Source Type:</label>
-        <select
-          id="sourceType"
-          name="sourceType"
-          onChange={formik.handleChange}
-          value={formik.values.sourceType}
-          style={boxStyling}
-        >
-          <option value="">Select Source Type</option>
-          <option value="vector">Vector</option>
-          <option value="raster">Raster</option>
-          <option value="raster-dem">Raster-DEM</option>
-          <option value="raster-array">Raster-Array</option>
-          <option value="geojson">GeoJSON</option>
-          <option value="video">Video</option>
-          <option value="image">Image</option>
-          <option value="model">Model</option>
-          <option value="batched-model">Batched-Model</option>
-        </select>
-      </div>
-
       {/* Source URL Input */}
       <div style={{ marginBottom: '15px' }}>
         <label htmlFor="sourceUrl" style={labelStyling}>Source URL:</label>
@@ -200,50 +174,64 @@ export default function LayerForm() {
         />
       </div>
 
-      {/* Background Fill Color Picker */}
-      <div style={{ marginBottom: '15px' }}>
-        <label htmlFor="fillColor" style={labelStyling}>Background Fill Color:</label>
-        <input
-          type="color"
-          id="fillColor"
-          name="fillColor"
-          onChange={formik.handleChange}
-          value={formik.values.fillColor}
-          style={{ ...boxStyling, padding: '5px' }}
-        />
+     {/* Paint Options Header */}
+      <div
+        style={paintHeaderStyle}
+        onClick={() => setShowPaintOptions(!showPaintOptions)}
+      >
+        <span>Paint Options</span>
+        <span>{showPaintOptions ? '▲' : '▼'}</span>
       </div>
 
-      {/* Fill Opacity Input */}
-      <div style={{ marginBottom: '15px' }}>
-        <label htmlFor="fillOpacity" style={labelStyling}>Fill Opacity:</label>
-        <input
-          type="number"
-          id="fillOpacity"
-          name="fillOpacity"
-          onChange={formik.handleChange}
-          value={formik.values.fillOpacity}
-          min="0"
-          max="1"
-          step="0.1"
-          style={boxStyling}
-        />
-      </div>
+      {/* Conditional Paint Settings with Extra Margin */}
+      {showPaintOptions && (
+        <div style={{ marginBottom: '20px' }}> {/* Add bottom margin for spacing */}
+          {/* Background Fill Color Picker */}
+          <div style={{ marginBottom: '15px' }}>
+            <label htmlFor="fillColor" style={labelStyling}>Background Fill Color:</label>
+            <input
+              type="color"
+              id="fillColor"
+              name="fillColor"
+              onChange={formik.handleChange}
+              value={formik.values.fillColor}
+              style={{ ...boxStyling, padding: '5px' }}
+            />
+          </div>
 
-      {/* Outline Color Picker */}
-      <div style={{ marginBottom: '15px' }}>
-        <label htmlFor="fillOutlineColor" style={labelStyling}>Outline Color:</label>
-        <input
-          type="color"
-          id="fillOutlineColor"
-          name="fillOutlineColor"
-          onChange={formik.handleChange}
-          value={formik.values.fillOutlineColor}
-          style={{ ...boxStyling, padding: '5px' }}
-        />
-      </div>
+          {/* Fill Opacity Input */}
+          <div style={{ marginBottom: '15px' }}>
+            <label htmlFor="fillOpacity" style={labelStyling}>Fill Opacity:</label>
+            <input
+              type="number"
+              id="fillOpacity"
+              name="fillOpacity"
+              onChange={formik.handleChange}
+              value={formik.values.fillOpacity}
+              min="0"
+              max="1"
+              step="0.1"
+              style={boxStyling}
+            />
+          </div>
+
+          {/* Outline Color Picker */}
+          <div style={{ marginBottom: '15px' }}>
+            <label htmlFor="fillOutlineColor" style={labelStyling}>Outline Color:</label>
+            <input
+              type="color"
+              id="fillOutlineColor"
+              name="fillOutlineColor"
+              onChange={formik.handleChange}
+              value={formik.values.fillOutlineColor}
+              style={{ ...boxStyling, padding: '5px' }}
+            />
+          </div>
+        </div>
+      )}
 
       <button
-        style={buttonStyling}
+        style={{ ...buttonStyling, marginTop: '40px'}}
         onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = buttonHoverStyling.backgroundColor!)}
         onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = buttonStyling.backgroundColor!)}
         type="submit"
