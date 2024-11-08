@@ -173,7 +173,6 @@ export default function Home() {
         paint,
       };
 
-      map.current?.addLayer(layerStuff as mapboxgl.LayerSpecification);
 
       var date = parseInt(currDate!.format("YYYYMMDD"));
       var dateFilter: FilterSpecification = [
@@ -345,647 +344,506 @@ export default function Home() {
     };
 }
 
-  const removeMapLayer = (
-    map: MutableRefObject<mapboxgl.Map | null>,
-    id: string
-  ) => {
-    if (map === null) return;
-    //Remove the layer
-    if (map.current!.getLayer(id)) {
-      //Retrieve the stored event handlers
-      const handler = (map.current as any)._eventHandlers?.[id];
-        
-      //Remove event listeners if the handler exists
-      if (handler) {
-          map.current!.off('mousemove', id, handler);
-          map.current!.off('mouseleave', id, handler);
-          map.current!.off('click', id, handler);
-      }
-      //Remove layer and source from map
-      map.current!.removeLayer(id);
-      map.current!.removeSource(id);
-      //Clean up the stored handler
-      delete (map.current as any)._eventHandlers[id];
+const removeMapLayer = (map: MutableRefObject<mapboxgl.Map | null>, id: string) => {
+  if (map === null) return;
+  //Remove the layer
+  if (map.current!.getLayer(id)) {
+    //Retrieve the stored event handlers
+    const handler = (map.current as any)._eventHandlers?.[id];
+      
+    //Remove event listeners if the handler exists
+    if (handler) {
+        map.current!.off('mousemove', id, handler);
+        map.current!.off('mouseleave', id, handler);
+        map.current!.off('click', id, handler);
     }
+    //Remove layer and source from map
+    map.current!.removeLayer(id);
+    map.current!.removeSource(id);
+    //Clean up the stored handler
+    delete (map.current as any)._eventHandlers[id];
   }
+}
 
-  const addAllMapLayers = () => {
-    if (currLayers !== null) {
-      currLayers.forEach((x: PrismaLayer) => {
-        addMapLayer(currBeforeMap, x);
-        addMapLayer(currAfterMap, x);
-      });
-    }
-  };
-
-  const getLayerSections = () => {
-    fetch('http://localhost:3000/api/LayerSection', {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      }
-    }).then(sections => {
-      sections.json()?.then(parsed => {
-        if(!!parsed && !!parsed.LayerSections && parsed.LayerSections.length > 0) {
-          let sections: PrismaLayerSection[] = parsed.LayerSections;
-
-          let returnSectionLayers: SectionLayer[] = sections.map((x: PrismaLayerSection, idx_x) => {
-            let layer: SectionLayer = {
-              id: x.id,
-              label: x.name,
-              groups: x.layerGroups.map((y: PrismaLayerGroup, idx_y: number) => {
-                let mappedGroup: SectionLayerGroup = {
-                  id: y.id,
-                  label: y.name,
-                  iconColor: y.iconColor ?? IconColors.YELLOW,
-                  iconType: FontAwesomeLayerIcons.PLUS_SQUARE,
-                  isSolid: true,
-                  items: y.layers?.map((z: PrismaLayer, z_idx: number) => {
-                    setCurrLayers(currLayers => [...currLayers, z]);
-                    let newDBMap: SectionLayerItem = {
-                      id: z.id,
-                      layerId: z.id,
-                      label: z.label,
-                      center: [z.longitude ?? 0, z.latitude ?? 0],
-                      zoom: z.zoom ?? 0,
-                      bearing: z.bearing ?? 0,
-                      iconColor: z.iconColor ?? IconColors.YELLOW,
-                      iconType: z.iconType ? parseFromString(z.iconType) : FontAwesomeLayerIcons.LINE,
-                      isSolid: false
-                    };
-                    return newDBMap;
-                  }) ?? []
-                }
-                return mappedGroup
-              })
-            }
-            return layer;
-          })
-          console.log(returnSectionLayers);
-          setSectionLayers(returnSectionLayers)
-        }
-      });
+const addAllMapLayers = () => {
+  if(currLayers !== null) {
+    currLayers.forEach((x: PrismaLayer) => {
+      addMapLayer(currBeforeMap, x)
+      addMapLayer(currAfterMap, x)
     })
   }
+}
 
-  const getMaps = () => {
-    fetch('http://localhost:3000/api/map', {
-      method: 'GET',
-      headers: {
-          'Content-Type': 'application/json',
-      }
-    }).then(maps => {
-        maps.json()?.then(parsed => {
-          if(!!parsed && !!parsed.groups && parsed.groups.length) {
-            let groups: PrismaMapFilterGroup[] = parsed.groups;
-            let mapFilterGroups: MapFiltersGroup[] = groups.map((grp, idx) => {
-              
-              let mappedGroup: MapFiltersGroup = {
-                id: idx,
-                name: grp.groupName,
-                label: grp.label,
-                groupId: grp.groupId,
-                maps: grp.maps.map((x: PrismaMap) => {
-                  let newDBMap: MapItem = {
-                    mapId: x.mapId,
-                    groupId: grp.groupId,
-                    center: [x.longitude, x.latitude],
-                    zoom: x.zoom,
-                    bearing: x.bearing,
-                    styleId: x.styleId,
-                    name: x.mapName
-                  }
-                  return newDBMap
-                }),
-                mapfilteritems: grp.mapfilteritems.map((x: PrismaMapFilterItem) => {
-                  let filterItem: MapFilterItem = {
-                    id: x.id,
-                    groupId: grp.groupId,
-                    label: x.label,
-                    itemId: x.itemId,
-                    itemName: x.itemName,
-                    defaultCheckedForBeforeMap: x.defaultCheckedForBeforeMap,
-                    defaultCheckedForAfterMap: x.defaultCheckedForAfterMap,
-                    showInfoButton: x.showInfoButton,
-                    showZoomButton: x.showZoomButton
-                  }
-                  return filterItem;
-                })
+const getLayerSections = () => {
+  fetch('http://localhost:3000/api/LayerSection', {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    }
+  }).then(sections => {
+    sections.json()?.then(parsed => {
+      if(!!parsed && !!parsed.LayerSections && parsed.LayerSections.length > 0) {
+        let sections: PrismaLayerSection[] = parsed.LayerSections;
+
+        let returnSectionLayers: SectionLayer[] = sections.map((x: PrismaLayerSection, idx_x) => {
+          let layer: SectionLayer = {
+            id: x.id,
+            label: x.name,
+            groups: x.layerGroups.map((y: PrismaLayerGroup, idx_y: number) => {
+              let mappedGroup: SectionLayerGroup = {
+                id: y.id,
+                label: y.name,
+                iconColor: y.iconColor ?? IconColors.YELLOW,
+                iconType: FontAwesomeLayerIcons.PLUS_SQUARE,
+                isSolid: true,
+                items: y.layers?.map((z: PrismaLayer, z_idx: number) => {
+                  setCurrLayers(currLayers => [...currLayers, z]);
+                  let newDBMap: SectionLayerItem = {
+                    id: z.id,
+                    layerId: z.id,
+                    label: z.label,
+                    center: [z.longitude ?? 0, z.latitude ?? 0],
+                    zoom: z.zoom ?? 0,
+                    bearing: z.bearing ?? 0,
+                    iconColor: z.iconColor ?? IconColors.YELLOW,
+                    iconType: z.iconType ? parseFromString(z.iconType) : FontAwesomeLayerIcons.LINE,
+                    isSolid: false
+                  };
+                  return newDBMap;
+                }) ?? []
               }
-
-              return mappedGroup;
+              return mappedGroup
             })
-            setMappedFilterItemGroups(mapFilterGroups)
           }
-        }).catch(err => {
-          console.error('failed to convert to json: ', err)
+          return layer;
         })
-    }).catch(err => {
-      console.error(err);
-    });
-  }
-
-  const beforeLayerFormModalOpen = () => {
-    console.log('shouldnt be visible')
-    setLayerPanelVisible(false);
-    setLayerPopupBefore(popUpVisible);        //Store popupVisibile before value to call after modal closes
-    setPopUpVisible(false);                   //Then set popupVisible to false
-  }
-  const afterLayerFormModalCloseLayers = () => {
-    setLayerPanelVisible(true);
-    setPopUpVisible(layerPopupBefore);        //After modal close set popupVisible to whatever it was before modal call
-    setCurrLayers([]);
-    getLayerSections();
-  }
-
-  const beforeModalOpen = () => {
-    setLayerPanelVisible(false);
-    setLayerPopupBefore(popUpVisible);    //Store popupVisibile before value to call after modal closes
-    setPopUpVisible(false);               //Then set popupVisible to false
-    setModalOpen(true);
-  };
-
-  const afterModalClose = () => {
-    setLayerPanelVisible(true);
-    setPopUpVisible(layerPopupBefore);    //After modal close set popupVisible to whatever it was before modal call
-    setModalOpen(false);
-  };
-
-  const afterModalCloseLayers = () => {
-    afterModalClose();
-    setCurrLayers([]);
-    getLayerSections();
-  }
-
-  const afterModalCloseMaps = () => {
-    afterModalClose();
-    getMaps();
-  };
-
-  /**
-   * When the page is loaded, get all maps / layers from the API, parse these to work with our frontend models.
-   */
-  useEffect(() => {
-    getMaps();
-    console.log('getting layer groups')
-    getLayerSections();
-  }, [])
-
-  /**
-   * Dynamic import for mapbox-gl-compare package to allow it to be imported. Once they release a TS package, that can be added to NPM and this can be removed.
-   */
-  useEffect(() => {
-    import("mapbox-gl-compare").then((mod) => {
-      setMapboxCompare(() => mod.default);
-    });
-  }, []);
-
-  /**
-   * On first load (When Mapbox defaults haven't been loaded yet, but the dynamic import is complete), create defaults for the before/after map and initialize everything
-   */
-  useEffect(() => {
-    if (!MapboxCompare || !comparisonContainerRef.current) return;
-    if (defaultBeforeMap === null || defaultAfterMap === null) return;
-    setMapLoaded(true);
-
-    const defBeforeMap = new mapboxgl.Map({
-      container: beforeMapContainerRef.current as HTMLElement,
-      style: "mapbox://styles/nittyjee/cjooubzup2kx52sqdf9zmmv2j",
-      center: [-74.01454, 40.70024],
-      zoom: 15.09,
-      bearing: -51.3,
-      attributionControl: false,
-    });
-
-    const defAfterMap = new mapboxgl.Map({
-      container: afterMapContainerRef.current as HTMLElement,
-      style: "mapbox://styles/nittyjee/cjowjzrig5pje2rmmnjb5b0y2",
-      center: [-74.01454, 40.70024],
-      zoom: 15.09,
-      bearing: -51.3,
-      attributionControl: false,
-    });
-
-    setDefaultBeforeMap(defBeforeMap);
-    setDefaultAfterMap(defAfterMap);
-
-    currBeforeMap.current = defBeforeMap;
-    currAfterMap.current = defAfterMap;
-
-    const mapboxCompare = new MapboxCompare(
-      currBeforeMap.current,
-      currAfterMap.current,
-      comparisonContainerRef.current as HTMLElement
-    );
-
-    const compareSwiper = document.querySelector(
-      ".compare-swiper"
-    ) as HTMLElement;
-    if (compareSwiper && !modalOpen) {
-      compareSwiper.innerHTML = "";
-
-      const circleHandle = document.createElement("div");
-      circleHandle.classList.add("compare-circle");
-      circleHandle.innerHTML = "<span>⏴⏵</span>";
-
-      compareSwiper.appendChild(circleHandle);
-
-      circleHandle.onmousedown = function (e: MouseEvent) {
-        e.preventDefault();
-
-        const containerWidth = comparisonContainerRef.current?.offsetWidth || 1;
-
-        document.onmousemove = function (e) {
-          let newLeft = e.clientX;
-
-          newLeft = Math.max(0, Math.min(newLeft, containerWidth));
-
-          compareSwiper.style.left = `${newLeft}px`;
-
-          const swiperPosition = newLeft / containerWidth;
-          mapboxCompare.setSlider(swiperPosition * containerWidth);
-        };
-
-        document.onmouseup = function () {
-          document.onmousemove = null;
-        };
-      };
-    }
-  }, [MapboxCompare]);
-
-  useEffect(() => {
-    if (!MapboxCompare || !comparisonContainerRef.current) return;
-    const mapboxCompare = new MapboxCompare(
-      currBeforeMap.current,
-      currAfterMap.current,
-      comparisonContainerRef.current as HTMLElement
-    );
-
-    const compareSwiper = document.querySelector(
-      ".compare-swiper"
-    ) as HTMLElement;
-    if (compareSwiper && !modalOpen) {
-      compareSwiper.innerHTML = "";
-
-      const circleHandle = document.createElement("div");
-      circleHandle.classList.add("compare-circle");
-      circleHandle.innerHTML = "<span>⏴⏵</span>";
-
-      compareSwiper.appendChild(circleHandle);
-
-      circleHandle.onmousedown = function (e: MouseEvent) {
-        e.preventDefault();
-
-        const containerWidth = comparisonContainerRef.current?.offsetWidth || 1;
-
-        document.onmousemove = function (e) {
-          let newLeft = e.clientX;
-
-          newLeft = Math.max(0, Math.min(newLeft, containerWidth));
-
-          compareSwiper.style.left = `${newLeft}px`;
-
-          const swiperPosition = newLeft / containerWidth;
-          mapboxCompare.setSlider(swiperPosition * containerWidth);
-        };
-
-        document.onmouseup = function () {
-          document.onmousemove = null;
-        };
-      };
-    }
-  }, [currBeforeMap, currAfterMap]);
-
-  useEffect(() => {
-    if (currBeforeMap !== null && currAfterMap !== null) {
-      addAllMapLayers();
-    }
-  }, [currLayers, currBeforeMap, currAfterMap]);
-
-  useEffect(() => {
-    if (!mapLoaded) return;
-    if (currBeforeMap === null || currAfterMap === null) return;
-
-    currLayers.forEach((layer) => {
-      if (
-        activeLayerIds.includes(layer.id) &&
-        currBeforeMap.current?.getLayer(layer.id)
-      ) {
-        currBeforeMap.current!.setLayoutProperty(
-          layer.id,
-          "visibility",
-          "visible"
-        );
-        currAfterMap.current!.setLayoutProperty(
-          layer.id,
-          "visibility",
-          "visible"
-        );
-      } else {
-        currBeforeMap.current!.setLayoutProperty(
-          layer.id,
-          "visibility",
-          "none"
-        );
-        currAfterMap.current!.setLayoutProperty(layer.id, "visibility", "none");
+        console.log(returnSectionLayers);
+        setSectionLayers(returnSectionLayers)
       }
     });
-  }, [activeLayerIds]);
+  })
+}
 
-  useEffect(() => {
-    if (!currDate) return;
-
-    var date = parseInt(currDate.format("YYYYMMDD"));
-    var dateFilter: FilterSpecification = [
-      "all",
-      ["<=", ["get", "DayStart"], date],
-      [">=", ["get", "DayEnd"], date],
-    ];
-
-    activeLayerIds.forEach(lid => {
-      if((currBeforeMap.current?.getLayer(lid) !== null) && (currBeforeMap.current?.getLayer(lid)?.filter !== undefined)) 
-      {
-        currBeforeMap.current?.setFilter(lid, dateFilter);
-      }
-    });
-  }, [currDate, activeLayerIds]);
-
-  // Necessary for the Modal to know what to hide
-  // Modal.setAppElement('#app-body-main');
-
-  return (
-    <>
-    <div id='app-body-main'>
-      <input className="checker" type="checkbox" id="o" hidden />
-      <div className="modal">
-        <div className="modal-body">
-          <div className="modal-header">
-            <h1>ABOUT</h1>
-            <label htmlFor="o" id="close" title="Close">&times;</label>
-          </div>
-          <div className="modal-content">
-            New York City was founded by the Dutch in 1624 as
-            <i>New Amsterdam</i>, the capital of New Netherland. The New Amsterdam
-            History Center is devoted to documenting and mapping New Amsterdam,
-            its diverse people, landscapes, institutions and global legacy today.
-            <p>
-              We’ve presented several versions of the <i>Castello Plan</i> and the
-              <i>Dutch Grants Map</i> here. You can see the settlement of houses,
-              farms, taverns and workshops, surrounded by walls. Over the three
-              centuries that followed, the area became the Financial District. The
-              east wall was torn down and named Wall Street. The canals were paved
-              over and turned into streets and in between developed skysrapers,
-              and the island was expanded with infill. Above ground, almost
-              nothing remains of New Amsterdam except the original street pattern.
-              Underground, archeologists have found evidence of the plots of
-              houses and gardens, Amsterdam yellow brick, and pollen samples of
-              plants.
-            </p>
-            You can swipe the map to compare the Castello Plan in 1660 to the
-            present, and explore each lot, where it shows what was there and who
-            lived there. Our next steps are to expand through the full history of
-            New Amsterdam with a timeline from 1624 to 1664, when it was taken
-            over by the English.
-            <p>
-              We need your help to make this work happen. Donate now to develop
-              the map and expand the research.
-            </p>
-          </div>
-        </div>
-
-        <div className="header">
-          <a href="http://newamsterdamhistorycenter.org" className="logo">
-            <img
-              id="logo-img-wide"
-              src="http://newamsterdamhistorycenter.org/wp-content/uploads/2018/02/cropped-cropped-sprite-1.png"
-            />
-            <img id="logo-img" src="icons/icon_57x57.png" />
-          </a>
-
-          <MapFormButton
-          beforeOpen={beforeModalOpen}
-          afterClose={afterModalCloseMaps}
-          ></MapFormButton>
-
-          <Modal
-            style={{
-                content: {
-                    width: '30%',
-                    right: '5px'
+const getMaps = () => {
+  fetch('http://localhost:3000/api/map', {
+    method: 'GET',
+    headers: {
+        'Content-Type': 'application/json',
+    }
+  }).then(maps => {
+      maps.json()?.then(parsed => {
+        if(!!parsed && !!parsed.groups && parsed.groups.length) {
+          let groups: PrismaMapFilterGroup[] = parsed.groups;
+          let mapFilterGroups: MapFiltersGroup[] = groups.map((grp, idx) => {
+            
+            let mappedGroup: MapFiltersGroup = {
+              id: idx,
+              name: grp.groupName,
+              label: grp.label,
+              groupId: grp.groupId,
+              maps: grp.maps.map((x: PrismaMap) => {
+                let newDBMap: MapItem = {
+                  mapId: x.mapId,
+                  groupId: grp.groupId,
+                  center: [x.longitude, x.latitude],
+                  zoom: x.zoom,
+                  bearing: x.bearing,
+                  styleId: x.styleId,
+                  name: x.mapName
                 }
-            }}
-            isOpen={editFormOpen}
-            onRequestClose={() => {
-              setEditFormOpen(false);
-              setEditFormId("");
-              afterModalCloseLayers();
-            }}
-            contentLabel='New Layer'
-            >
-              3D Map
-              <img
-                className="img2"
-                height="18"
-                src="https://encyclopedia.nahc-mapping.org/sites/default/files/inline-images/external_link_icon.png"
-                width="18"
-              />
-            </a>
-            <a
-              className="encyclopedia"
-              href="https://encyclopedia.nahc-mapping.org/"
-              target="_blank"
-            >
-              Encyclopedia
-              <img
-                className="img2"
-                height="18"
-                src="https://encyclopedia.nahc-mapping.org/sites/default/files/inline-images/external_link_icon.png"
-                width="18"
-              />
-            </a>
-
-            <LayerFormButton
-              beforeOpen={beforeModalOpen}
-              afterClose={afterModalCloseLayers}
-            ></LayerFormButton>
-
-            <MapFormButton
-              beforeOpen={beforeModalOpen}
-              afterClose={afterModalCloseMaps}
-            ></MapFormButton>
-
-            <Modal
-              style={{
-                content: {
-                  width: "30%",
-                  right: "5px",
-                },
-              }}
-              isOpen={editFormOpen}
-              onRequestClose={() => {
-                setEditFormOpen(false);
-                setEditFormId("");
-                afterModalCloseLayers();
-              }}
-              contentLabel="New Layer"
-            >
-              <EditForm
-                id={editFormId}
-                afterSubmit={(closeForm: boolean) => {
-                  setEditFormOpen(closeForm);
-                  removeMapLayer(currBeforeMap, editFormId);
-                  removeMapLayer(currAfterMap, editFormId);
-                  setEditFormId("");
-                  afterModalCloseLayers();
-                }}
-              />
-            </Modal>
-
-            <label htmlFor="o" id="open-popup" style={{ display: "none" }}>
-              Open PopUp
-            </label>
-            <label id="about" className="trigger-popup" title="Open">
-              ABOUT
-            </label>
-            <i className="fa fa-2x fa-info-circle trigger-popup" id="info"></i>
-          </div>
-        </div>
-
-      {
-        !modalOpen && (
-          <button id={modalOpen ? "" : "view-hide-layer-panel"} onClick={() => {
-            setLayerPanelVisible(!layerPanelVisible);
-            setPopUpVisible(!popUpVisible);
-          }}>
-            <br />
-            <span id="dir-txt">&#9204;</span> <br /><br />
-          </button>
-        )
-      }
-      
-       
-      {popUp && <CSSTransition
-        in={popUpVisible}
-        timeout={500}
-        classNames="popup"
-        unmountOnExit>
-          <SliderPopUp popUpProps={popUp}/>
-      </CSSTransition>}
-
-      <div id="studioMenu" style={{ visibility: layerPanelVisible ? 'visible' : 'hidden' }}>
-        <FontAwesomeIcon id="mobi-hide-sidebar" icon={faArrowCircleLeft} />
-        <p className="title">LAYERS</p>
-        <br />
-
-        <>
-          {
-            (currSectionLayers ?? []).map(secLayer => {
-
-              return (
-                <SectionLayerComponent activeLayers={activeLayerIds} activeLayerCallback={(newActiveLayers: string[]) => {
-                  console.log('layers selected: ', newActiveLayers);
-                  setActiveLayerIds(newActiveLayers);
-                } } layersHeader={secLayer.label} layer={secLayer}
-                beforeOpen={beforeLayerFormModalOpen}
-                afterClose={afterLayerFormModalCloseLayers}
-                openWindow={beforeModalOpen}
-                editFormVisibleCallback={(isOpen: boolean) => {
-                  setEditFormOpen(isOpen);
-                } }
-                editFormIdCallback={(id: string) => {
-                  setEditFormId(id);
-                } } mapZoomCallback={(zoomProps: MapZoomProps) => {
-                  currBeforeMap.current?.easeTo({
-                    center: zoomProps.center,
-                    zoom: zoomProps.zoom,
-                    speed: zoomProps.speed,
-                    curve: zoomProps.curve,
-                    duration: zoomProps.duration,
-                    easing(t) {
-                      return t;
-                    }
-                  })
-                }}/>
-              )
-            })
-          }
-          {
-            !groupFormOpen &&
-            <div style={{paddingLeft: '15px', paddingRight: '10px', textAlign: 'center'}}>
-              <a style={{width: '100%', backgroundColor: 'grey', color: 'white', margin: 'auto', padding: '2px 7px 2px 7px'}} onClick={() => setGroupFormOpen(true)}>
-                  <FontAwesomeIcon icon={getFontawesomeIcon(FontAwesomeLayerIcons.PLUS_SQUARE, true)}></FontAwesomeIcon> New Group Folder
-              </a>
-            </div>
-          }
-          {
-            groupFormOpen &&
-            <NewLayerSectionForm afterSubmit={() => setGroupFormOpen(false)}></NewLayerSectionForm>
-          }
-        </>
-
-        {popUp && (
-          <CSSTransition
-            in={popUpVisible}
-            timeout={500}
-            classNames="popup"
-            unmountOnExit
-          >
-            <SliderPopUp popUpProps={popUp} />
-          </CSSTransition>
-        )}
-
-          setMapStyle(currAfterMap, map.styleId);
-        }} defaultMap={beforeMapItem} mapGroups={mappedFilterItemGroups} mapZoomCallback={(zoomProps: MapZoomProps) => {
-          currBeforeMap.current?.easeTo({
-            center: zoomProps.center,
-            zoom: zoomProps.zoom,
-            speed: zoomProps.speed,
-            curve: zoomProps.curve,
-            duration: zoomProps.duration,
-            easing(t) {
-              return t;
+                return newDBMap
+              }),
+              mapfilteritems: grp.mapfilteritems.map((x: PrismaMapFilterItem) => {
+                let filterItem: MapFilterItem = {
+                  id: x.id,
+                  groupId: grp.groupId,
+                  label: x.label,
+                  itemId: x.itemId,
+                  itemName: x.itemName,
+                  defaultCheckedForBeforeMap: x.defaultCheckedForBeforeMap,
+                  defaultCheckedForAfterMap: x.defaultCheckedForAfterMap,
+                  showInfoButton: x.showInfoButton,
+                  showZoomButton: x.showZoomButton
+                }
+                return filterItem;
+              })
             }
+
+            return mappedGroup;
           })
-        }} />
+          setMappedFilterItemGroups(mapFilterGroups)
+        }
+      }).catch(err => {
+        console.error('failed to convert to json: ', err)
+      })
+  }).catch(err => {
+    console.error(err);
+  });
+}
+
+const beforeLayerFormModalOpen = () => {
+  console.log('shouldnt be visible')
+  setLayerPanelVisible(false);
+  setLayerPopupBefore(popUpVisible);        //Store popupVisibile before value to call after modal closes
+  setPopUpVisible(false);                   //Then set popupVisible to false
+}
+const afterLayerFormModalCloseLayers = () => {
+  setLayerPanelVisible(true);
+  setPopUpVisible(layerPopupBefore);        //After modal close set popupVisible to whatever it was before modal call
+  setCurrLayers([]);
+  getLayerSections();
+}
+
+const beforeModalOpen = () => {
+  setLayerPanelVisible(false);
+  setLayerPopupBefore(popUpVisible);    //Store popupVisibile before value to call after modal closes
+  setPopUpVisible(false);               //Then set popupVisible to false
+  setModalOpen(true);
+}
+
+const afterModalClose = () => {
+  setLayerPanelVisible(true);
+  setPopUpVisible(layerPopupBefore);    //After modal close set popupVisible to whatever it was before modal call
+  setModalOpen(false);
+}
+
+const afterModalCloseLayers = () => {
+  afterModalClose();
+  setCurrLayers([]);
+  getLayerSections();
+}
+
+const afterModalCloseMaps = () => {
+  afterModalClose();
+  getMaps();
+}
+
+
+/**
+ * When the page is loaded, get all maps / layers from the API, parse these to work with our frontend models.
+ */
+useEffect(() => {
+  getMaps();
+  console.log('getting layer groups')
+  getLayerSections();
+}, [])
+
+/**
+ * Dynamic import for mapbox-gl-compare package to allow it to be imported. Once they release a TS package, that can be added to NPM and this can be removed.
+ */
+useEffect(() => {
+  import('mapbox-gl-compare').then((mod) => {
+    setMapboxCompare(() => mod.default);
+  });
+}, []);
+
+/**
+ * On first load (When Mapbox defaults haven't been loaded yet, but the dynamic import is complete), create defaults for the before/after map and initialize everything
+ */
+useEffect(() => {
+  if (!MapboxCompare || !comparisonContainerRef.current) return;
+  if (defaultBeforeMap === null || defaultAfterMap === null) return;
+  setMapLoaded(true);
+
+  const defBeforeMap = new mapboxgl.Map({
+    container: beforeMapContainerRef.current as HTMLElement,
+    style: 'mapbox://styles/nittyjee/cjooubzup2kx52sqdf9zmmv2j',
+    center: [-74.01454, 40.70024],
+    zoom: 15.09,
+    bearing: -51.3,
+    attributionControl: false,
+  });
+
+  const defAfterMap = new mapboxgl.Map({
+    container: afterMapContainerRef.current as HTMLElement,
+    style: 'mapbox://styles/nittyjee/cjowjzrig5pje2rmmnjb5b0y2',
+    center: [-74.01454, 40.70024],
+    zoom: 15.09,
+    bearing: -51.3,
+    attributionControl: false,
+  });
+
+  setDefaultBeforeMap(defBeforeMap);
+  setDefaultAfterMap(defAfterMap);
+
+
+  currBeforeMap.current = defBeforeMap;
+  currAfterMap.current = defAfterMap;
+
+  const mapboxCompare = new MapboxCompare(currBeforeMap.current, currAfterMap.current, comparisonContainerRef.current as HTMLElement);
+
+  const compareSwiper = document.querySelector('.compare-swiper') as HTMLElement;
+  if (compareSwiper && !modalOpen) {
+    compareSwiper.innerHTML = ''; 
+
+    const circleHandle = document.createElement('div');
+    circleHandle.classList.add('compare-circle');  
+    circleHandle.innerHTML = '<span>⏴⏵</span>';  
+
+    compareSwiper.appendChild(circleHandle);
+
+    circleHandle.onmousedown = function (e: MouseEvent) {
+      e.preventDefault();
+
+      const containerWidth = comparisonContainerRef.current?.offsetWidth || 1;
+
+      document.onmousemove = function (e) {
+        let newLeft = e.clientX;
+
+        newLeft = Math.max(0, Math.min(newLeft, containerWidth));
+
+        compareSwiper.style.left = `${newLeft}px`;
+
+        const swiperPosition = newLeft / containerWidth;  
+        mapboxCompare.setSlider(swiperPosition * containerWidth);  
+      };
+
+        document.onmouseup = function () {
+        document.onmousemove = null;
+      };
+    };
+  }
+
+}, [MapboxCompare]);
+
+useEffect(() => {
+  if (!MapboxCompare || !comparisonContainerRef.current) return;
+  const mapboxCompare = new MapboxCompare(currBeforeMap.current, currAfterMap.current, comparisonContainerRef.current as HTMLElement);
+
+  const compareSwiper = document.querySelector('.compare-swiper') as HTMLElement;
+  if (compareSwiper && !modalOpen) {
+    compareSwiper.innerHTML = ''; 
+
+    const circleHandle = document.createElement('div');
+    circleHandle.classList.add('compare-circle');  
+    circleHandle.innerHTML = '<span>⏴⏵</span>';  
+
+    compareSwiper.appendChild(circleHandle);
+
+    circleHandle.onmousedown = function (e: MouseEvent) {
+      e.preventDefault();
+
+      const containerWidth = comparisonContainerRef.current?.offsetWidth || 1;
+
+      document.onmousemove = function (e) {
+        let newLeft = e.clientX;
+
+        newLeft = Math.max(0, Math.min(newLeft, containerWidth));
+
+        compareSwiper.style.left = `${newLeft}px`;
+
+        const swiperPosition = newLeft / containerWidth;  
+        mapboxCompare.setSlider(swiperPosition * containerWidth);  
+      };
+
+        document.onmouseup = function () {
+        document.onmousemove = null;
+      };
+    };
+  }
+}, [currBeforeMap, currAfterMap])
+
+useEffect(() => {
+  if(currBeforeMap !== null && currAfterMap !== null) {
+    addAllMapLayers();
+  }
+}, [currLayers, currBeforeMap, currAfterMap]);
+
+useEffect(() => {
+  if(!mapLoaded) return;
+  if(currBeforeMap === null || currAfterMap === null) return;
+
+  currLayers.forEach((layer) => {
+    if (activeLayerIds.includes(layer.id) && currBeforeMap.current?.getLayer(layer.id)) {
+      currBeforeMap.current!.setLayoutProperty(layer.id, 'visibility', 'visible');
+      currAfterMap.current!.setLayoutProperty(layer.id, 'visibility', 'visible');
+    } else {
+      currBeforeMap.current!.setLayoutProperty(layer.id, 'visibility', 'none');
+      currAfterMap.current!.setLayoutProperty(layer.id, 'visibility', 'none');
+    }
+  });
+}, [activeLayerIds]);
+
+useEffect(() => {
+  if(!currDate) return;
+
+  var date = parseInt(currDate.format("YYYYMMDD"));
+  var dateFilter: FilterSpecification = [
+    "all", 
+    ["<=", ["get", "DayStart"], date], 
+    [">=", ["get", "DayEnd"], date]
+  ];
+
+  activeLayerIds.forEach(lid => {
+    if((currBeforeMap.current?.getLayer(lid) !== null) && (currBeforeMap.current?.getLayer(lid)?.filter !== undefined)) 
+    {
+      currBeforeMap.current?.setFilter(lid, dateFilter);
+    }
+  })
+}, [currDate, activeLayerIds])
+
+// Necessary for the Modal to know what to hide
+// Modal.setAppElement('#app-body-main');
+
+return (
+  <>
+  <div id='app-body-main'>
+    <input className="checker" type="checkbox" id="o" hidden />
+    <div className="modal">
+      <div className="modal-body">
+        <div className="modal-header">
+          <h1>ABOUT</h1>
+          <label htmlFor="o" id="close" title="Close">&times;</label>
+        </div>
+        <div className="modal-content">
+          New York City was founded by the Dutch in 1624 as
+          <i>New Amsterdam</i>, the capital of New Netherland. The New Amsterdam
+          History Center is devoted to documenting and mapping New Amsterdam,
+          its diverse people, landscapes, institutions and global legacy today.
+          <p>
+            We’ve presented several versions of the <i>Castello Plan</i> and the
+            <i>Dutch Grants Map</i> here. You can see the settlement of houses,
+            farms, taverns and workshops, surrounded by walls. Over the three
+            centuries that followed, the area became the Financial District. The
+            east wall was torn down and named Wall Street. The canals were paved
+            over and turned into streets and in between developed skysrapers,
+            and the island was expanded with infill. Above ground, almost
+            nothing remains of New Amsterdam except the original street pattern.
+            Underground, archeologists have found evidence of the plots of
+            houses and gardens, Amsterdam yellow brick, and pollen samples of
+            plants.
+          </p>
+          You can swipe the map to compare the Castello Plan in 1660 to the
+          present, and explore each lot, where it shows what was there and who
+          lived there. Our next steps are to expand through the full history of
+          New Amsterdam with a timeline from 1624 to 1664, when it was taken
+          over by the English.
+          <p>
+            We need your help to make this work happen. Donate now to develop
+            the map and expand the research.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div className="header">
+      <a href="http://newamsterdamhistorycenter.org" className="logo">
+        <img
+          id="logo-img-wide"
+          src="http://newamsterdamhistorycenter.org/wp-content/uploads/2018/02/cropped-cropped-sprite-1.png"
+        />
+        <img id="logo-img" src="icons/icon_57x57.png" />
+      </a>
+
+      <div id="header_text" className="headerText">
+        <span id="headerTextSuffix">|</span> Mapping Early New York
       </div>
 
+      <div className="header-right">
+        <a
+          className="encyclopedia"
+          href="https://newamsterdamhistorycenter.org/full-3d-model/"
+          target="_blank"
+          >3D Map
+          <img
+            className="img2"
+            height="18"
+            src="https://encyclopedia.nahc-mapping.org/sites/default/files/inline-images/external_link_icon.png"
+            width="18"
+        /></a>
+        <a
+          className="encyclopedia"
+          href="https://encyclopedia.nahc-mapping.org/"
+          target="_blank"
+          >Encyclopedia
+          <img
+            className="img2"
+            height="18"
+            src="https://encyclopedia.nahc-mapping.org/sites/default/files/inline-images/external_link_icon.png"
+            width="18"
+        /></a>
 
-            <>
-              {(currSectionLayers ?? []).map((secLayer) => {
-                return (
-                  <SectionLayerComponent
-                    activeLayers={activeLayerIds}
-                    activeLayerCallback={(newActiveLayers: string[]) => {
-                      console.log("layers selected: ", newActiveLayers);
-                      setActiveLayerIds(newActiveLayers);
-                    }}
-                    layersHeader={secLayer.label}
-                    layer={secLayer}
-                    openWindow={beforeModalOpen}
-                    editFormVisibleCallback={(isOpen: boolean) => {
-                      setEditFormOpen(isOpen);
-                    }}
-                    editFormIdCallback={(id: string) => {
-                      setEditFormId(id);
-                    }}
-                  />
-                );
-              })}
-            </>
+        <MapFormButton
+        beforeOpen={beforeModalOpen}
+        afterClose={afterModalCloseMaps}
+        ></MapFormButton>
 
-            <MapFilterWrapperComponent
-              beforeMapCallback={(map) => {
-                // Set beforeMap to selected map by changing the mapId
-                setMapStyle(currBeforeMap, map.styleId);
-              }}
-              afterMapCallback={(map) => {
-                // Set afterMap to selected map by changing the mapId
+        <Modal
+          style={{
+              content: {
+                  width: '30%',
+                  right: '5px'
+              }
+          }}
+          isOpen={editFormOpen}
+          onRequestClose={() => {
+            setEditFormOpen(false);
+            setEditFormId("");
+            afterModalCloseLayers();
+          }}
+          contentLabel='New Layer'
+          >
+          <EditForm
+          id={editFormId}
+          afterSubmit={(closeForm: boolean) => {
+            setEditFormOpen(closeForm);
+            removeMapLayer(currBeforeMap, editFormId);
+            removeMapLayer(currAfterMap, editFormId);
+            setEditFormId("");
+            afterModalCloseLayers();
+          }}/>
+        </Modal>
 
-                setMapStyle(currAfterMap, map.styleId);
-              }}
-              defaultMap={beforeMapItem}
-              mapGroups={mappedFilterItemGroups}
-              mapZoomCallback={(zoomProps: MapZoomProps) => {
+        <label htmlFor="o" id="open-popup" style={{display: "none"}}>Open PopUp</label>
+        <label id="about" className="trigger-popup" title="Open">ABOUT</label>
+        <i className="fa fa-2x fa-info-circle trigger-popup" id="info"></i>
+      </div>
+    </div>
+
+    {
+      !modalOpen && (
+        <button id={modalOpen ? "" : "view-hide-layer-panel"} onClick={() => {
+          setLayerPanelVisible(!layerPanelVisible);
+          setPopUpVisible(!popUpVisible);
+        }}>
+          <br />
+          <span id="dir-txt">&#9204;</span> <br /><br />
+        </button>
+      )
+    }
+    
+     
+    {popUp && <CSSTransition
+      in={popUpVisible}
+      timeout={500}
+      classNames="popup"
+      unmountOnExit>
+        <SliderPopUp popUpProps={popUp}/>
+    </CSSTransition>}
+
+    <div id="studioMenu" style={{ visibility: layerPanelVisible ? 'visible' : 'hidden' }}>
+      <FontAwesomeIcon id="mobi-hide-sidebar" icon={faArrowCircleLeft} />
+      <p className="title">LAYERS</p>
+      <br />
+
+      <>
+        {
+          (currSectionLayers ?? []).map(secLayer => {
+
+            return (
+              <SectionLayerComponent activeLayers={activeLayerIds} activeLayerCallback={(newActiveLayers: string[]) => {
+                console.log('layers selected: ', newActiveLayers);
+                setActiveLayerIds(newActiveLayers);
+              } } layersHeader={secLayer.label} layer={secLayer}
+              beforeOpen={beforeLayerFormModalOpen}
+              afterClose={afterLayerFormModalCloseLayers}
+              openWindow={beforeModalOpen}
+              editFormVisibleCallback={(isOpen: boolean) => {
+                setEditFormOpen(isOpen);
+              } }
+              editFormIdCallback={(id: string) => {
+                setEditFormId(id);
+              } } mapZoomCallback={(zoomProps: MapZoomProps) => {
                 currBeforeMap.current?.easeTo({
                   center: zoomProps.center,
                   zoom: zoomProps.zoom,
@@ -994,35 +852,65 @@ export default function Home() {
                   duration: zoomProps.duration,
                   easing(t) {
                     return t;
-                  },
-                });
-              }}
-            />
+                  }
+                })
+              }}/>
+            )
+          })
+        }
+        {
+          !groupFormOpen &&
+          <div style={{paddingLeft: '15px', paddingRight: '10px', textAlign: 'center'}}>
+            <a style={{width: '100%', backgroundColor: 'grey', color: 'white', margin: 'auto', padding: '2px 7px 2px 7px'}} onClick={() => setGroupFormOpen(true)}>
+                <FontAwesomeIcon icon={getFontawesomeIcon(FontAwesomeLayerIcons.PLUS_SQUARE, true)}></FontAwesomeIcon> New Group Folder
+            </a>
           </div>
-        )}
+        }
+        {
+          groupFormOpen &&
+          <NewLayerSectionForm afterSubmit={() => setGroupFormOpen(false)}></NewLayerSectionForm>
+        }
+      </>
 
-        <MapComparisonComponent
-          comparisonContainerRef={comparisonContainerRef}
-          beforeMapContainerRef={beforeMapContainerRef}
-          afterMapContainerRef={afterMapContainerRef}
-          beforeMap={beforeMapItem}
-          afterMap={afterMapItem}
-          beforeMapRef={currBeforeMap}
-          afterMapRef={currAfterMap}
-        ></MapComparisonComponent>
+      <MapFilterWrapperComponent beforeMapCallback={(map) => {
+        // Set beforeMap to selected map by changing the mapId
+        setMapStyle(currBeforeMap, map.styleId);
+      }} afterMapCallback={(map) => {
+        // Set afterMap to selected map by changing the mapId
 
-        <div id="mobi-view-sidebar">
-          <i className="fa fa-bars fa-2x"></i>
-        </div>
+        setMapStyle(currAfterMap, map.styleId);
+      }} defaultMap={beforeMapItem} mapGroups={mappedFilterItemGroups} mapZoomCallback={(zoomProps: MapZoomProps) => {
+        currBeforeMap.current?.easeTo({
+          center: zoomProps.center,
+          zoom: zoomProps.zoom,
+          speed: zoomProps.speed,
+          curve: zoomProps.curve,
+          duration: zoomProps.duration,
+          easing(t) {
+            return t;
+          }
+        })
+      }} />
+    </div>
 
-        <SliderWithDatePanel
-          callback={(date: moment.Moment | null) => setCurrDate(date)}
-        ></SliderWithDatePanel>
+    <MapComparisonComponent
+      comparisonContainerRef={comparisonContainerRef}
+      beforeMapContainerRef={beforeMapContainerRef}
+      afterMapContainerRef={afterMapContainerRef}
+      beforeMap={beforeMapItem} 
+      afterMap={afterMapItem}
+      beforeMapRef={currBeforeMap}
+      afterMapRef={currAfterMap}
+    ></MapComparisonComponent>
 
-        <div id="loading">
-          <i className="fa fa-sync fa-10x fa-spin" id="loading-icon"></i>
-        </div>
-      </div>
-    </>
-  );
+    <div id="mobi-view-sidebar"><i className="fa fa-bars fa-2x"></i></div>
+
+    <SliderWithDatePanel callback={(date: moment.Moment | null) => setCurrDate(date)}></SliderWithDatePanel>
+
+    <div id="loading">
+      <i className="fa fa-sync fa-10x fa-spin" id="loading-icon"></i>
+    </div>
+    </div>
+  </>
+);
 }
