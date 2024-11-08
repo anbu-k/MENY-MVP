@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { useFormik } from "formik";
 import { CSSProperties, useState } from "react";
 
@@ -58,9 +59,53 @@ export default function LayerForm() {
       lineWidth: 15,
       lineBlur: 0,
       lineOpacity: 1.0,
+=======
+import { useFormik } from 'formik';
+import { CSSProperties, useState } from 'react';
+import ColorPickerButton from './color-picker/color-picker-button.component';
+import { LayerGroup } from '@prisma/client';
+import IconPickerDropdown from './icon-picker/icon-picker-dropdown.component';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { getFontawesomeIcon } from '@/app/helpers/font-awesome.helper';
+import { FontAwesomeLayerIcons } from '@/app/models/font-awesome.model';
+import PreviewIcon from './preview-icon.component';
+
+type LayerType = 'symbol' | 'fill' | 'line' | 'circle' | 'heatmap' | 'fill-extrusion' | 'raster' | 'raster-particle' | 'hillshade' | 'model' | 'background' | 'sky' | 'slot' | 'clip';
+type SourceType = 'vector' | 'raster' | 'raster-dem' | 'raster-array' | 'geojson' | 'video' | 'image' | 'model' | 'batched-model';
+
+type LayerFormProps = {
+  groupName: string;
+  sectionName: string;
+}
+
+export default function LayerForm(props: LayerFormProps) {
+
+  const formik = useFormik({
+    initialValues: {
+      name: '',
+      iconColor: '',
+      iconType: '',
+      label: '',
+      longitude: 0,
+      latitude: 0,
+      zoom: 0,
+      bearing: 0,
+      topLayerClass: props.groupName,
+      infoId: '',
+      type: '' as LayerType,
+      sourceType: '' as SourceType,
+      sourceUrl: '',
+      sourceId: '',
+      paint: '',
+      sourceLayer: '',
+      hover: false,
+      click: false,
+      time: false,
+>>>>>>> main
     },
 
     onSubmit: async (values) => {
+<<<<<<< HEAD
       // Formats the paint property based on layer type currently fill, symbol, circle, or line
       const paint: any = {};
       if (values.type === "fill") {
@@ -92,6 +137,25 @@ export default function LayerForm() {
       try {
         const response = await fetch("api/layer", {
           method: "POST",
+=======
+      
+      let layerVals = {
+        name: values.name,
+        sectionName: props.sectionName,
+        sourceUrl: values.sourceUrl,
+        type: values.type,
+        paint: values.paint,
+        sourceType: values.sourceType,
+        sourceId: values.sourceId,
+        sourceLayer: values.sourceLayer,
+        hover: values.hover,
+        time: values.time,
+        click: values.click
+      }
+      try {
+        await fetch('api/LayerData', {
+          method: 'POST',
+>>>>>>> main
           headers: {
             "Content-Type": "application/json",
           },
@@ -99,7 +163,7 @@ export default function LayerForm() {
         });
         alert("Layer added successfully");
         formik.resetForm();
-      } catch (error) {
+      } catch (error: any) {
         alert(`Error: ${error.message}`);
       }
     },
@@ -116,11 +180,29 @@ export default function LayerForm() {
     fontSize: "14px",
   };
 
+  const checkboxStyling: CSSProperties = {
+    padding: '8px',
+    border: '1px solid #ccc',
+    borderRadius: '4px',
+    width: '20%',
+    height: '25px',
+    boxSizing: 'border-box',
+    cursor: 'pointer',
+  };
+
   const labelStyling: CSSProperties = {
+<<<<<<< HEAD
     display: "block",
     marginBottom: "5px",
     fontWeight: "bold",
     color: "#333",
+=======
+    display: 'block',
+    marginBottom: '5px',
+    fontWeight: 'bold',
+    color: '#333',
+    minWidth: '70px',
+>>>>>>> main
   };
 
   const buttonStyling: CSSProperties = {
@@ -155,6 +237,7 @@ export default function LayerForm() {
         <strong>Add New Layer</strong>
       </h2>
 
+<<<<<<< HEAD
       {/* Layer Name Input */}
       <div style={{ marginBottom: "15px" }}>
         <label htmlFor="layerName" style={labelStyling}>
@@ -168,6 +251,47 @@ export default function LayerForm() {
           value={formik.values.layerName}
           style={boxStyling}
         />
+=======
+      <div style={{ marginBottom: '15px' }}>
+        <label htmlFor="name" style={labelStyling}>Name:</label>
+        <input type="text" id="name" name="name" onChange={formik.handleChange} value={formik.values.name} style={boxStyling} />
+      </div>
+      
+      <div style={{ marginBottom: '15px' }}>
+        <label htmlFor="label" style={labelStyling}>Label:</label>
+        <input type="text" id="label" name="label" onChange={formik.handleChange} value={formik.values.label} style={boxStyling} />
+      </div>
+
+      <div style={{ marginBottom: '15px' }}>
+        <label htmlFor="longitude" style={labelStyling}>Longitude:</label>
+        <input type="number" id="longitude" name="longitude" onChange={formik.handleChange} value={formik.values.longitude} style={boxStyling} />
+      </div>
+
+      <div style={{ marginBottom: '15px' }}>
+        <label htmlFor="latitude" style={labelStyling}>Latitude:</label>
+        <input type="number" id="latitude" name="latitude" onChange={formik.handleChange} value={formik.values.latitude} style={boxStyling} />
+      </div>
+
+      <div style={{ marginBottom: '15px' }}>
+        <label htmlFor="zoom" style={labelStyling}>Zoom:</label>
+        <input type="number" id="zoom" name="zoom" onChange={formik.handleChange} value={formik.values.zoom} style={boxStyling} />
+      </div>
+
+      <div style={{ marginBottom: '15px' }}>
+        <label htmlFor="bearing" style={labelStyling}>Bearing:</label>
+        <input type="number" id="bearing" name="bearing" onChange={formik.handleChange} value={formik.values.bearing} style={boxStyling} />
+      </div>
+
+      {/* Got rid of this cause I don't think we need to show this
+      <div style={{ marginBottom: '15px' }}>
+        <label htmlFor="topLayerClass" style={labelStyling}>Top Layer Class:</label>
+        <input disabled type="text" id="topLayerClass" name="topLayerClass" onChange={formik.handleChange} value={formik.values.topLayerClass} style={boxStyling} />
+      </div> */}
+
+      <div style={{ marginBottom: '15px' }}>
+        <label htmlFor="infoId" style={labelStyling}>Info ID:</label>
+        <input type="text" id="infoId" name="infoId" onChange={formik.handleChange} value={formik.values.infoId} style={boxStyling} />
+>>>>>>> main
       </div>
 
       {/* Dropdown for Type */}
@@ -205,11 +329,39 @@ export default function LayerForm() {
         </select>
       </div>
 
+<<<<<<< HEAD
       {/* Source URL Input */}
       <div style={{ marginBottom: "15px" }}>
         <label htmlFor="sourceUrl" style={labelStyling}>
           Source URL:
         </label>
+=======
+      {/* Dropdown for Source Type */}
+      <div style={{ marginBottom: '15px' }}>
+        <label htmlFor="sourceType" style={labelStyling}>Source Type:</label>
+        <select
+          id="sourceType"
+          name="sourceType"
+          onChange={formik.handleChange}
+          value={formik.values.sourceType}
+          style={boxStyling}
+        >
+          <option value="">Select Source Type</option>
+          <option value="vector">Vector</option>
+          <option value="raster">Raster</option>
+          <option value="raster-dem">Raster-DEM</option>
+          <option value="raster-array">Raster-Array</option>
+          <option value="geojson">GeoJSON</option>
+          <option value="video">Video</option>
+          <option value="image">Image</option>
+          <option value="model">Model</option>
+          <option value="batched-model">Batched-Model</option>
+        </select>
+      </div>
+
+      <div style={{ marginBottom: '15px' }}>
+        <label htmlFor="sourceUrl" style={labelStyling}>Source URL:</label>
+>>>>>>> main
         <input
           type="text"
           id="sourceUrl"
@@ -250,6 +402,7 @@ export default function LayerForm() {
         />
       </div>
 
+<<<<<<< HEAD
       {/* Paint Options Header */}
       <div
         style={paintHeaderStyle}
@@ -257,6 +410,79 @@ export default function LayerForm() {
       >
         <span>Paint Options</span>
         <span>{showPaintOptions ? "▲" : "▼"}</span>
+=======
+      <div style={{ marginBottom: '15px' }}>
+        <label htmlFor="iconColor" style={labelStyling}>Icon Color:</label>
+        <div
+          id="sourceLayer"
+        >
+        <ColorPickerButton callback={(newColor: string) => {
+          formik.setValues({
+            ...formik.values,
+            iconColor: newColor
+          });
+        }}></ColorPickerButton>
+        </div>
+
+        <label htmlFor="iconType" style={labelStyling}>Icon Type:</label>
+        <select
+          id="iconType"
+          name="iconType"
+          onChange={formik.handleChange}
+          value={formik.values.iconType}
+          style={boxStyling}
+        >
+          <option value="">Select Icon Type</option>
+          <option value="dots">Dots</option>
+          <option value="info-circle">Info Circle</option>
+          <option value="line">Line</option>
+          <option value="square">Square</option>
+          <option value="plus-square">Plus Square</option>
+          <option value="minus-square">Minus Square</option>
+        </select>
+
+          {
+            formik.values.iconColor && formik.values.iconType && (
+              <><p>Result: </p><PreviewIcon iconType={formik.values.iconType} color={formik.values.iconColor }></PreviewIcon></>
+            )
+          }
+      </div>
+
+      <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
+        <label htmlFor="hover" style={labelStyling}>Hover:</label>
+        <input
+          type="checkbox"
+          id="hover"
+          name="hover"
+          onChange={formik.handleChange}
+          checked={formik.values.hover}
+          style={checkboxStyling}
+        />
+      </div>
+
+      <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
+      <label htmlFor="click" style={labelStyling}>Click:</label>
+        <input
+          type="checkbox"
+          id="click"
+          name="click"
+          onChange={formik.handleChange}
+          checked={formik.values.click}
+          style={checkboxStyling}
+        />
+      </div>
+
+      <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
+        <label htmlFor="time" style={labelStyling}>Time:</label>
+          <input
+            type="checkbox"
+            id="time"
+            name="time"
+            onChange={formik.handleChange}
+            checked={formik.values.time}
+            style={checkboxStyling}
+          />
+>>>>>>> main
       </div>
 
       {/*  Paint Settings based on the Layer Type */}

@@ -24,7 +24,10 @@ export async function POST(request: Request) {
             paint:Layer.paint,
             sourceType:Layer.sourceType,
             sourceId:Layer.sourceId,
-            sourceLayer:Layer.sourceLayer
+            sourceLayer:Layer.sourceLayer,
+            hover: Layer.hover,
+            time: Layer.time,
+            click: Layer.click
         },
     })
     return NextResponse.json({

@@ -16,56 +16,64 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model MapFilterGroup{
-  id             String @id @default(auto()) @map("_id") @db.ObjectId 
+model MapFilterGroup {
+  id             String          @id @default(auto()) @map("_id") @db.ObjectId
   groupName      String
   label          String
-  groupId        String @unique
+  groupId        String          @unique
   maps           Map[]
   mapfilteritems MapFilterItem[]
 }
 
 model Map {
-  id             String @id @default(auto()) @map("_id") @db.ObjectId
-  mapId          String @unique
-  longitude      Float
-  latitude       Float
-  mapName        String
-  zoom           Float
-  bearing        Float
-  styleId        String
-  groupId        String
-
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  mapId     String @unique
+  longitude Float
+  latitude  Float
+  mapName   String
+  zoom      Float
+  bearing   Float
+  styleId   String
+  groupId   String
 
   MapFilterGroup MapFilterGroup? @relation(fields: [groupId], references: [groupId], onDelete: Cascade)
 }
 
-model MapFilterItem{
-  id                         String @id @default(auto()) @map("_id") @db.ObjectId
+model MapFilterItem {
+  id                         String  @id @default(auto()) @map("_id") @db.ObjectId
   itemName                   String
   label                      String
   defaultCheckedForBeforeMap Boolean
   defaultCheckedForAfterMap  Boolean
   showInfoButton             Boolean
   showZoomButton             Boolean
-  itemId                     String @unique
-  groupId                    String 
+  itemId                     String  @unique
+  groupId                    String
 
   mapfiltergroup MapFilterGroup? @relation(fields: [groupId], references: [groupId], onDelete: Cascade)
 }
 
 model LayerSection {
-  id            String             @id @default(auto()) @map("_id") @db.ObjectId
-  name          String             @unique
-  layerGroups   LayerGroup[]
-  layerSections LayerSectionData[]
+  id          String       @id @default(auto()) @map("_id") @db.ObjectId
+  name        String       @unique
+  layerGroups LayerGroup[]
 }
 
-model LayerSectionData {
-  id            String        @id @default(auto()) @map("_id") @db.ObjectId
-  name          String        @unique
-  section       LayerSection? @relation(fields: [sectionName], references: [name])
-  sectionName   String
+model LayerGroup {
+  id               String       @id @default(auto()) @map("_id") @db.ObjectId
+  name             String       @unique
+  layers           LayerData[]
+  layerSection     LayerSection @relation(fields: [layerSectionName], references: [name], onDelete: Cascade, onUpdate: Cascade)
+  layerSectionName String
+  longitude        String?
+  latitude         String?
+  zoom             Float?
+  bearing          Float?
+}
+
+model LayerData {
+  id            String      @id @default(auto()) @map("_id") @db.ObjectId
+  name          String      @unique
   iconColor     String
   iconType      String
   label         String
@@ -73,30 +81,16 @@ model LayerSectionData {
   latitude      Float?
   zoom          Float?
   bearing       Float?
-  groupName     LayerGroup?   @relation(fields: [topLayerClass], references: [name])
+  groupName     LayerGroup? @relation(fields: [topLayerClass], references: [name], onDelete: Cascade, onUpdate: Cascade)
   topLayerClass String?
   infoId        String?
-  layers        Layer[]
-}
-
-//groups the layers under the Section
-model LayerGroup {
-  id               String             @id @default(auto()) @map("_id") @db.ObjectId
-  name             String             @unique
-  childLayers      LayerSectionData[]
-  layerSection     LayerSection       @relation(fields: [layerSectionName], references: [name])
-  layerSectionName String
-}
-
-model Layer {
-  id               String            @id @default(auto()) @map("_id") @db.ObjectId
-  layerName        String
-  type             String
-  LayerSectionData LayerSectionData? @relation(fields: [sectionName], references: [name])
-  sectionName      String?
-  sourceType       String
-  sourceUrl        String
-  sourceId         String
-  paint            String?
-  sourceLayer      String
+  type          String
+  sourceType    String
+  sourceUrl     String
+  sourceId      String
+  paint         String?
+  sourceLayer   String
+  hover         Boolean
+  time          Boolean
+  click         Boolean
 }

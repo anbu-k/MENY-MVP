@@ -8,16 +8,7 @@ export async function GET() {
         include: {
         layerGroups: {
             include: {
-                childLayers: {
-                    include: {
-                        layers: true
-                    }
-                }
-            }
-        },
-        layerSections: {
-            include: {
-                layers: true,
+                layers: true
             }
         }
     }
@@ -31,15 +22,38 @@ export async function GET() {
 export async function POST(request: Request) {
     const sectionLayer:LayerSection = await request.json();
     const prisma = new PrismaClient();
-    await prisma.layerSection.create({
+    const r = await prisma.layerSection.create({
         data: {
             name: sectionLayer.name
         }
     })
 
     return NextResponse.json({
-        message: "Success"
+        r
     })
+}
+
+export async function PUT(request: Request) {
+    const layerSection:LayerSection = await request.json();
+    const prisma = new PrismaClient();
+    try {
+        const r = await prisma.layerSection.update({
+            where: {
+                id: layerSection.id
+            },
+            data: {
+                name:layerSection.name
+            }
+        })
+        return NextResponse.json({
+            r
+        })
+    }
+    catch(e) {
+        console.log(e)
+        throw(e)
+    }
+    
 }
 
 
