@@ -17,8 +17,26 @@ import {
     faPlayCircle as faPlayCircleSolid,
     faGlobe,
     faPenToSquare,
-    faCheck as faCheckSolid
+    faCheck as faCheckSolid,
+    IconDefinition
 } from "@fortawesome/free-solid-svg-icons";
+
+export function parseFromString(str: string) {
+    switch(str) {
+        case 'dots':
+            return getFontawesomeIcon(FontAwesomeLayerIcons.COMMENT_DOTS);
+        case 'info-circle':
+            return getFontawesomeIcon(FontAwesomeLayerIcons.INFO_CIRCLE)
+        case 'line':
+            return getFontawesomeIcon(FontAwesomeLayerIcons.LINE)
+        case 'square':
+            return getFontawesomeIcon(FontAwesomeLayerIcons.SQUARE)
+        case 'plus-square':
+            return getFontawesomeIcon(FontAwesomeLayerIcons.PLUS_SQUARE)
+        case 'minus-square':
+            return getFontawesomeIcon(FontAwesomeLayerIcons.MINUS_SQUARE)
+    }
+}
 
 export function getFontawesomeIcon(iconVal: FontAwesomeLayerIcons, solid: boolean = false) {
     switch(FontAwesomeLayerIcons[iconVal]) {

@@ -2,6 +2,11 @@ import { useFormik } from 'formik';
 import { CSSProperties, useState } from 'react';
 import ColorPickerButton from './color-picker/color-picker-button.component';
 import { LayerGroup } from '@prisma/client';
+import IconPickerDropdown from './icon-picker/icon-picker-dropdown.component';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { getFontawesomeIcon } from '@/app/helpers/font-awesome.helper';
+import { FontAwesomeLayerIcons } from '@/app/models/font-awesome.model';
+import PreviewIcon from './preview-icon.component';
 
 type LayerType = 'symbol' | 'fill' | 'line' | 'circle' | 'heatmap' | 'fill-extrusion' | 'raster' | 'raster-particle' | 'hillshade' | 'model' | 'background' | 'sky' | 'slot' | 'clip';
 type SourceType = 'vector' | 'raster' | 'raster-dem' | 'raster-array' | 'geojson' | 'video' | 'image' | 'model' | 'batched-model';
@@ -262,6 +267,29 @@ export default function LayerForm(props: LayerFormProps) {
           });
         }}></ColorPickerButton>
         </div>
+
+        <label htmlFor="iconType" style={labelStyling}>Icon Color:</label>
+        <select
+          id="iconType"
+          name="iconType"
+          onChange={formik.handleChange}
+          value={formik.values.iconType}
+          style={boxStyling}
+        >
+          <option value="">Select Icon Type</option>
+          <option value="dots">Dots</option>
+          <option value="info-circle">Info Circle</option>
+          <option value="line">Line</option>
+          <option value="square">Square</option>
+          <option value="plus-square">Plus Square</option>
+          <option value="minus-square">Minus Square</option>
+        </select>
+
+          {
+            formik.values.iconColor && formik.values.iconType && (
+              <><p>Result: </p><PreviewIcon iconType={formik.values.iconType} color={formik.values.iconColor }></PreviewIcon></>
+            )
+          }
       </div>
 
       <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
