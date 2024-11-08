@@ -24,7 +24,7 @@ import {Map as PrismaMap, LayerSection as PrismaLayerSection, LayerData as Prism
 import EditForm from './components/forms/EditForm';
 import './popup.css';
 import { PopupType } from './models/popups/pop-up-type.model';
-import { getFontawesomeIcon } from './helpers/font-awesome.helper';
+import { getFontawesomeIcon, parseFromString } from './helpers/font-awesome.helper';
 import NewLayerSectionForm from './components/forms/NewLayerSectionForm';
 import EditSectionData from './components/forms/EditSectionData';
 
@@ -384,8 +384,11 @@ export default function Home() {
                       id: z.id,
                       layerId: z.id,
                       label: z.label,
+                      center: [z.longitude ?? 0, z.latitude ?? 0],
+                      zoom: z.zoom ?? 0,
+                      bearing: z.bearing ?? 0,
                       iconColor: z.iconColor ?? IconColors.YELLOW,
-                      iconType: FontAwesomeLayerIcons.PLUS_SQUARE,
+                      iconType: z.iconType ? parseFromString(z.iconType) : FontAwesomeLayerIcons.LINE,
                       isSolid: false
                     };
                     return newDBMap;
@@ -823,9 +826,20 @@ export default function Home() {
                 openWindow={beforeModalOpen}
                 editFormVisibleCallback={(isOpen: boolean) => {
                   setEditFormOpen(isOpen);
-                }}
+                } }
                 editFormIdCallback={(id: string) => {
                   setEditFormId(id);
+                } } mapZoomCallback={(zoomProps: MapZoomProps) => {
+                  currBeforeMap.current?.easeTo({
+                    center: zoomProps.center,
+                    zoom: zoomProps.zoom,
+                    speed: zoomProps.speed,
+                    curve: zoomProps.curve,
+                    duration: zoomProps.duration,
+                    easing(t) {
+                      return t;
+                    }
+                  })
                 }}/>
               )
             })
