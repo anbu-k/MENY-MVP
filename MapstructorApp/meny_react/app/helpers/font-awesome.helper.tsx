@@ -24,17 +24,19 @@ import {
 export function parseFromString(str: string) {
     switch(str) {
         case 'dots':
-            return getFontawesomeIcon(FontAwesomeLayerIcons.COMMENT_DOTS);
+            return FontAwesomeLayerIcons.COMMENT_DOTS;
         case 'info-circle':
-            return getFontawesomeIcon(FontAwesomeLayerIcons.INFO_CIRCLE)
+            return FontAwesomeLayerIcons.INFO_CIRCLE;
         case 'line':
-            return getFontawesomeIcon(FontAwesomeLayerIcons.LINE)
+            return FontAwesomeLayerIcons.LINE;
         case 'square':
-            return getFontawesomeIcon(FontAwesomeLayerIcons.SQUARE)
+            return FontAwesomeLayerIcons.SQUARE;
         case 'plus-square':
-            return getFontawesomeIcon(FontAwesomeLayerIcons.PLUS_SQUARE)
+            return FontAwesomeLayerIcons.PLUS_SQUARE;
         case 'minus-square':
-            return getFontawesomeIcon(FontAwesomeLayerIcons.MINUS_SQUARE)
+            return FontAwesomeLayerIcons.MINUS_SQUARE;
+        default:
+            return FontAwesomeLayerIcons.LINE;
     }
 }
 

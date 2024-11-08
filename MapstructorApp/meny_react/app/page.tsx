@@ -23,7 +23,7 @@ import MapFormButton from './components/forms/buttons/map-form-button.component'
 import {Map as PrismaMap, LayerSection as PrismaLayerSection, LayerData as PrismaLayer, LayerGroup as PrismaLayerGroup, MapFilterGroup as PrismaMapFilterGroup, MapFilterItem as PrismaMapFilterItem, MapFilterItem, LayerSection} from '@prisma/client';
 import EditForm from './components/forms/EditForm';
 import './popup.css';
-import { getFontawesomeIcon } from './helpers/font-awesome.helper';
+import { getFontawesomeIcon, parseFromString } from './helpers/font-awesome.helper';
 import NewLayerSectionForm from './components/forms/NewLayerSectionForm';
 import EditSectionData from './components/forms/EditSectionData';
 
@@ -332,7 +332,7 @@ export default function Home() {
                       zoom: z.zoom ?? 0,
                       bearing: z.bearing ?? 0,
                       iconColor: z.iconColor ?? IconColors.YELLOW,
-                      iconType: FontAwesomeLayerIcons.PLUS_SQUARE,
+                      iconType: z.iconType ? parseFromString(z.iconType) : FontAwesomeLayerIcons.LINE,
                       isSolid: false
                     };
                     return newDBMap;

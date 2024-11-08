@@ -126,11 +126,6 @@ export default function LayerForm(props: LayerFormProps) {
         <label htmlFor="name" style={labelStyling}>Name:</label>
         <input type="text" id="name" name="name" onChange={formik.handleChange} value={formik.values.name} style={boxStyling} />
       </div>
-
-      <div style={{ marginBottom: '15px' }}>
-        <label htmlFor="iconType" style={labelStyling}>Icon Type:</label>
-        <input type="text" id="iconType" name="iconType" onChange={formik.handleChange} value={formik.values.iconType} style={boxStyling} />
-      </div>
       
       <div style={{ marginBottom: '15px' }}>
         <label htmlFor="label" style={labelStyling}>Label:</label>
@@ -268,7 +263,7 @@ export default function LayerForm(props: LayerFormProps) {
         }}></ColorPickerButton>
         </div>
 
-        <label htmlFor="iconType" style={labelStyling}>Icon Color:</label>
+        <label htmlFor="iconType" style={labelStyling}>Icon Type:</label>
         <select
           id="iconType"
           name="iconType"

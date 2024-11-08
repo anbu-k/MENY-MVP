@@ -9,7 +9,7 @@ type PreviewIconProps = {
 }
 
 const PreviewIcon = (props: PreviewIconProps) => {
-    return <FontAwesomeIcon color={props.color} icon={parseFromString(props.iconType) ?? getFontawesomeIcon(FontAwesomeLayerIcons.LINE)}></FontAwesomeIcon> 
+    return <FontAwesomeIcon color={props.color} icon={getFontawesomeIcon(parseFromString(props.iconType) ?? FontAwesomeLayerIcons.LINE)}></FontAwesomeIcon> 
 }
 
 export default PreviewIcon;
