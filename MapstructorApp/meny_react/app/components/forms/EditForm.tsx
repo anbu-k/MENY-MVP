@@ -4,6 +4,7 @@ import {LayerData as PrismaLayer} from '@prisma/client';
 import { json } from "stream/consumers";
 import Loader from "../loading/loading.component";
 import ColorPickerButton from "./color-picker/color-picker-button.component";
+import PreviewIcon from "./preview-icon.component";
 
 type LayerType = 'symbol' | 'fill' | 'line' | 'circle' | 'heatmap' | 'fill-extrusion' | 'raster' | 'raster-particle' | 'hillshade' | 'model' | 'background' | 'sky' | 'slot' | 'clip';
 type SourceType = 'vector' | 'raster' | 'raster-dem' | 'raster-array' | 'geojson' | 'video' | 'image' | 'model' | 'batched-model';
@@ -164,11 +165,6 @@ const EditForm = (props: {id: string, afterSubmit: (formVisible: boolean) => voi
                 <label htmlFor="name" style={labelStyling}>Name:</label>
                 <input type="text" id="name" name="name" onChange={formik.handleChange} value={formik.values.name} style={boxStyling} />
               </div>
-        
-              <div style={{ marginBottom: '15px' }}>
-                <label htmlFor="iconType" style={labelStyling}>Icon Type:</label>
-                <input type="text" id="iconType" name="iconType" onChange={formik.handleChange} value={formik.values.iconType} style={boxStyling} />
-              </div>
               
               <div style={{ marginBottom: '15px' }}>
                 <label htmlFor="label" style={labelStyling}>Label:</label>
@@ -292,6 +288,43 @@ const EditForm = (props: {id: string, afterSubmit: (formVisible: boolean) => voi
                     style={boxStyling}
                   />
                 </div>
+
+                <div style={{ marginBottom: '15px' }}>
+                  <label htmlFor="iconColor" style={labelStyling}>Icon Color:</label>
+                  <div
+                    id="sourceLayer"
+                  >
+                  <ColorPickerButton callback={(newColor: string) => {
+                    formik.setValues({
+                      ...formik.values,
+                      iconColor: newColor
+                    });
+                  }}></ColorPickerButton>
+                  </div>
+
+                  <label htmlFor="iconType" style={labelStyling}>Icon Type:</label>
+                  <select
+                    id="iconType"
+                    name="iconType"
+                    onChange={formik.handleChange}
+                    value={formik.values.iconType}
+                    style={boxStyling}
+                  >
+                    <option value="">Select Icon Type</option>
+                    <option value="dots">Dots</option>
+                    <option value="info-circle">Info Circle</option>
+                    <option value="line">Line</option>
+                    <option value="square">Square</option>
+                    <option value="plus-square">Plus Square</option>
+                    <option value="minus-square">Minus Square</option>
+                  </select>
+
+                    {
+                      formik.values.iconColor && formik.values.iconType && (
+                        <><p>Result: </p><PreviewIcon iconType={formik.values.iconType} color={formik.values.iconColor }></PreviewIcon></>
+                      )
+                    }
+                </div>
         
                 <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
                   <label htmlFor="hover" style={labelStyling}>Hover:</label>
@@ -357,6 +390,7 @@ const EditForm = (props: {id: string, afterSubmit: (formVisible: boolean) => voi
                                   value={item.type}
                                   style={boxStyling}
                                 >
+                                  <option value="">Select Type</option>
                                   <option value="NAME">Name</option>
                                   <option value="LOT">Lot</option>
                                   <option value="DATE-START">Start Date</option>
@@ -468,21 +502,6 @@ const EditForm = (props: {id: string, afterSubmit: (formVisible: boolean) => voi
                     style={boxStyling}
                   />
                 </div> */}
-        
-                <div style={{ marginBottom: '15px' }}>
-                  <label htmlFor="iconColor" style={labelStyling}>Icon Color:</label>
-                  <div
-                    id="sourceLayer"
-                  >
-                  <ColorPickerButton callback={(newColor: string) => {
-                    formik.setValues({
-                      ...formik.values,
-                      iconColor: newColor
-                    });
-                    console.log(formik.values);
-                  }}></ColorPickerButton>
-                  </div>
-                </div>
         
                 <button
                   style={buttonStyling}
