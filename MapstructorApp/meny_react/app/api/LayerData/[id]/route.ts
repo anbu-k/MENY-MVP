@@ -1,7 +1,7 @@
 import { LayerData, PrismaClient } from "@prisma/client";
 import { NextResponse } from "next/server";
 
-export async function GET(request: Request, context: any) {
+export async function GET(context: any) {
     const {params} = context;
     const prisma = new PrismaClient();
     const layerData:LayerData = await prisma.layerData.findFirst({
@@ -33,7 +33,6 @@ export async function PUT(request: Request, context: any) {
             latitude: Layerr.latitude,
             zoom: Layerr.zoom,
             bearing: Layerr.bearing,
-            groupName: Layerr.groupName,
             topLayerClass: Layerr.topLayerClass,
             infoId: Layerr.infoId,
             sourceType: Layerr.sourceType,

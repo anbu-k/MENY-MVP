@@ -23,7 +23,7 @@ export async function POST(request: Request) {
         const r = await prisma.layerGroup.create({
             data: {
                 name:LayerGroup.name,
-                layerSectionName:LayerGroup.layerSectionName,
+                layerSectionId:LayerGroup.layerSectionId,
                 longitude:LayerGroup.longitude,
                 latitude:LayerGroup.latitude,
                 zoom:LayerGroup.zoom,
@@ -52,7 +52,7 @@ export async function PUT(request: Request) {
             },
             data: {
                 name:LayerGroup.name,
-                layerSectionName:LayerGroup.layerSectionName,
+                layerSectionId:LayerGroup.layerSectionId,
                 longitude:LayerGroup.longitude,
                 latitude:LayerGroup.latitude,
                 zoom:LayerGroup.zoom,

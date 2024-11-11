@@ -60,15 +60,15 @@ model LayerSection {
 }
 
 model LayerGroup {
-  id               String       @id @default(auto()) @map("_id") @db.ObjectId
-  name             String       @unique
-  layers           LayerData[]
-  layerSection     LayerSection @relation(fields: [layerSectionName], references: [name], onDelete: Cascade, onUpdate: Cascade)
-  layerSectionName String
-  longitude        String?
-  latitude         String?
-  zoom             Float?
-  bearing          Float?
+  id             String       @id @default(auto()) @map("_id") @db.ObjectId
+  name           String       @unique
+  layers         LayerData[]
+  layerSection   LayerSection @relation(fields: [layerSectionId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  layerSectionId String       @db.ObjectId
+  longitude      String?
+  latitude       String?
+  zoom           Float?
+  bearing        Float?
 }
 
 type hoverItem {
@@ -86,8 +86,8 @@ model LayerData {
   latitude      Float?
   zoom          Float?
   bearing       Float?
-  groupName     LayerGroup? @relation(fields: [topLayerClass], references: [name], onDelete: Cascade, onUpdate: Cascade)
-  topLayerClass String?
+  groupName     LayerGroup? @relation(fields: [topLayerClass], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  topLayerClass String?     @db.ObjectId
   infoId        String?
   type          String
   sourceType    String
