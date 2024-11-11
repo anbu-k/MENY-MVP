@@ -775,7 +775,7 @@ export default function Home() {
           }
         </>
 
-        <MapFilterWrapperComponent beforeMapCallback={(map) => {
+        <MapFilterWrapperComponent beforeOpen={beforeModalOpen} afterClose={afterModalCloseMaps} beforeMapCallback={(map) => {
           // Set beforeMap to selected map by changing the mapId
           setMapStyle(currBeforeMap, map.styleId);
         }} afterMapCallback={(map) => {
