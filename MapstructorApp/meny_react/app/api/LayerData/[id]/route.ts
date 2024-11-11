@@ -15,25 +15,42 @@ export async function GET(context: any) {
     })
 }
 
-export async function DELETE(context: any) {
- const {params} = context;
- const prisma = new PrismaClient();
- try {
-    await prisma.layerData.delete({
-    where: {
-        id: params.id
-    }
- })
+export async function PUT(request: Request, context: any) {
+    const { params } = context;
+    const Layerr: LayerData = await request.json()
+    const prisma = new PrismaClient();
+    const layer = await prisma.layerData.update({
+        where: {
+            id: params.id
+        },
+        data: {
+            name: Layerr.name,
+            type: Layerr.type,
+            iconColor: Layerr.iconColor,
+            iconType: Layerr.iconType,
+            label: Layerr.label,
+            longitude: Layerr.longitude,
+            latitude: Layerr.latitude,
+            zoom: Layerr.zoom,
+            bearing: Layerr.bearing,
+            topLayerClass: Layerr.topLayerClass,
+            infoId: Layerr.infoId,
+            sourceType: Layerr.sourceType,
+            sourceUrl: Layerr.sourceUrl,
+            sourceId: Layerr.sourceId,
+            paint: Layerr.paint,
+            sourceLayer: Layerr.sourceLayer,
+            hover: Layerr.hover,
+            time: Layerr.time,
+            click: Layerr.click,
+            hoverStyle:Layerr.hoverStyle,
+            clickStyle:Layerr.clickStyle,
+            clickHeader:Layerr.clickHeader,
+            hoverContent:Layerr.hoverContent
+        }
+    })
 
- return NextResponse.json({
-    Message: "Success"
- })
-
-}
-catch(e) {
-    console.log(e)
-    throw(e)
-}
- 
-
+    return NextResponse.json({
+        layer
+    })
 }

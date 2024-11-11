@@ -71,6 +71,11 @@ model LayerGroup {
   bearing        Float?
 }
 
+type hoverItem {
+  label        String
+  type         String
+}
+
 model LayerData {
   id            String      @id @default(auto()) @map("_id") @db.ObjectId
   name          String      @unique
@@ -93,4 +98,9 @@ model LayerData {
   hover         Boolean
   time          Boolean
   click         Boolean
+  hoverStyle    String?
+  clickStyle    String?
+  clickHeader   String?
+  hoverContent  hoverItem[]
 }
+

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { faMinusSquare, faPlusSquare, faPlayCircle } from "@fortawesome/free-regular-svg-icons";
 import SectionLayerGroupComponent from "./section-layer-group.component";
 import NewSectionLayerGroup from "../new-section-layer-group.component";
+import { MapZoomProps } from "@/app/models/maps/map.model";
 
 
 type SectionLayerProps = {
@@ -16,6 +17,7 @@ type SectionLayerProps = {
     afterClose: () => void,
     editFormVisibleCallback: (isOpen: boolean) => void,
     editFormIdCallback: (id: string) => void,
+    mapZoomCallback:(zoomProps: MapZoomProps) => void
 }
 
 const SectionLayerComponent = (props: SectionLayerProps) => {
@@ -44,7 +46,8 @@ const SectionLayerComponent = (props: SectionLayerProps) => {
                         afterClose={props.afterClose}
                         editFormVisibleCallback={props.editFormVisibleCallback}
                         editFormIdCallback={props.editFormIdCallback}
-                        sectionName={props.layer.id}/>
+                        sectionName={props.layer.id}
+                        mapZoomCallback={props.mapZoomCallback}/>
                 ))
             }
             {

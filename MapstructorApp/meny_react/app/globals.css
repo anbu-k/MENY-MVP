@@ -330,69 +330,6 @@ button#hide-zoom-label {
   display: none;
 }
 
-#demoLayerInfo,
-.demoLayerInfoPopUp {
-  background-color: rgb(50, 205, 50, 0.3); /* #32CD32 LimeGreen */
-  border: solid #32cd32 2px;
-}
-#infoLayerCastello,
-.infoLayerCastelloPopUp {
-  background-color: rgb(255, 192, 203, 0.3); /* #FFC0CB Pink */
-  border: solid pink 2px;
-}
-#infoLayerSettlements,
-.infoLayerSettlementsPopUp {
-  background-color: rgb(11, 14, 229, 0.2); /* #0b0ee5 */
-  border: solid #0b0ee5 2px;
-}
-#infoLayerGrantLots,
-.infoLayerGrantLotsPopUp {
-  background-color: rgb(102, 205, 170, 0.3); /* #66CDAA MediumAquamarine */
-  border: solid #66cdaa 2px;
-}
-#infoLayerDutchGrants,
-.infoLayerDutchGrantsPopUp {
-  background-color: rgb(255, 255, 0, 0.5); /* #FFFF00 Yellow */
-  border: solid #ffff00 2px;
-}
-
-#infoLayerInfoPoint,
-.infoLayerInfoPointPopUp {
-  background-color: rgb(102, 205, 170, 0.3); /* #66CDAA MediumAquamarine */
-  border: solid #66cdaa 2px;
-}
-
-/* REPLACE THIS */
-#infoLayerGravesend,
-.infoLayerGravesendPopUp {
-  background-color: rgb(255, 255, 0, 0.5); /* #FFFF00 Yellow */
-  border: solid #ffff00 2px;
-}
-/* REPLACE THIS */
-
-#infoLayerNativeGroups,
-.infoLayerNativeGroupsPopUp {
-  background-color: rgb(255, 192, 203, 0.3); /* #FFC0CB Pink */
-  border: solid pink 2px;
-}
-
-#infoLayerKarl,
-.infoLayerKarlPopUp {
-  background-color: rgb(255, 255, 0, 0.5); /* #FFFF00 Yellow */
-  border: solid #ffff00 2px;
-}
-
-#infoLayerFarms,
-.infoLayerFarmsPopUp {
-  background-color: rgb(255, 255, 0, 0.5); /* #FFFF00 Yellow */
-  border: solid #ffff00 2px;
-}
-#infoLayerCurrLots,
-.infoLayerCurrLotsPopUp {
-  background-color: rgb(123, 104, 238, 0.3); /* #7B68EE MediumSlateBlue */
-  border: solid #7b68ee 2px;
-}
-
 i.compress-expand-icon {
   cursor: pointer;
   color: #555;
