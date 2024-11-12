@@ -6,7 +6,7 @@ import { useFormik } from "formik";
 import { CSSProperties } from "react";
 
 type NewLayerGroupFormProps = {
-    sectionLayerName: string;
+    sectionLayerId: string;
     // afterSubmit: () => void
 }
 
@@ -56,7 +56,7 @@ const NewLayerGroupForm = (props: NewLayerGroupFormProps) => {
             if(values.name?.length > 0) {
                 const resultingLayerGroup: LayerGroup = {
                     name: values.name,
-                    layerSectionName: props.sectionLayerName,
+                    layerSectionId: props.sectionLayerId,
                     longitude: values.longitude,
                     latitude: values.latitude,
                 }

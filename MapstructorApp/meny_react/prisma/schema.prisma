@@ -26,15 +26,17 @@ model MapFilterGroup {
 }
 
 model Map {
-  id        String @id @default(auto()) @map("_id") @db.ObjectId
-  mapId     String @unique
-  longitude Float
-  latitude  Float
-  mapName   String
-  zoom      Float
-  bearing   Float
-  styleId   String
-  groupId   String
+  id          String     @id @default(auto()) @map("_id") @db.ObjectId
+  mapId       String     @unique
+  longitude   Float
+  latitude    Float
+  mapName     String
+  zoom        Float
+  bearing     Float
+  styleId     String
+  groupId     String
+  zoomLabelId String?    @db.ObjectId
+  zoomLabel   ZoomLabel? @relation(fields: [zoomLabelId], references: [id])
 
   MapFilterGroup MapFilterGroup? @relation(fields: [groupId], references: [groupId], onDelete: Cascade)
 }
@@ -53,6 +55,22 @@ model MapFilterItem {
   mapfiltergroup MapFilterGroup? @relation(fields: [groupId], references: [groupId], onDelete: Cascade)
 }
 
+model ZoomLabel {
+  id                          String @id @default(auto()) @map("_id") @db.ObjectId
+  title                       String
+  minZoom                     Float?
+  zoom                        Float?
+  bearing                     Float?
+  centerLatitude              Float?
+  centerLongitude             Float?
+  topLeftBoundLatitude        Float?
+  topLeftBoundLongitude       Float?
+  bottomRightBoundLatitude    Float?
+  bottomRightBoundLongitude   Float?
+  zoomToBounds                Boolean
+  Map                         Map[]
+}
+
 model LayerSection {
   id          String       @id @default(auto()) @map("_id") @db.ObjectId
   name        String       @unique
@@ -60,15 +78,20 @@ model LayerSection {
 }
 
 model LayerGroup {
-  id               String       @id @default(auto()) @map("_id") @db.ObjectId
-  name             String       @unique
-  layers           LayerData[]
-  layerSection     LayerSection @relation(fields: [layerSectionName], references: [name], onDelete: Cascade, onUpdate: Cascade)
-  layerSectionName String
-  longitude        String?
-  latitude         String?
-  zoom             Float?
-  bearing          Float?
+  id             String       @id @default(auto()) @map("_id") @db.ObjectId
+  name           String       @unique
+  layers         LayerData[]
+  layerSection   LayerSection @relation(fields: [layerSectionId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  layerSectionId String       @db.ObjectId
+  longitude      String?
+  latitude       String?
+  zoom           Float?
+  bearing        Float?
+}
+
+type hoverItem {
+  label String
+  type  String
 }
 
 model LayerData {
@@ -81,8 +104,8 @@ model LayerData {
   latitude      Float?
   zoom          Float?
   bearing       Float?
-  groupName     LayerGroup? @relation(fields: [topLayerClass], references: [name], onDelete: Cascade, onUpdate: Cascade)
-  topLayerClass String?
+  groupName     LayerGroup? @relation(fields: [topLayerClass], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  topLayerClass String?     @db.ObjectId
   infoId        String?
   type          String
   sourceType    String
@@ -93,4 +116,8 @@ model LayerData {
   hover         Boolean
   time          Boolean
   click         Boolean
+  hoverStyle    String?
+  clickStyle    String?
+  clickHeader   String?
+  hoverContent  hoverItem[]
 }

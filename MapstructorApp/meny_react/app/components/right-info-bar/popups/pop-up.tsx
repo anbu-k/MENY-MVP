@@ -1,5 +1,6 @@
-import { GenericPopUpProps } from "@/app/models/popups/generic-pop-up.model";
+import { GenericPopUpProps } from "@/app/models/popups/pop-up.model";
 import { useEffect, useState } from "react";
+import { render } from "react-dom";
 
 type PopUpProps = {
   popUpProps: GenericPopUpProps;
@@ -57,7 +58,7 @@ const SliderPopUp = (props: PopUpProps) => {
 
     // Define the regular expression pattern
     var pattern = /(<a\s+href=")([^"]+)(")/g;
-    var modifiedHtmlString = "";
+    var modifiedHtmlString = "<h3 id='popupHeader'>"+ props.popUpProps.layerName + "</h3><hr>";
     const addOnForLongIslandTribes = `
             <h3>Long Island Tribes</h3>
             <hr/>

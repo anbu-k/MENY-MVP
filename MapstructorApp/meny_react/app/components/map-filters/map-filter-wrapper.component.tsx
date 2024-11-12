@@ -11,6 +11,8 @@ import { MapItem, MapZoomProps } from "@/app/models/maps/map.model";
 export type MapFilterWrapperProps = {
     defaultMap: MapItem,
     mapGroups: MapFiltersGroup[],
+    beforeOpen: () => void,
+    afterClose: () => void,
     beforeMapCallback: (map: MapItem) => void,
     afterMapCallback: (map: MapItem) => void,
     mapZoomCallback: (zoomProps: MapZoomProps) => void
@@ -27,7 +29,7 @@ const MapFilterWrapperComponent = (props: MapFilterWrapperProps) => {
             <div id="maps-group">
                 {
                     props.mapGroups.map((m, idx) => (
-                        <MapFiltersGroupComponent mapZoomCallback={props.mapZoomCallback} key={`map-filters-group-${idx}`} beforeMapCallback={props.beforeMapCallback} afterMapCallback={props.afterMapCallback} group={m}></MapFiltersGroupComponent>
+                        <MapFiltersGroupComponent beforeOpen={props.beforeOpen} afterClose={props.afterClose} mapZoomCallback={props.mapZoomCallback} key={`map-filters-group-${idx}`} beforeMapCallback={props.beforeMapCallback} afterMapCallback={props.afterMapCallback} group={m}></MapFiltersGroupComponent>
                     ))
                 }
             </div>

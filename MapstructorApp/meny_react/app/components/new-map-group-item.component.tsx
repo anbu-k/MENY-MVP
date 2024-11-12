@@ -1,18 +1,18 @@
 import { useEffect, useState } from "react";
 import Modal from 'react-modal';
-import LayerForm from './forms/LayerForm';
+import LayerForm from '../components/forms/LayerForm';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { FontAwesomeLayerIcons } from "../models/font-awesome.model";
 import { getFontawesomeIcon } from "../helpers/font-awesome.helper";
-import NewLayerGroupForm from "./forms/LayerGroupForm";
-
-type LayerFormButtonProps = {
-    sectionLayerId: string,
+import POSTMapForm from "./forms/MapForm";
+type MapFormButtonProps = {
+    groupId: string,
+    groupName: string,
     beforeOpen: () => void,
     afterClose: () => void,
 }
 
-const NewSectionLayerGroup = (props: LayerFormButtonProps) => {
+const NewMapGroupItem = (props: MapFormButtonProps) => {
     const [isOpen, setIsOpen] = useState<boolean>(false);
     
     const openWindow = () => {
@@ -36,7 +36,7 @@ const NewSectionLayerGroup = (props: LayerFormButtonProps) => {
         <>
             <div style={{paddingLeft: '15px', paddingRight: '10px', textAlign: 'center'}}>
                 <a style={{width: '100%', backgroundColor: 'grey', color: 'white', margin: 'auto', padding: '2px 7px 2px 7px'}} onClick={openWindow}>
-                    <FontAwesomeIcon icon={getFontawesomeIcon(FontAwesomeLayerIcons.PLUS_SQUARE, true)}></FontAwesomeIcon> New Group
+                    <FontAwesomeIcon icon={getFontawesomeIcon(FontAwesomeLayerIcons.PLUS_SQUARE, true)}></FontAwesomeIcon> New Map
                 </a>
             </div>
             <Modal
@@ -48,12 +48,12 @@ const NewSectionLayerGroup = (props: LayerFormButtonProps) => {
                 }}
                 isOpen={isOpen}
                 onRequestClose={closeWindow}
-                contentLabel='New Group'
+                contentLabel='New Layer'
             >
-                <NewLayerGroupForm sectionLayerId={props.sectionLayerId}></NewLayerGroupForm>
+                <POSTMapForm></POSTMapForm>
             </Modal>
         </>
     )
 }
 
-export default NewSectionLayerGroup;
+export default NewMapGroupItem;

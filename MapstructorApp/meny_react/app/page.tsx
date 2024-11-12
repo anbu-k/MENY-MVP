@@ -2,7 +2,7 @@
 import moment from "moment";
 import { MutableRefObject, useEffect, useRef, useState } from "react";
 import SliderWithDatePanel from "./components/slider/slider-with-date-panel.component";
-import { GenericPopUpProps } from "./models/popups/generic-pop-up.model";
+import { GenericPopUpProps } from "./models/popups/pop-up.model";
 import SliderPopUp from "./components/right-info-bar/popups/pop-up";
 import {
   SectionLayer,
@@ -24,12 +24,15 @@ import { MapItem, MapZoomProps } from './models/maps/map.model';
 import LayerFormButton from './components/forms/buttons/layer-form-button.component';
 import Modal from 'react-modal';
 import MapFormButton from './components/forms/buttons/map-form-button.component';
-import {Map as PrismaMap, LayerSection as PrismaLayerSection, LayerData as PrismaLayer, LayerGroup as PrismaLayerGroup, MapFilterGroup as PrismaMapFilterGroup, MapFilterItem as PrismaMapFilterItem, MapFilterItem, LayerSection} from '@prisma/client';
+import {Map as PrismaMap, ZoomLabel as PrismaZoomLabel, LayerSection as PrismaLayerSection, LayerData as PrismaLayer, LayerGroup as PrismaLayerGroup, MapFilterGroup as PrismaMapFilterGroup, MapFilterItem as PrismaMapFilterItem, MapFilterItem, LayerSection, hoverItem} from '@prisma/client';
 import EditForm from './components/forms/EditForm';
 import './popup.css';
+import { PopupType } from './models/popups/pop-up-type.model';
 import { getFontawesomeIcon, parseFromString } from './helpers/font-awesome.helper';
 import NewLayerSectionForm from './components/forms/NewLayerSectionForm';
 import EditSectionData from './components/forms/EditSectionData';
+import { ZoomLabel } from './models/zoom-layer.model';
+import { addInteractivityToLabel, createLabel } from './helpers/zoom-layer.helper';
 
 
 const beforeMapItem: MapItem = {
@@ -80,6 +83,7 @@ export default function Home() {
   const [editFormOpen, setEditFormOpen] = useState(false);
   const [editFormId, setEditFormId] = useState("");
   const [groupFormOpen, setGroupFormOpen] = useState<boolean>(false);
+  const [currZoomLayers, setCurrZoomLayers] = useState<ZoomLabel[]>([]);
 
   const setMapStyle = (
     map: MutableRefObject<mapboxgl.Map | null>,
@@ -91,9 +95,25 @@ export default function Home() {
       // Replace this later
       setTimeout(() => {
         addAllMapLayers();
-      }, 1000);
+        addZoomLayers(currZoomLayers);
+      }, 1000)
     }
-  };
+  }
+
+  const addZoomLayers = (layerData: ZoomLabel[]) => {
+    if(currAfterMap != null && currBeforeMap != null) {
+      layerData.forEach((label) => {
+        addInteractivityToLabel(
+          currAfterMap,
+          label
+        );
+        addInteractivityToLabel(
+          currBeforeMap,
+          label
+        );
+      });
+    }
+  }
 
   const addMapLayer = (
     map: MutableRefObject<mapboxgl.Map | null>,
@@ -206,38 +226,20 @@ export default function Home() {
   function createHandleEvent(map: MutableRefObject<mapboxgl.Map | null>, layerConfig: PrismaLayer) {
     let hoveredId: string | number | null = null;
     let hoverStyleString: string;
-    var popUpType: "castello-taxlot" | "lot-event" | "long-island-native-groups" | "dutch-grant";
+    var popUpType: PopupType;
     var clickVisible: boolean = popUpVisible;
     var previousNid: number | string | undefined;
     var previousName: string | undefined;
     let hoverPopup = new mapboxgl.Popup({ closeOnClick: false, closeButton: false});
     let clickHoverPopUp = new mapboxgl.Popup({ closeOnClick: false, closeButton: false});
-    /**
-     * This is gross and needs to be redone
-     * Popups type needs to be reactified
-     * Right now I pass the e event into the popup props
-     * and determine type by the type field
-     * Same think with hover popup styling Idk how we
-     * want to drive this.
-     */
-    if(layerConfig.layerName === "dutch_grants-5ehfqe")
-    {
-      popUpType = "dutch-grant";
-      hoverStyleString = "<div class='infoLayerDutchGrantsPopUp'><b>Name:</b> {name}<br><b>Dutch Grant Lot:</b> {Lot}</div>";
-    }
-    else if (layerConfig.layerName === "lot_events-bf43eb")
-    {
-      popUpType = "lot-event"
-      hoverStyleString = "<div class='demoLayerInfoPopUp'><b><h2>Taxlot: <a href='https://encyclopedia.nahc-mapping.org/taxlot/{TAXLOT}' target='_blank'>{TAXLOT}</a></h2></b></div>";
-    }
-    else
-    {
-      popUpType = "castello-taxlot"
-      hoverStyleString = "<div class='infoLayerCastelloPopUp'><b>Taxlot (1660):</b> <br/> {LOT2}</div>";
-    }
+    //Determine clickPopup styling vs hoverPopup styling
+    //They're the same right now
+    popUpType = layerConfig.clickStyle as PopupType;
     return (e: any) => {
         if (e.type === 'click' && layerConfig.click) 
         {
+          console.log("e features");
+          console.log(e.features![0].properties);
           if(clickHoverPopUp.isOpen())
             {
               clickHoverPopUp.remove();
@@ -263,37 +265,8 @@ export default function Home() {
               previousName = e.features![0].properties!.name ?? undefined;
               previousNid = e.features![0].properties!.nid ?? undefined;
               setPopUp({
-                Aligned: e.features![0].properties!.Aligned ?? undefined,
-                DayEnd1: e.features![0].properties!.DayEnd1 ?? undefined,
-                notes: e.features![0].properties!.notes ?? undefined,
-                styling1: e.features![0].properties!.styling1 ?? undefined,
-                block: e.features![0].properties!.block ?? undefined,
-                id: e.features![0].properties!.id ?? undefined,
-                lot: e.features![0].properties!.lot ?? undefined,
-                new_link: e.features![0].properties!.new_link ?? undefined,
-                old_link_2: e.features![0].properties!.old_link_2 ?? undefined,
-                tax_lots_2: e.features![0].properties!.tax_lots_2 ?? undefined,
-                tax_lots_3: e.features![0].properties!.tax_lots_3 ?? undefined,
-                DayEnd: e.features![0].properties!.DayEnd ?? undefined,
-                DayStart: e.features![0].properties!.DayStart ?? undefined,
-                TAXLOT: e.features![0].properties!.TAXLOT ?? undefined,
-                color: e.features![0].properties!.color ?? undefined,
-                color_num: e.features![0].properties!.color_num ?? undefined,
-                end_date: e.features![0].properties!.end_date ?? undefined,
-                num: e.features![0].properties!.num ?? undefined,
-                start_date: e.features![0].properties!.start_date ?? undefined,
-                title: e.features![0].properties!.title ?? undefined,
-                FID_1: e.features![0].properties!.FID_1 ?? undefined,
-                lot2: e.features![0].properties!.lot2 ?? undefined,
-                tax_lots_1: e.features![0].properties!.tax_lots_1 ?? undefined,
+                layerName: layerConfig.clickHeader,
                 nid: e.features![0].properties!.nid ?? undefined,
-                Lot: e.features![0].properties!.Lot ?? undefined,
-                name: e.features![0].properties!.name ?? undefined,
-                day1: e.features![0].properties!.day1 ?? undefined,
-                day2: e.features![0].properties!.day2 ?? undefined,
-                year1: e.features![0].properties!.year1 ?? undefined,
-                year2: e.features![0].properties!.year2 ?? undefined,
-                descriptio: e.features![0].properties!.descriptio ?? undefined,
                 type: popUpType,
               });
               clickVisible = true;
@@ -302,6 +275,108 @@ export default function Home() {
         } 
         else if (e.type === 'mousemove' && layerConfig.hover) 
         {
+          hoverStyleString = "<div class='" + layerConfig.hoverStyle + "HoverPopup'>";
+          //Setup some sort of check on LayerConfig
+          //Sample data maybe? [{label: "", type: "LOT"}, {label: "Name", type: "NAME"}, {label: "", type: "DATE-START"}, {label: "", type: "DATE-END"}]
+          layerConfig.hoverContent.map((item: hoverItem) => {
+            if(item.label.length !== 0)
+            {
+              hoverStyleString += "<b>" + item.label + ":</b> ";
+            }
+            if(item.type === "NAME")
+            {
+              /**
+               * NAME INFORMATION IMPORTED FROM MENY
+               * e.features[0].properties.name
+               * e.features[0].properties.Name 
+               * e.features[0].properties.NAME
+               * e.features[0].properties.To
+               */ 
+              if(e.features[0].properties.name !== undefined)
+              {
+                hoverStyleString += e.features[0].properties.name + "<br>";
+              }
+              else if(e.features[0].properties.Name !== undefined)
+              {
+                hoverStyleString += e.features[0].properties.Name + "<br>";
+              }
+              else if(e.features[0].properties.NAME !== undefined)
+              {
+                hoverStyleString += e.features[0].properties.NAME + "<br>";
+              }
+              else if(e.features[0].properties.To !== undefined)
+              {
+                hoverStyleString += e.features[0].properties.To + "<br>";
+              }
+            }
+            else if(item.type === "LOT")
+            {
+              /**
+               * LOT INFORMATION IMPORTED FROM MENY
+               * e.features[0].properties.LOT2
+               * e.features[0].properties.TAXLOT
+               * e.features[0].properties.Lot
+               * e.features[0].properties.dutchlot
+               * e.features[0].properties.lot2
+               */
+              if(e.features[0].properties.LOT2 !== undefined)
+              {
+                hoverStyleString += e.features[0].properties.LOT2 + "<br>";
+              }
+              else if(e.features[0].properties.TAXLOT !== undefined)
+              {
+                hoverStyleString += e.features[0].properties.TAXLOT + "<br>";
+              }
+              else if(e.features[0].properties.Lot !== undefined)
+              {
+                hoverStyleString += e.features[0].properties.Lot + "<br>";
+              }
+              else if(e.features[0].properties.dutchlot !== undefined)
+              {
+                hoverStyleString += e.features[0].properties.dutchlot + "<br>";
+              }
+              else if(e.features[0].properties.lot2 !== undefined)
+              {
+                hoverStyleString += e.features[0].properties.lot2 + "<br>";
+              }
+            }
+            else if(item.type === "DATE-START")
+            {
+              /**
+               * DATE START INFORMATION IMPORTED FROM MENY
+               * e.features[0].properties.day1
+               * e.features[0].properties.year1
+               */
+              if(e.features[0].properties.day1 !== undefined && e.features[0].properties.year1 !== undefined)
+              {
+                hoverStyleString += e.features[0].properties.day1 + ", " + e.features[0].properties.year1 + "<br>";
+              }
+            }
+            else if(item.type === "DATE-END")
+            {
+              /**
+               * DATE END INFORMATION IMPORTED FROM MENY
+               * e.features[0].properties.day2
+               * e.features[0].properties.year2
+               */
+              if(e.features[0].properties.day2 !== undefined && e.features[0].properties.year2 !== undefined)
+              {
+                hoverStyleString += e.features[0].properties.day2 + ", " + e.features[0].properties.year2 + "<br>";
+              }
+            }
+            else if(item.type === "ADDRESS")
+            {
+              /**
+               * ADDRESS INFORMATION IMPORTED FROM MENY
+               * e.features[0].properties.Address
+               */
+              if(e.features[0].properties.Address !== undefined)
+              {
+                hoverStyleString += e.features[0].properties.Address + "<br>";
+              }
+            }
+          });
+          hoverStyleString += "</div>";
           if (e.features?.length) {
             if (hoveredId !== null) {
               map.current!.setFeatureState(
@@ -365,14 +440,108 @@ const removeMapLayer = (map: MutableRefObject<mapboxgl.Map | null>, id: string) 
   }
 }
 
-const addAllMapLayers = () => {
-  if(currLayers !== null) {
-    currLayers.forEach((x: PrismaLayer) => {
-      addMapLayer(currBeforeMap, x)
-      addMapLayer(currAfterMap, x)
+  const addAllMapLayers = () => {
+    if(currLayers !== null) {
+      currLayers.forEach((x: PrismaLayer) => {
+        addMapLayer(currBeforeMap, x)
+        addMapLayer(currAfterMap, x)
+      })
+    }
+  }
+
+  const getZoomLayers = () => {
+    fetch('http://localhost:3000/api/ZoomLabel', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    }).then((layers) => {
+      layers.json()?.then(parsed => {
+        console.log('GOT LAYERS: ', parsed)
+        if(!!parsed && !!parsed.zoomLabel) {
+          let labels: PrismaZoomLabel[] = parsed.zoomLabel;
+
+          let parsedZoomLabels: ZoomLabel[] = labels?.map(lbl => {
+            let currLbl: ZoomLabel = {
+              title: lbl.title,
+              center: lbl.centerLongitude && lbl.centerLatitude ? [lbl.centerLongitude, lbl.centerLatitude] : undefined,
+              bounds: lbl.topLeftBoundLongitude && lbl.topLeftBoundLatitude && lbl.bottomRightBoundLongitude && lbl.bottomRightBoundLatitude ?
+                [[lbl.topLeftBoundLongitude, lbl.topLeftBoundLatitude], [lbl.bottomRightBoundLongitude, lbl.bottomRightBoundLatitude]] : undefined,
+              zoom: lbl.zoom ?? undefined,
+              bearing: lbl.bearing ?? undefined,
+              zoomToBounds: false
+            }
+            return currLbl;
+          }) ?? [];
+          let testLayers: ZoomLabel[] = [
+            ...parsedZoomLabels,
+            {
+              title: "Long Island",
+              center: [-72.94912, 40.85225],
+              bounds: [
+                [-74.0419692, 40.5419011],
+                [-71.8562705, 41.161155],
+              ],
+              minZoom: undefined,
+              zoom: 8,
+              bearing: 0,
+              zoomToBounds: true
+            },
+            {
+              title: "Brooklyn",
+              center: [-73.93772792292754, 40.65432897355928],
+              bounds: [
+                [-74.04189660705046, 40.56952999398417],
+                [-73.8335592388046, 40.73912795313439],
+              ],
+              minZoom: undefined,
+              zoom: 7,
+              bearing: 0,
+              zoomToBounds: true
+            },
+            {
+              title: "New Amsterdam",
+              center: [-74.01255, 40.704882],
+              minZoom: undefined,
+              zoom: 7,
+              bearing: 0,
+              zoomToBounds: true
+            },
+            {
+              title: "Manhattan",
+              center: [-73.97719031118277, 40.78097749612493],
+              bounds: [
+                [-74.04772962697074, 40.682916945445164],
+                [-73.90665099539478, 40.879038046804695],
+              ],
+              minZoom: undefined,
+              zoom: 8,
+              bearing: 0,
+              zoomToBounds: true
+            },
+            {
+              title: "New Netherland",
+              center: [-73.60361111111109, 41.09659166666665],
+              minZoom: undefined,
+              zoom: 7,
+              bearing: 0,
+              zoomToBounds: true
+            },
+            {
+              title: "New England",
+              center: [-71.67755127, 42.4971076267],
+              minZoom: 5.2,
+              zoom: 7,
+              bearing: 0,
+              zoomToBounds: true
+            },
+          ];
+          addZoomLayers(testLayers)
+          setCurrZoomLayers(testLayers);
+        }
+      })
     })
   }
-}
 
 const getLayerSections = () => {
   fetch('http://localhost:3000/api/LayerSection', {
@@ -417,7 +586,6 @@ const getLayerSections = () => {
           }
           return layer;
         })
-        console.log(returnSectionLayers);
         setSectionLayers(returnSectionLayers)
       }
     });
@@ -481,18 +649,18 @@ const getMaps = () => {
   });
 }
 
-const beforeLayerFormModalOpen = () => {
-  console.log('shouldnt be visible')
-  setLayerPanelVisible(false);
-  setLayerPopupBefore(popUpVisible);        //Store popupVisibile before value to call after modal closes
-  setPopUpVisible(false);                   //Then set popupVisible to false
-}
-const afterLayerFormModalCloseLayers = () => {
-  setLayerPanelVisible(true);
-  setPopUpVisible(layerPopupBefore);        //After modal close set popupVisible to whatever it was before modal call
-  setCurrLayers([]);
-  getLayerSections();
-}
+  const beforeLayerFormModalOpen = () => {
+    setLayerPanelVisible(false);
+    setLayerPopupBefore(popUpVisible);        //Store popupVisibile before value to call after modal closes
+    setPopUpVisible(false);                   //Then set popupVisible to false
+  }
+  const afterLayerFormModalCloseLayers = () => {
+    setLayerPanelVisible(true);
+    setPopUpVisible(layerPopupBefore);        //After modal close set popupVisible to whatever it was before modal call
+    setCurrLayers([]);
+    getLayerSections();
+    getZoomLayers();
+  }
 
 const beforeModalOpen = () => {
   setLayerPanelVisible(false);
@@ -507,11 +675,12 @@ const afterModalClose = () => {
   setModalOpen(false);
 }
 
-const afterModalCloseLayers = () => {
-  afterModalClose();
-  setCurrLayers([]);
-  getLayerSections();
-}
+  const afterModalCloseLayers = () => {
+    afterModalClose();
+    setCurrLayers([]);
+    getLayerSections();
+    getZoomLayers();
+  }
 
 const afterModalCloseMaps = () => {
   afterModalClose();
@@ -519,14 +688,14 @@ const afterModalCloseMaps = () => {
 }
 
 
-/**
- * When the page is loaded, get all maps / layers from the API, parse these to work with our frontend models.
- */
-useEffect(() => {
-  getMaps();
-  console.log('getting layer groups')
-  getLayerSections();
-}, [])
+  /**
+   * When the page is loaded, get all maps / layers from the API, parse these to work with our frontend models.
+   */
+  useEffect(() => {
+    getMaps();
+    getLayerSections();
+    getZoomLayers()
+  }, [])
 
 /**
  * Dynamic import for mapbox-gl-compare package to allow it to be imported. Once they release a TS package, that can be added to NPM and this can be removed.
@@ -643,11 +812,12 @@ useEffect(() => {
   }
 }, [currBeforeMap, currAfterMap])
 
-useEffect(() => {
-  if(currBeforeMap !== null && currAfterMap !== null) {
-    addAllMapLayers();
-  }
-}, [currLayers, currBeforeMap, currAfterMap]);
+  useEffect(() => {
+    if(currBeforeMap !== null && currAfterMap !== null) {
+      addAllMapLayers();
+      addZoomLayers(currZoomLayers);
+    }
+  }, [currLayers, currBeforeMap, currAfterMap, currZoomLayers]);
 
 useEffect(() => {
   if(!mapLoaded) return;
@@ -800,26 +970,29 @@ return (
       </div>
     </div>
 
-    {
-      !modalOpen && (
-        <button id={modalOpen ? "" : "view-hide-layer-panel"} onClick={() => {
-          setLayerPanelVisible(!layerPanelVisible);
-          setPopUpVisible(!popUpVisible);
-        }}>
-          <br />
-          <span id="dir-txt">&#9204;</span> <br /><br />
-        </button>
-      )
-    }
-    
-     
-    {popUp && <CSSTransition
-      in={popUpVisible}
-      timeout={500}
-      classNames="popup"
-      unmountOnExit>
-        <SliderPopUp popUpProps={popUp}/>
-    </CSSTransition>}
+      {
+        !modalOpen && (
+          <button id={modalOpen ? "" : "view-hide-layer-panel"} onClick={() => {
+            setLayerPanelVisible(!layerPanelVisible);
+            setPopUpVisible(!popUpVisible);
+          }}>
+            <br />
+            <span id="dir-txt">&#9204;</span> <br /><br />
+          </button>
+        )
+      }
+      
+       
+      {popUp && <CSSTransition
+        in={popUpVisible}
+        timeout={500}
+        classNames="popup"
+        unmountOnExit>
+          <SliderPopUp 
+          layerName={popUp.layerName}
+          nid={popUp.nid}
+          type={popUp.type}/>
+      </CSSTransition>}
 
     <div id="studioMenu" style={{ visibility: layerPanelVisible ? 'visible' : 'hidden' }}>
       <FontAwesomeIcon id="mobi-hide-sidebar" icon={faArrowCircleLeft} />
@@ -830,67 +1003,67 @@ return (
         {
           (currSectionLayers ?? []).map(secLayer => {
 
-            return (
-              <SectionLayerComponent activeLayers={activeLayerIds} activeLayerCallback={(newActiveLayers: string[]) => {
-                console.log('layers selected: ', newActiveLayers);
-                setActiveLayerIds(newActiveLayers);
-              } } layersHeader={secLayer.label} layer={secLayer}
-              beforeOpen={beforeLayerFormModalOpen}
-              afterClose={afterLayerFormModalCloseLayers}
-              openWindow={beforeModalOpen}
-              editFormVisibleCallback={(isOpen: boolean) => {
-                setEditFormOpen(isOpen);
-              } }
-              editFormIdCallback={(id: string) => {
-                setEditFormId(id);
-              } } mapZoomCallback={(zoomProps: MapZoomProps) => {
-                currBeforeMap.current?.easeTo({
-                  center: zoomProps.center,
-                  zoom: zoomProps.zoom,
-                  speed: zoomProps.speed,
-                  curve: zoomProps.curve,
-                  duration: zoomProps.duration,
-                  easing(t) {
-                    return t;
-                  }
-                })
-              }}/>
-            )
-          })
-        }
-        {
-          !groupFormOpen &&
-          <div style={{paddingLeft: '15px', paddingRight: '10px', textAlign: 'center'}}>
-            <a style={{width: '100%', backgroundColor: 'grey', color: 'white', margin: 'auto', padding: '2px 7px 2px 7px'}} onClick={() => setGroupFormOpen(true)}>
-                <FontAwesomeIcon icon={getFontawesomeIcon(FontAwesomeLayerIcons.PLUS_SQUARE, true)}></FontAwesomeIcon> New Group Folder
-            </a>
-          </div>
-        }
-        {
-          groupFormOpen &&
-          <NewLayerSectionForm afterSubmit={() => setGroupFormOpen(false)}></NewLayerSectionForm>
-        }
-      </>
-
-      <MapFilterWrapperComponent beforeMapCallback={(map) => {
-        // Set beforeMap to selected map by changing the mapId
-        setMapStyle(currBeforeMap, map.styleId);
-      }} afterMapCallback={(map) => {
-        // Set afterMap to selected map by changing the mapId
-
-        setMapStyle(currAfterMap, map.styleId);
-      }} defaultMap={beforeMapItem} mapGroups={mappedFilterItemGroups} mapZoomCallback={(zoomProps: MapZoomProps) => {
-        currBeforeMap.current?.easeTo({
-          center: zoomProps.center,
-          zoom: zoomProps.zoom,
-          speed: zoomProps.speed,
-          curve: zoomProps.curve,
-          duration: zoomProps.duration,
-          easing(t) {
-            return t;
+              return (
+                <SectionLayerComponent activeLayers={activeLayerIds} 
+                activeLayerCallback={(newActiveLayers: string[]) => {
+                  console.log('layers selected: ', newActiveLayers);
+                  setActiveLayerIds(newActiveLayers);
+                } } layersHeader={secLayer.label} layer={secLayer}
+                beforeOpen={beforeLayerFormModalOpen}
+                afterClose={afterLayerFormModalCloseLayers}
+                openWindow={beforeModalOpen}
+                editFormVisibleCallback={(isOpen: boolean) => {
+                  setEditFormOpen(isOpen);
+                } }
+                editFormIdCallback={(id: string) => {
+                  setEditFormId(id);
+                } } mapZoomCallback={(zoomProps: MapZoomProps) => {
+                  currBeforeMap.current?.easeTo({
+                    center: zoomProps.center,
+                    zoom: zoomProps.zoom,
+                    speed: zoomProps.speed,
+                    curve: zoomProps.curve,
+                    duration: zoomProps.duration,
+                    easing(t) {
+                      return t;
+                    }
+                  })
+                }}/>
+              )
+            })
           }
-        })
-      }} />
+          {
+            !groupFormOpen &&
+            <div style={{paddingLeft: '15px', paddingRight: '10px', textAlign: 'center'}}>
+              <a style={{width: '100%', backgroundColor: 'grey', color: 'white', margin: 'auto', padding: '2px 7px 2px 7px'}} onClick={() => setGroupFormOpen(true)}>
+                  <FontAwesomeIcon icon={getFontawesomeIcon(FontAwesomeLayerIcons.PLUS_SQUARE, true)}></FontAwesomeIcon> New Group Folder
+              </a>
+            </div>
+          }
+          {
+            groupFormOpen &&
+            <NewLayerSectionForm afterSubmit={() => setGroupFormOpen(false)}></NewLayerSectionForm>
+          }
+        </>
+
+        <MapFilterWrapperComponent beforeMapCallback={(map) => {
+          // Set beforeMap to selected map by changing the mapId
+          setMapStyle(currBeforeMap, map.styleId);
+        } } afterMapCallback={(map) => {
+          // Set afterMap to selected map by changing the mapId
+          setMapStyle(currAfterMap, map.styleId);
+        } } defaultMap={beforeMapItem} mapGroups={mappedFilterItemGroups} mapZoomCallback={(zoomProps: MapZoomProps) => {
+          currBeforeMap.current?.easeTo({
+            center: zoomProps.center,
+            zoom: zoomProps.zoom,
+            speed: zoomProps.speed,
+            curve: zoomProps.curve,
+            duration: zoomProps.duration,
+            easing(t) {
+              return t;
+            }
+          });
+        } } beforeOpen={beforeModalOpen} afterClose={afterModalClose} />
     </div>
 
     <MapComparisonComponent

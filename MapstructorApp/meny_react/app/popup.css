@@ -24,7 +24,7 @@
     position: absolute;
     display: block;
     /* top: 80px; */
-    top: 60px;
+    top: 87px;
     right: 0;
   
     /* Standard */
@@ -40,21 +40,30 @@
     background-color: #fff !important;
     z-index: 100;
   }
+
+  #popupHeader {
+    font-size: 18px;
+    font-weight: bold;
+    padding-top: 14px;
+  }
   
   .rightInfoBarBorder {
     border: solid #ffffff 3px;
   }
-#demoLayerInfo,
-#infoLayerCastello,
-#infoLayerGrantLots,
-#infoLayerDutchGrants,
-#infoLayerGravesend,
-#infoLayerNativeGroups,
-#infoLayerKarl,
-#infoLayerFarms,
-#infoLayerCurrLots,
-#infoLayerSettlements,
-#infoLayerInfoPoint {
+
+#yellowSliderPopup,
+#greenSliderPopup,
+#light-redSliderPopup,
+#blueSliderPopup,
+#orangeSliderPopup,
+#light-greenSliderPopup,
+#light-purpleSliderPopup,
+#redSliderPopup,
+#light-blueSliderPopup,
+#purpleSliderPopup,
+#whiteSliderPopup,
+#light-greySliderPopup,
+#greySliderPopup {
   padding: 5px;
   margin-top: 1px;
   margin-bottom: 1px;
@@ -76,3 +85,87 @@
   -webkit-hyphens: auto;
   hyphens: auto;
 }
+
+.yellowHoverPopup,
+.greenHoverPopup,
+.light-redHoverPopup,
+.blueHoverPopup,
+.orangeHoverPopup,
+.light-greenHoverPopup,
+.light-purpleHoverPopup,
+.redHoverPopup,
+.light-blueHoverPopup,
+.purpleHoverPopup,
+.whiteHoverPopup,
+.light-greyHoverPopup,
+.greyHoverPopup {
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#light-greenSliderPopup,
+.light-greenHoverPopup {
+  background-color: rgb(102, 205, 170, 0.3); /* #66CDAA MediumAquamarine MENY IMPORT */
+  border: solid #66cdaa 2px;
+}
+#greenSliderPopup,
+.greenHoverPopup {
+  background-color: rgb(50, 205, 50, 0.3); /* #32CD32 LimeGreen MENY IMPORT */
+  border: solid #32cd32 2px;
+}
+#light-redSliderPopup,
+.light-redHoverPopup {
+  background-color: rgb(255, 192, 203, 0.3); /* #FFC0CB Pink MENY IMPORT */
+  border: solid pink 2px;
+}
+#redSliderPopup,
+.redHoverPopup {
+  background-color: rgba(211, 7, 41, 0.2); /* Red ISU COLOR */
+  border: solid rgb(104, 0, 18) 2px;
+}
+#light-blueSliderPopup,
+.light-blueHoverPopup {
+  background-color: rgba(116, 158, 250, 0.3); /* Light Blue ISU COLOR */
+  border: solid rgb(65, 99, 250) 2px;
+}
+#blueSliderPopup,
+.blueHoverPopup {
+  background-color: rgb(11, 14, 229, 0.2); /* #0b0ee5 MENY IMPORT */
+  border: solid #0b0ee5 2px;
+}
+#orangeSliderPopup,
+.orangeHoverPopup {
+  background-color: #e5870b33; /* #e5870b MENY IMPORT */
+  border: solid #e5870b 2px;
+}
+#yellowSliderPopup,
+.yellowHoverPopup {
+  background-color: rgb(255, 255, 0, 0.5); /* #FFFF00 Yellow MENY IMPORT */
+  border: solid #ffff00 2px;
+}
+#light-purpleSliderPopup,
+.light-purpleHoverPopup {
+  background-color: rgb(123, 104, 238, 0.3); /* #7B68EE MediumSlateBlue MENY IMPORT */
+  border: solid #7b68ee 2px;
+}
+#purpleSliderPopup,
+.purpleHoverPopup {
+  background-color: rgba(100, 3, 255, 0.3); /* Purple ISU COLOR */
+  border: solid #210b3f 2px;
+}
+#whiteSliderPopup,
+.whiteHoverPopup {
+  background-color: rgba(255, 255, 255, 0.3); /* White ISU COLOR */
+  border: solid #000000 2px;
+}
+#light-greySliderPopup,
+.light-greyHoverPopup {
+  background-color: rgba(204, 202, 202, 0.3); /* White ISU COLOR */
+  border: solid #757474 2px;
+}
+#greySliderPopup,
+.greyHoverPopup {
+  background-color: rgba(85, 85, 85, 0.3); /* White ISU COLOR */
+  border: solid #1b1b1b 2px;
+}
+
