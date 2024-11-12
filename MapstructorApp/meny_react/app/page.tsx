@@ -20,13 +20,15 @@ import { MapItem, MapZoomProps } from './models/maps/map.model';
 import LayerFormButton from './components/forms/buttons/layer-form-button.component';
 import Modal from 'react-modal';
 import MapFormButton from './components/forms/buttons/map-form-button.component';
-import {Map as PrismaMap, LayerSection as PrismaLayerSection, LayerData as PrismaLayer, LayerGroup as PrismaLayerGroup, MapFilterGroup as PrismaMapFilterGroup, MapFilterItem as PrismaMapFilterItem, MapFilterItem, LayerSection, hoverItem} from '@prisma/client';
+import {Map as PrismaMap, ZoomLabel as PrismaZoomLabel, LayerSection as PrismaLayerSection, LayerData as PrismaLayer, LayerGroup as PrismaLayerGroup, MapFilterGroup as PrismaMapFilterGroup, MapFilterItem as PrismaMapFilterItem, MapFilterItem, LayerSection, hoverItem} from '@prisma/client';
 import EditForm from './components/forms/EditForm';
 import './popup.css';
 import { PopupType } from './models/popups/pop-up-type.model';
 import { getFontawesomeIcon, parseFromString } from './helpers/font-awesome.helper';
 import NewLayerSectionForm from './components/forms/NewLayerSectionForm';
 import EditSectionData from './components/forms/EditSectionData';
+import { ZoomLabel } from './models/zoom-layer.model';
+import { addInteractivityToLabel, createLabel } from './helpers/zoom-layer.helper';
 
 
 const beforeMapItem: MapItem = {
@@ -74,6 +76,7 @@ export default function Home() {
   const [editFormOpen, setEditFormOpen] = useState(false);
   const [editFormId, setEditFormId] = useState("");
   const [groupFormOpen, setGroupFormOpen] = useState<boolean>(false);
+  const [currZoomLayers, setCurrZoomLayers] = useState<ZoomLabel[]>([]);
 
   const setMapStyle = (map: MutableRefObject<mapboxgl.Map | null>, mapId: string) => {
     if(map?.current) {
@@ -82,7 +85,23 @@ export default function Home() {
       // Replace this later
       setTimeout(() => {
         addAllMapLayers();
+        addZoomLayers(currZoomLayers);
       }, 1000)
+    }
+  }
+
+  const addZoomLayers = (layerData: ZoomLabel[]) => {
+    if(currAfterMap != null && currBeforeMap != null) {
+      layerData.forEach((label) => {
+        addInteractivityToLabel(
+          currAfterMap,
+          label
+        );
+        addInteractivityToLabel(
+          currBeforeMap,
+          label
+        );
+      });
     }
   }
 
@@ -356,6 +375,100 @@ export default function Home() {
     }
   }
 
+  const getZoomLayers = () => {
+    fetch('http://localhost:3000/api/ZoomLabel', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    }).then((layers) => {
+      layers.json()?.then(parsed => {
+        console.log('GOT LAYERS: ', parsed)
+        if(!!parsed && !!parsed.zoomLabel) {
+          let labels: PrismaZoomLabel[] = parsed.zoomLabel;
+
+          let parsedZoomLabels: ZoomLabel[] = labels?.map(lbl => {
+            let currLbl: ZoomLabel = {
+              title: lbl.title,
+              center: lbl.centerLongitude && lbl.centerLatitude ? [lbl.centerLongitude, lbl.centerLatitude] : undefined,
+              bounds: lbl.topLeftBoundLongitude && lbl.topLeftBoundLatitude && lbl.bottomRightBoundLongitude && lbl.bottomRightBoundLatitude ?
+                [[lbl.topLeftBoundLongitude, lbl.topLeftBoundLatitude], [lbl.bottomRightBoundLongitude, lbl.bottomRightBoundLatitude]] : undefined,
+              zoom: lbl.zoom ?? undefined,
+              bearing: lbl.bearing ?? undefined,
+              zoomToBounds: false
+            }
+            return currLbl;
+          }) ?? [];
+          let testLayers: ZoomLabel[] = [
+            ...parsedZoomLabels,
+            {
+              title: "Long Island",
+              center: [-72.94912, 40.85225],
+              bounds: [
+                [-74.0419692, 40.5419011],
+                [-71.8562705, 41.161155],
+              ],
+              minZoom: undefined,
+              zoom: 8,
+              bearing: 0,
+              zoomToBounds: true
+            },
+            {
+              title: "Brooklyn",
+              center: [-73.93772792292754, 40.65432897355928],
+              bounds: [
+                [-74.04189660705046, 40.56952999398417],
+                [-73.8335592388046, 40.73912795313439],
+              ],
+              minZoom: undefined,
+              zoom: 7,
+              bearing: 0,
+              zoomToBounds: true
+            },
+            {
+              title: "New Amsterdam",
+              center: [-74.01255, 40.704882],
+              minZoom: undefined,
+              zoom: 7,
+              bearing: 0,
+              zoomToBounds: true
+            },
+            {
+              title: "Manhattan",
+              center: [-73.97719031118277, 40.78097749612493],
+              bounds: [
+                [-74.04772962697074, 40.682916945445164],
+                [-73.90665099539478, 40.879038046804695],
+              ],
+              minZoom: undefined,
+              zoom: 8,
+              bearing: 0,
+              zoomToBounds: true
+            },
+            {
+              title: "New Netherland",
+              center: [-73.60361111111109, 41.09659166666665],
+              minZoom: undefined,
+              zoom: 7,
+              bearing: 0,
+              zoomToBounds: true
+            },
+            {
+              title: "New England",
+              center: [-71.67755127, 42.4971076267],
+              minZoom: 5.2,
+              zoom: 7,
+              bearing: 0,
+              zoomToBounds: true
+            },
+          ];
+          addZoomLayers(testLayers)
+          setCurrZoomLayers(testLayers);
+        }
+      })
+    })
+  }
+
   const getLayerSections = () => {
     fetch('http://localhost:3000/api/LayerSection', {
       method: 'GET',
@@ -399,7 +512,6 @@ export default function Home() {
             }
             return layer;
           })
-          console.log(returnSectionLayers);
           setSectionLayers(returnSectionLayers)
         }
       });
@@ -474,6 +586,7 @@ export default function Home() {
     setPopUpVisible(layerPopupBefore);        //After modal close set popupVisible to whatever it was before modal call
     setCurrLayers([]);
     getLayerSections();
+    getZoomLayers();
   }
 
   const beforeModalOpen = () => {
@@ -493,6 +606,7 @@ export default function Home() {
     afterModalClose();
     setCurrLayers([]);
     getLayerSections();
+    getZoomLayers();
   }
 
   const afterModalCloseMaps = () => {
@@ -506,8 +620,8 @@ export default function Home() {
    */
   useEffect(() => {
     getMaps();
-    console.log('getting layer groups')
     getLayerSections();
+    getZoomLayers()
   }, [])
 
   /**
@@ -628,8 +742,9 @@ export default function Home() {
   useEffect(() => {
     if(currBeforeMap !== null && currAfterMap !== null) {
       addAllMapLayers();
+      addZoomLayers(currZoomLayers);
     }
-  }, [currLayers, currBeforeMap, currAfterMap]);
+  }, [currLayers, currBeforeMap, currAfterMap, currZoomLayers]);
 
   useEffect(() => {
     if(!mapLoaded) return;
