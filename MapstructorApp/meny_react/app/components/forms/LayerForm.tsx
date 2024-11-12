@@ -102,26 +102,29 @@ export default function LayerForm(props: LayerFormProps) {
         paint["line-opacity"] = values.lineOpacity ?? 1.0;
       }
 
-      let layerVals = {
-        name: values.name,
-        sectionName: props.sectionName,
-        sourceUrl: values.sourceUrl,
-        type: values.type,
-        paint,
-        sourceType: values.sourceType,
-        sourceId: values.sourceId,
-        sourceLayer: values.sourceLayer,
-        hover: values.hover,
-        time: values.time,
-        click: values.click,
-      };
+      // let layerVals = {
+      //   name: values.name,
+      //   sectionName: props.sectionName,
+      //   sourceUrl: values.sourceUrl,
+      //   type: values.type,
+      //   paint: JSON.stringify(paint), // JSON string
+      //   sourceType: values.sourceType,
+      //   sourceId: values.sourceId,
+      //   sourceLayer: values.sourceLayer,
+      //   hover: values.hover,
+      //   time: values.time,
+      //   click: values.click,
+      // };
+
+      const layerData = { ...values, paint: JSON.stringify(paint)};
+
       try {
         await fetch("api/LayerData", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify(values),
+          body: JSON.stringify(layerData),
         });
         alert("Layer added successfully");
         formik.resetForm();

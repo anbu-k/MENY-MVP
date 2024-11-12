@@ -118,45 +118,45 @@ export default function Home() {
       "slot",
       "clip",
     ];
+
+    // Parses the paint string into a JSON object
+  const parsedPaint = layerConfig.paint ? JSON.parse(layerConfig.paint) : {};
+
     if (layerTypes.includes(layerConfig.type)) {
       let paint = {};
 
       // Set paint properties based on layer type
       if (layerConfig.type === "fill") {
         paint = {
-          "fill-color": layerConfig.paint?.["fill-color"] ?? "#e3ed58",
-          "fill-opacity": layerConfig.paint?.["fill-opacity"] ?? [
+          "fill-color": parsedPaint["fill-color"] ?? "#e3ed58",
+          "fill-opacity": parsedPaint["fill-opacity"] ?? [
             "case",
             ["boolean", ["feature-state", "hover"], false],
             0.8,
             0.45,
           ],
-          "fill-outline-color":
-            layerConfig.paint?.["fill-outline-color"] ?? "#FF0000",
+          "fill-outline-color": parsedPaint["fill-outline-color"] ?? "#FF0000",
         };
       } else if (layerConfig.type === "symbol") {
         paint = {
-          "text-color": layerConfig.paint?.["text-color"] ?? "#000080",
-          "text-halo-color":
-            layerConfig.paint?.["text-halo-color"] ?? "#ffffff",
-          "text-halo-width": layerConfig.paint?.["text-halo-width"] ?? 2,
+          "text-color": parsedPaint["text-color"] ?? "#000080",
+          "text-halo-color": parsedPaint["text-halo-color"] ?? "#ffffff",
+          "text-halo-width": parsedPaint["text-halo-width"] ?? 2,
         };
       } else if (layerConfig.type === "circle") {
         paint = {
-          "circle-color": layerConfig.paint?.["circle-color"] ?? "#FF0000",
-          "circle-opacity": layerConfig.paint?.["circle-opacity"] ?? 0.5,
-          "circle-radius": layerConfig.paint?.["circle-radius"] ?? 5,
-          "circle-stroke-color":
-            layerConfig.paint?.["circle-stroke-color"] ?? "#000000",
-          "circle-stroke-width":
-            layerConfig.paint?.["circle-stroke-width"] ?? 1,
+          "circle-color": parsedPaint["circle-color"] ?? "#FF0000",
+          "circle-opacity": parsedPaint["circle-opacity"] ?? 0.5,
+          "circle-radius": parsedPaint["circle-radius"] ?? 5,
+          "circle-stroke-color": parsedPaint["circle-stroke-color"] ?? "#000000",
+          "circle-stroke-width": parsedPaint["circle-stroke-width"] ?? 1,
         };
       } else if (layerConfig.type === "line") {
         paint = {
-          "line-color": layerConfig.paint?.["line-color"] ?? "#ff9900",
-          "line-width": layerConfig.paint?.["line-width"] ?? 5,
-          "line-blur": layerConfig.paint?.["line-blur"] ?? 0,
-          "line-opacity": layerConfig.paint?.["line-opacity"] ?? 1.0,
+          "line-color": parsedPaint["line-color"] ?? "#ff9900",
+          "line-width": parsedPaint["line-width"] ?? 5,
+          "line-blur": parsedPaint["line-blur"] ?? 0,
+          "line-opacity": parsedPaint["line-opacity"] ?? 1.0,
         };
       }
       const layerStuff = {
