@@ -32,7 +32,6 @@ const MapFilterWrapperComponent = (props: MapFilterWrapperProps) => {
                         <MapFiltersGroupComponent beforeOpen={props.beforeOpen} afterClose={props.afterClose} mapZoomCallback={props.mapZoomCallback} key={`map-filters-group-${idx}`} beforeMapCallback={props.beforeMapCallback} afterMapCallback={props.afterMapCallback} group={m}></MapFiltersGroupComponent>
                     ))
                 }
-                new group
             </div>
             <center>
                 <button
