@@ -390,7 +390,8 @@ export default function Home() {
           let parsedZoomLabels: ZoomLabel[] = labels?.map(lbl => {
             let currLbl: ZoomLabel = {
               title: lbl.title,
-              coordinates: [lbl.longitude, lbl.latitude],
+              center: [lbl.centerLongitude, lbl.centerLatitude],
+              bounds: [[lbl.topLeftBoundLongitude, lbl.topLeftBoundLatitude], [lbl.bottomRightBoundLongitude, lbl.bottomRightBoundLatitude]],
               zoom: lbl.zoom,
               bearing: lbl.bearing
             }
@@ -400,42 +401,54 @@ export default function Home() {
             ...parsedZoomLabels,
             {
               title: "Long Island",
-              coordinates: [-72.94912, 40.85225],
+              center: [-72.94912, 40.85225],
+              bounds: [
+                [-74.0419692, 40.5419011],
+                [-71.8562705, 41.161155],
+              ],
               minZoom: undefined,
               zoom: 8,
               bearing: 0
             },
             {
               title: "Brooklyn",
-              coordinates: [-73.93772792292754, 40.65432897355928],
+              center: [-73.93772792292754, 40.65432897355928],
+              bounds: [
+                [-74.04189660705046, 40.56952999398417],
+                [-73.8335592388046, 40.73912795313439],
+              ],
               minZoom: undefined,
               zoom: 7,
               bearing: 0
             },
             {
               title: "New Amsterdam",
-              coordinates: [-74.01255, 40.704882],
+              center: [-74.01255, 40.704882],
               minZoom: undefined,
               zoom: 7,
               bearing: 0
             },
             {
               title: "Manhattan",
-              coordinates: [-73.97719031118277, 40.78097749612493],
+              center: [-73.97719031118277, 40.78097749612493],
+              bounds: [
+                [-74.04772962697074, 40.682916945445164],
+                [-73.90665099539478, 40.879038046804695],
+              ],
               minZoom: undefined,
               zoom: 8,
               bearing: 0
             },
             {
               title: "New Netherland",
-              coordinates: [-73.60361111111109, 41.09659166666665],
+              center: [-73.60361111111109, 41.09659166666665],
               minZoom: undefined,
               zoom: 7,
               bearing: 0
             },
             {
               title: "New England",
-              coordinates: [-71.67755127, 42.4971076267],
+              center: [-71.67755127, 42.4971076267],
               minZoom: 5.2,
               zoom: 7,
               bearing: 0

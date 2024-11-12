@@ -17,7 +17,7 @@ export function createLabel(props: ZoomLabel) {
             features: [{
               type: "Feature",
               properties: { title: props.title, icon: "circle" },
-              geometry: { type: "Point", coordinates: props.coordinates }
+              geometry: { type: "Point", coordinates: props.center }
             }],
           },
         },
@@ -55,15 +55,19 @@ export function addInteractivityToLabel(mapRef: MutableRefObject<Map | null>, la
     currMap?.addLayer(labelObject as any);
 
     currMap?.on("click", labelId, function () {
-        currMap?.easeTo({
-            center: layer.coordinates,
-            zoom: layer.zoom,
-            speed: 0.2,
-            curve: 1,
-            duration: 2500,
-            easing(t) {
-              return t;
-            }
-          })
+        if(layer.bounds) {
+            currMap?.fitBounds(layer.bounds, { bearing: layer.bearing })
+        } else if(layer.center) {
+            currMap?.easeTo({
+                center: layer.center,
+                zoom: layer.zoom,
+                speed: 0.2,
+                curve: 1,
+                duration: 1000,
+                easing(t) {
+                  return t;
+                }
+              })
+        }
     });
 }

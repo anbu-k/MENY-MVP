@@ -56,14 +56,18 @@ model MapFilterItem {
 }
 
 model ZoomLabel {
-  id        String @id @default(auto()) @map("_id") @db.ObjectId
-  title     String
-  minZoom   Float?
-  zoom      Float
-  bearing   Float
-  latitude  Float
-  longitude Float
-  Map       Map[]
+  id                          String @id @default(auto()) @map("_id") @db.ObjectId
+  title                       String
+  minZoom                     Float?
+  zoom                        Float?
+  bearing                     Float?
+  centerLatitude              Float?
+  centerLongitude             Float?
+  topLeftBoundLatitude        Float?
+  topLeftBoundLongitude       Float?
+  bottomRightBoundLatitude    Float?
+  bottomRightBoundLongitude   Float?
+  Map                         Map[]
 }
 
 model LayerSection {
