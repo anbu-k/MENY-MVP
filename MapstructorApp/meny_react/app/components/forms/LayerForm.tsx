@@ -1,12 +1,12 @@
-import { useFormik } from "formik";
-import { CSSProperties, useState } from "react";
-import ColorPickerButton from "./color-picker/color-picker-button.component";
-import { LayerGroup } from "@prisma/client";
-import IconPickerDropdown from "./icon-picker/icon-picker-dropdown.component";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { getFontawesomeIcon } from "@/app/helpers/font-awesome.helper";
-import { FontAwesomeLayerIcons } from "@/app/models/font-awesome.model";
-import PreviewIcon from "./preview-icon.component";
+import { FieldArray, FormikProvider, useFormik } from 'formik';
+import { CSSProperties, useState } from 'react';
+import ColorPickerButton from './color-picker/color-picker-button.component';
+import { LayerGroup } from '@prisma/client';
+import IconPickerDropdown from './icon-picker/icon-picker-dropdown.component';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { getFontawesomeIcon } from '@/app/helpers/font-awesome.helper';
+import { FontAwesomeLayerIcons } from '@/app/models/font-awesome.model';
+import PreviewIcon from './preview-icon.component';
 
 type LayerType =
   | "symbol"
@@ -76,6 +76,10 @@ export default function LayerForm(props: LayerFormProps) {
       lineWidth: 5,
       lineBlur: 0,
       lineOpacity: 1.0,
+      hoverStyle: '',
+      clickStyle: '',
+      clickHeader: '',
+      hoverContent: [{label: "", type: ""}],
     },
 
     onSubmit: async (values) => {
@@ -100,6 +104,24 @@ export default function LayerForm(props: LayerFormProps) {
         paint["line-width"] = values.lineWidth ?? 5;
         paint["line-blur"] = values.lineBlur ?? 0;
         paint["line-opacity"] = values.lineOpacity ?? 1.0;
+      }
+      
+      let layerVals = {
+        name: values.name,
+        sectionName: props.sectionName,
+        sourceUrl: values.sourceUrl,
+        type: values.type,
+        paint: values.paint,
+        sourceType: values.sourceType,
+        sourceId: values.sourceId,
+        sourceLayer: values.sourceLayer,
+        hover: values.hover,
+        time: values.time,
+        click: values.click,
+        hoverStyle: values.hoverStyle,
+        clickStyle: values.clickStyle,
+        clickHeader: values.clickHeader,
+        hoverContent: values.hoverContent,
       }
 
       // let layerVals = {
@@ -181,25 +203,15 @@ export default function LayerForm(props: LayerFormProps) {
   const [selectedType, setSelectedType] = useState<string | null>(null);
 
   return (
-    <form
-      onSubmit={formik.handleSubmit}
-      style={{ maxWidth: "400px", margin: "0 auto" }}
-    >
-      <h2 style={{ paddingBottom: "8px", color: "#333", textAlign: "center" }}>
-        <strong>Add New Layer</strong>
-      </h2>
-      <div style={{ marginBottom: "15px" }}>
-        <label htmlFor="name" style={labelStyling}>
-          Name:
-        </label>
-        <input
-          type="text"
-          id="name"
-          name="name"
-          onChange={formik.handleChange}
-          value={formik.values.name}
-          style={boxStyling}
-        />
+    <FormikProvider value={formik}>
+      <form onSubmit={formik.handleSubmit} style={{ maxWidth: '400px', margin: '0 auto' }}>
+        <h2 style={{ paddingBottom: '8px', color: '#333', textAlign: 'center' }}>
+          <strong>Add New Layer</strong>
+        </h2>
+
+      <div style={{ marginBottom: '15px' }}>
+        <label htmlFor="name" style={labelStyling}>Name:</label>
+        <input type="text" id="name" name="name" onChange={formik.handleChange} value={formik.values.name} style={boxStyling} />
       </div>
       <div style={{ marginBottom: "15px" }}>
         <label htmlFor="label" style={labelStyling}>
@@ -601,58 +613,54 @@ export default function LayerForm(props: LayerFormProps) {
           <option value="batched-model">Batched-Model</option>
         </select>
       </div>
-      <div style={{ marginBottom: "15px" }}>
-        <label htmlFor="sourceUrl" style={labelStyling}>
-          Source URL:
-        </label>
-        <input
-          type="text"
-          id="sourceUrl"
-          name="sourceUrl"
-          onChange={formik.handleChange}
-          value={formik.values.sourceUrl}
-          style={boxStyling}
-        />
-      </div>
-      <div style={{ marginBottom: "15px" }}>
-        <label htmlFor="sourceId" style={labelStyling}>
-          Source ID:
-        </label>
-        <input
-          type="text"
-          id="sourceId"
-          name="sourceId"
-          onChange={formik.handleChange}
-          value={formik.values.sourceId}
-          style={boxStyling}
-        />
-      </div>
-      <div style={{ marginBottom: "15px" }}>
-        <label htmlFor="sourceLayer" style={labelStyling}>
-          Source Layer:
-        </label>
-        <input
-          type="text"
+
+        <div style={{ marginBottom: '15px' }}>
+          <label htmlFor="sourceUrl" style={labelStyling}>Source URL:</label>
+          <input
+            type="text"
+            id="sourceUrl"
+            name="sourceUrl"
+            onChange={formik.handleChange}
+            value={formik.values.sourceUrl}
+            style={boxStyling}
+          />
+        </div>
+
+        <div style={{ marginBottom: '15px' }}>
+          <label htmlFor="sourceId" style={labelStyling}>Source ID:</label>
+          <input
+            type="text"
+            id="sourceId"
+            name="sourceId"
+            onChange={formik.handleChange}
+            value={formik.values.sourceId}
+            style={boxStyling}
+          />
+        </div>
+
+        <div style={{ marginBottom: '15px' }}>
+          <label htmlFor="sourceLayer" style={labelStyling}>Source Layer:</label>
+          <input
+            type="text"
+            id="sourceLayer"
+            name="sourceLayer"
+            onChange={formik.handleChange}
+            value={formik.values.sourceLayer}
+            style={boxStyling}
+          />
+        </div>
+
+      <div style={{ marginBottom: '15px' }}>
+        <label htmlFor="iconColor" style={labelStyling}>Icon Color:</label>
+        <div
           id="sourceLayer"
-          name="sourceLayer"
-          onChange={formik.handleChange}
-          value={formik.values.sourceLayer}
-          style={boxStyling}
-        />
-      </div>
-      <div style={{ marginBottom: "15px" }}>
-        <label htmlFor="iconColor" style={labelStyling}>
-          Icon Color:
-        </label>
-        <div id="sourceLayer">
-          <ColorPickerButton
-            callback={(newColor: string) => {
-              formik.setValues({
-                ...formik.values,
-                iconColor: newColor,
-              });
-            }}
-          ></ColorPickerButton>
+        >
+        <ColorPickerButton callback={(newColor: string) => {
+          formik.setValues({
+            ...formik.values,
+            iconColor: newColor
+          });
+        }}></ColorPickerButton>
         </div>
 
         <label htmlFor="iconType" style={labelStyling}>
@@ -699,50 +707,181 @@ export default function LayerForm(props: LayerFormProps) {
           style={checkboxStyling}
         />
       </div>
-      <div
-        style={{ display: "flex", alignItems: "center", marginBottom: "10px" }}
-      >
-        <label htmlFor="click" style={labelStyling}>
-          Click:
-        </label>
-        <input
-          type="checkbox"
-          id="click"
-          name="click"
-          onChange={formik.handleChange}
-          checked={formik.values.click}
-          style={checkboxStyling}
-        />
-      </div>
-      <div
-        style={{ display: "flex", alignItems: "center", marginBottom: "10px" }}
-      >
-        <label htmlFor="time" style={labelStyling}>
-          Time:
-        </label>
-        <input
-          type="checkbox"
-          id="time"
-          name="time"
-          onChange={formik.handleChange}
-          checked={formik.values.time}
-          style={checkboxStyling}
-        />
-      </div>
-      <button
-        style={buttonStyling}
-        onMouseEnter={(e) =>
-          (e.currentTarget.style.backgroundColor =
-            buttonHoverStyling.backgroundColor!)
+
+        {
+          (formik.values.hover) && (
+            <>
+            <div style={{ marginBottom: '15px' }}>
+                <label htmlFor="newGroupLabel" style={labelStyling}>Hover Popup Style:</label>
+                <select
+                  id="hoverStyle"
+                  name="hoverStyle"
+                  onChange={formik.handleChange}
+                  value={formik.values.hoverStyle}
+                  style={boxStyling}
+                >
+                  <option value="">Select Color</option>
+                  <option value="yellow">Yellow</option>
+                  <option value="orange">Orange</option>
+                  <option value="light-red">Light Red</option>
+                  <option value="red">Red</option>
+                  <option value="light-green">Light Green</option>
+                  <option value="green">Green</option>
+                  <option value="light-blue">Light Blue</option>
+                  <option value="blue">Blue</option>
+                  <option value="light-purple">Light Purple</option>
+                  <option value="purple">Purple</option>
+                  <option value="white">White</option>
+                  <option value="light-grey">Light Grey</option>
+                  <option value="grey">Grey</option>
+                </select>
+              </div>
+              <FieldArray
+                name="hoverContent"
+                render={arrayHelpers => (
+                  <div style={{ marginBottom: '15px' }}>
+                    {formik.values.hoverContent.map((item, index) => (
+                      <div key={index} style={{ display: 'flex', gap: '10px', alignItems: "center"}}>
+                        <label htmlFor={`label${index}`} style={{display: 'block', marginBottom: '5px', fontWeight: 'bold', color: '#333'}}>Label:</label>
+                        <input
+                          type="text"
+                          id={`hoverContent.${index}.label`}
+                          name={`hoverContent.${index}.label`}
+                          onChange={formik.handleChange}
+                          value={item.label}
+                          style={boxStyling}
+                        />
+                        
+                        <label htmlFor={`type${index}`} style={{display: 'block', marginBottom: '5px', fontWeight: 'bold', color: '#333'}}>Type:</label>
+                        <select
+                          id={`hoverContent.${index}.type`}
+                          name={`hoverContent.${index}.type`}
+                          onChange={formik.handleChange}
+                          value={item.type}
+                          style={boxStyling}
+                        >
+                          <option value="">Select Type</option>
+                          <option value="NAME">Name</option>
+                          <option value="LOT">Lot</option>
+                          <option value="DATE-START">Start Date</option>
+                          <option value="DATE-END">End Date</option>
+                          <option value="ADDRESS">Address</option>
+                        </select>
+                        
+                        {/* Button to remove this item */}
+                        <button 
+                          type="button" 
+                          onClick={() => arrayHelpers.remove(index)}
+                          style={{ marginBottom: '10px',
+                                   padding: '8px', 
+                                   display: 'flex',
+                                   backgroundColor: '#e22222', 
+                                   color: 'white', 
+                                   borderRadius: '4px', 
+                                   fontSize: '30px',
+                                   height: '40px',
+                                   width: '40px',
+                                   alignItems: 'center',
+                                   justifyContent: 'center', }}>
+                          &times;
+                        </button>
+                      </div>
+                    ))}
+                    <button
+                      type="button"
+                      onClick={() => arrayHelpers.push({ label: "", type: "" })}
+                      style={{ padding: '8px', backgroundColor: '#008000', color: 'white', border: 'none', borderRadius: '4px', width: '100%', }}
+                    >
+                      New Popup Field
+                    </button>
+                  </div>
+                )}
+              />
+            </>
+          )
         }
-        onMouseLeave={(e) =>
-          (e.currentTarget.style.backgroundColor =
-            buttonStyling.backgroundColor!)
+
+        <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
+        <label htmlFor="click" style={labelStyling}>Click:</label>
+          <input
+            type="checkbox"
+            id="click"
+            name="click"
+            onChange={formik.handleChange}
+            checked={formik.values.click}
+            style={checkboxStyling}
+          />
+        </div>
+
+        {
+          (formik.values.click) && (
+            <>
+            <div style={{ marginBottom: '15px' }}>
+                <label htmlFor="newGroupLabel" style={labelStyling}>Click Popup Style:</label>
+                <select
+                  id="clickStyle"
+                  name="clickStyle"
+                  onChange={formik.handleChange}
+                  value={formik.values.clickStyle}
+                  style={boxStyling}
+                >
+                  <option value="">Select Color</option>
+                  <option value="yellow">Yellow</option>
+                  <option value="orange">Orange</option>
+                  <option value="light-red">Light Red</option>
+                  <option value="red">Red</option>
+                  <option value="light-green">Light Green</option>
+                  <option value="green">Green</option>
+                  <option value="light-blue">Light Blue</option>
+                  <option value="blue">Blue</option>
+                  <option value="light-purple">Light Purple</option>
+                  <option value="purple">Purple</option>
+                  <option value="white">White</option>
+                  <option value="light-grey">Light Grey</option>
+                  <option value="grey">Grey</option>
+                </select>
+              </div>
+              <div style={{ marginBottom: '15px' }}>
+                <label htmlFor="newGroupName" style={labelStyling}>Click Popup Header Label:</label>
+                <input type="text" id="clickHeader" name="clickHeader" onChange={formik.handleChange} value={formik.values.clickHeader} style={boxStyling} />
+              </div>
+            </>
+          )
         }
-        type="submit"
-      >
-        Submit
-      </button>
-    </form>
+
+        <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
+          <label htmlFor="time" style={labelStyling}>Time:</label>
+            <input
+              type="checkbox"
+              id="time"
+              name="time"
+              onChange={formik.handleChange}
+              checked={formik.values.time}
+              style={checkboxStyling}
+            />
+        </div>
+
+        {/* <div style={{ marginBottom: '15px' }}>
+          <label htmlFor="paint" style={labelStyling}>Paint:</label>
+          <input
+            type="text"
+            id="paint"
+            name="paint"
+            onChange={formik.handleChange}
+            value={formik.values.paint}
+            style={boxStyling}
+          />
+        </div> */}
+
+        <button
+          style={buttonStyling}
+          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = buttonHoverStyling.backgroundColor!)}
+          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = buttonStyling.backgroundColor!)}
+          type="submit"
+        >
+          Submit
+        </button>
+      </form>
+    </FormikProvider>
   );
 }
