@@ -27,6 +27,8 @@ import { PopupType } from './models/popups/pop-up-type.model';
 import { getFontawesomeIcon, parseFromString } from './helpers/font-awesome.helper';
 import NewLayerSectionForm from './components/forms/NewLayerSectionForm';
 import EditSectionData from './components/forms/EditSectionData';
+import { ZoomLabel } from './models/zoom-layer.model';
+import { addInteractivityToLabel, createLabel } from './helpers/zoom-layer.helper';
 
 
 const beforeMapItem: MapItem = {
@@ -82,7 +84,66 @@ export default function Home() {
       // Replace this later
       setTimeout(() => {
         addAllMapLayers();
+        addZoomLayers([
+          {
+            title: "Long Island",
+            coordinates: [-72.94912, 40.85225],
+            minZoom: undefined,
+            zoom: 0,
+            bearing: 0
+          },
+          {
+            title: "Brooklyn",
+            coordinates: [-73.93772792292754, 40.65432897355928],
+            minZoom: undefined,
+            zoom: 0,
+            bearing: 0
+          },
+          {
+            title: "New Amsterdam",
+            coordinates: [-74.01255, 40.704882],
+            minZoom: undefined,
+            zoom: 0,
+            bearing: 0
+          },
+          {
+            title: "Manhattan",
+            coordinates: [-73.97719031118277, 40.78097749612493],
+            minZoom: undefined,
+            zoom: 0,
+            bearing: 0
+          },
+          {
+            title: "New Netherland",
+            coordinates: [-73.60361111111109, 41.09659166666665],
+            minZoom: undefined,
+            zoom: 0,
+            bearing: 0
+          },
+          {
+            title: "New England",
+            coordinates: [-71.67755127, 42.4971076267],
+            minZoom: 5.2,
+            zoom: 0,
+            bearing: 0
+          },
+        ])
       }, 1000)
+    }
+  }
+
+  const addZoomLayers = (layerData: ZoomLabel[]) => {
+    if(currAfterMap != null && currBeforeMap != null) {
+      layerData.forEach((label) => {
+        addInteractivityToLabel(
+          currAfterMap,
+          label
+        );
+        addInteractivityToLabel(
+          currBeforeMap,
+          label
+        );
+      });
     }
   }
 
