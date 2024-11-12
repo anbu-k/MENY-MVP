@@ -67,6 +67,7 @@ model ZoomLabel {
   topLeftBoundLongitude       Float?
   bottomRightBoundLatitude    Float?
   bottomRightBoundLongitude   Float?
+  zoomToBounds                Boolean
   Map                         Map[]
 }
 

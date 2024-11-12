@@ -390,10 +390,12 @@ export default function Home() {
           let parsedZoomLabels: ZoomLabel[] = labels?.map(lbl => {
             let currLbl: ZoomLabel = {
               title: lbl.title,
-              center: [lbl.centerLongitude, lbl.centerLatitude],
-              bounds: [[lbl.topLeftBoundLongitude, lbl.topLeftBoundLatitude], [lbl.bottomRightBoundLongitude, lbl.bottomRightBoundLatitude]],
-              zoom: lbl.zoom,
-              bearing: lbl.bearing
+              center: lbl.centerLongitude && lbl.centerLatitude ? [lbl.centerLongitude, lbl.centerLatitude] : undefined,
+              bounds: lbl.topLeftBoundLongitude && lbl.topLeftBoundLatitude && lbl.bottomRightBoundLongitude && lbl.bottomRightBoundLatitude ?
+                [[lbl.topLeftBoundLongitude, lbl.topLeftBoundLatitude], [lbl.bottomRightBoundLongitude, lbl.bottomRightBoundLatitude]] : undefined,
+              zoom: lbl.zoom ?? undefined,
+              bearing: lbl.bearing ?? undefined,
+              zoomToBounds: false
             }
             return currLbl;
           }) ?? [];
@@ -408,7 +410,8 @@ export default function Home() {
               ],
               minZoom: undefined,
               zoom: 8,
-              bearing: 0
+              bearing: 0,
+              zoomToBounds: true
             },
             {
               title: "Brooklyn",
@@ -419,14 +422,16 @@ export default function Home() {
               ],
               minZoom: undefined,
               zoom: 7,
-              bearing: 0
+              bearing: 0,
+              zoomToBounds: true
             },
             {
               title: "New Amsterdam",
               center: [-74.01255, 40.704882],
               minZoom: undefined,
               zoom: 7,
-              bearing: 0
+              bearing: 0,
+              zoomToBounds: true
             },
             {
               title: "Manhattan",
@@ -437,21 +442,24 @@ export default function Home() {
               ],
               minZoom: undefined,
               zoom: 8,
-              bearing: 0
+              bearing: 0,
+              zoomToBounds: true
             },
             {
               title: "New Netherland",
               center: [-73.60361111111109, 41.09659166666665],
               minZoom: undefined,
               zoom: 7,
-              bearing: 0
+              bearing: 0,
+              zoomToBounds: true
             },
             {
               title: "New England",
               center: [-71.67755127, 42.4971076267],
               minZoom: 5.2,
               zoom: 7,
-              bearing: 0
+              bearing: 0,
+              zoomToBounds: true
             },
           ];
           addZoomLayers(testLayers)

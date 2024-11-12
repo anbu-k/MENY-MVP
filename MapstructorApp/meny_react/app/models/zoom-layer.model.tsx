@@ -5,5 +5,6 @@ export interface ZoomLabel {
     bounds?: [[long1: number, lat1: number], [long2: number, lat2: number]]
     minZoom?: number,
     zoom?: number,
-    bearing?: number
+    bearing?: number,
+    zoomToBounds: boolean
 }
