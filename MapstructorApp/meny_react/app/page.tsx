@@ -20,7 +20,7 @@ import { MapItem, MapZoomProps } from './models/maps/map.model';
 import LayerFormButton from './components/forms/buttons/layer-form-button.component';
 import Modal from 'react-modal';
 import MapFormButton from './components/forms/buttons/map-form-button.component';
-import {Map as PrismaMap, LayerSection as PrismaLayerSection, LayerData as PrismaLayer, LayerGroup as PrismaLayerGroup, MapFilterGroup as PrismaMapFilterGroup, MapFilterItem as PrismaMapFilterItem, MapFilterItem, LayerSection, hoverItem} from '@prisma/client';
+import {Map as PrismaMap, ZoomLabel as PrismaZoomLabel, LayerSection as PrismaLayerSection, LayerData as PrismaLayer, LayerGroup as PrismaLayerGroup, MapFilterGroup as PrismaMapFilterGroup, MapFilterItem as PrismaMapFilterItem, MapFilterItem, LayerSection, hoverItem} from '@prisma/client';
 import EditForm from './components/forms/EditForm';
 import './popup.css';
 import { PopupType } from './models/popups/pop-up-type.model';
@@ -76,6 +76,7 @@ export default function Home() {
   const [editFormOpen, setEditFormOpen] = useState(false);
   const [editFormId, setEditFormId] = useState("");
   const [groupFormOpen, setGroupFormOpen] = useState<boolean>(false);
+  const [currZoomLayers, setCurrZoomLayers] = useState<ZoomLabel[]>([]);
 
   const setMapStyle = (map: MutableRefObject<mapboxgl.Map | null>, mapId: string) => {
     if(map?.current) {
@@ -84,50 +85,7 @@ export default function Home() {
       // Replace this later
       setTimeout(() => {
         addAllMapLayers();
-        addZoomLayers([
-          {
-            title: "Long Island",
-            coordinates: [-72.94912, 40.85225],
-            minZoom: undefined,
-            zoom: 8,
-            bearing: 0
-          },
-          {
-            title: "Brooklyn",
-            coordinates: [-73.93772792292754, 40.65432897355928],
-            minZoom: undefined,
-            zoom: 7,
-            bearing: 0
-          },
-          {
-            title: "New Amsterdam",
-            coordinates: [-74.01255, 40.704882],
-            minZoom: undefined,
-            zoom: 7,
-            bearing: 0
-          },
-          {
-            title: "Manhattan",
-            coordinates: [-73.97719031118277, 40.78097749612493],
-            minZoom: undefined,
-            zoom: 7,
-            bearing: 0
-          },
-          {
-            title: "New Netherland",
-            coordinates: [-73.60361111111109, 41.09659166666665],
-            minZoom: undefined,
-            zoom: 7,
-            bearing: 0
-          },
-          {
-            title: "New England",
-            coordinates: [-71.67755127, 42.4971076267],
-            minZoom: 5.2,
-            zoom: 7,
-            bearing: 0
-          },
-        ])
+        addZoomLayers(currZoomLayers);
       }, 1000)
     }
   }
@@ -417,6 +375,79 @@ export default function Home() {
     }
   }
 
+  const getZoomLayers = () => {
+    fetch('http://localhost:3000/api/ZoomLabel', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    }).then((layers) => {
+      layers.json()?.then(parsed => {
+        console.log('GOT LAYERS: ', parsed)
+        if(!!parsed && !!parsed.zoomLabel) {
+          let labels: PrismaZoomLabel[] = parsed.zoomLabel;
+
+          let parsedZoomLabels: ZoomLabel[] = labels?.map(lbl => {
+            let currLbl: ZoomLabel = {
+              title: lbl.title,
+              coordinates: [lbl.longitude, lbl.latitude],
+              zoom: lbl.zoom,
+              bearing: lbl.bearing
+            }
+            return currLbl;
+          }) ?? [];
+          let testLayers: ZoomLabel[] = [
+            ...parsedZoomLabels,
+            {
+              title: "Long Island",
+              coordinates: [-72.94912, 40.85225],
+              minZoom: undefined,
+              zoom: 8,
+              bearing: 0
+            },
+            {
+              title: "Brooklyn",
+              coordinates: [-73.93772792292754, 40.65432897355928],
+              minZoom: undefined,
+              zoom: 7,
+              bearing: 0
+            },
+            {
+              title: "New Amsterdam",
+              coordinates: [-74.01255, 40.704882],
+              minZoom: undefined,
+              zoom: 7,
+              bearing: 0
+            },
+            {
+              title: "Manhattan",
+              coordinates: [-73.97719031118277, 40.78097749612493],
+              minZoom: undefined,
+              zoom: 8,
+              bearing: 0
+            },
+            {
+              title: "New Netherland",
+              coordinates: [-73.60361111111109, 41.09659166666665],
+              minZoom: undefined,
+              zoom: 7,
+              bearing: 0
+            },
+            {
+              title: "New England",
+              coordinates: [-71.67755127, 42.4971076267],
+              minZoom: 5.2,
+              zoom: 7,
+              bearing: 0
+            },
+          ];
+          addZoomLayers(testLayers)
+          setCurrZoomLayers(testLayers);
+        }
+      })
+    })
+  }
+
   const getLayerSections = () => {
     fetch('http://localhost:3000/api/LayerSection', {
       method: 'GET',
@@ -460,7 +491,6 @@ export default function Home() {
             }
             return layer;
           })
-          console.log(returnSectionLayers);
           setSectionLayers(returnSectionLayers)
         }
       });
@@ -535,6 +565,7 @@ export default function Home() {
     setPopUpVisible(layerPopupBefore);        //After modal close set popupVisible to whatever it was before modal call
     setCurrLayers([]);
     getLayerSections();
+    getZoomLayers();
   }
 
   const beforeModalOpen = () => {
@@ -554,6 +585,7 @@ export default function Home() {
     afterModalClose();
     setCurrLayers([]);
     getLayerSections();
+    getZoomLayers();
   }
 
   const afterModalCloseMaps = () => {
@@ -567,8 +599,8 @@ export default function Home() {
    */
   useEffect(() => {
     getMaps();
-    console.log('getting layer groups')
     getLayerSections();
+    getZoomLayers()
   }, [])
 
   /**
@@ -689,52 +721,9 @@ export default function Home() {
   useEffect(() => {
     if(currBeforeMap !== null && currAfterMap !== null) {
       addAllMapLayers();
-      addZoomLayers([
-        {
-          title: "Long Island",
-          coordinates: [-72.94912, 40.85225],
-          minZoom: undefined,
-          zoom: 8,
-          bearing: 0
-        },
-        {
-          title: "Brooklyn",
-          coordinates: [-73.93772792292754, 40.65432897355928],
-          minZoom: undefined,
-          zoom: 0,
-          bearing: 0
-        },
-        {
-          title: "New Amsterdam",
-          coordinates: [-74.01255, 40.704882],
-          minZoom: undefined,
-          zoom: 0,
-          bearing: 0
-        },
-        {
-          title: "Manhattan",
-          coordinates: [-73.97719031118277, 40.78097749612493],
-          minZoom: undefined,
-          zoom: 0,
-          bearing: 0
-        },
-        {
-          title: "New Netherland",
-          coordinates: [-73.60361111111109, 41.09659166666665],
-          minZoom: undefined,
-          zoom: 0,
-          bearing: 0
-        },
-        {
-          title: "New England",
-          coordinates: [-71.67755127, 42.4971076267],
-          minZoom: 5.2,
-          zoom: 0,
-          bearing: 0
-        },
-      ])
+      addZoomLayers(currZoomLayers);
     }
-  }, [currLayers, currBeforeMap, currAfterMap]);
+  }, [currLayers, currBeforeMap, currAfterMap, currZoomLayers]);
 
   useEffect(() => {
     if(!mapLoaded) return;
