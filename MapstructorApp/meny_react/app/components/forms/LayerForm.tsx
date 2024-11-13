@@ -106,25 +106,7 @@ export default function LayerForm(props: LayerFormProps) {
         paint["line-opacity"] = values.lineOpacity ?? 1.0;
       }
 
-      let layerVals = {
-        name: values.name,
-        sectionName: props.sectionName,
-        sourceUrl: values.sourceUrl,
-        type: values.type,
-        paint: JSON.stringify(paint), // JSON string
-        sourceType: values.sourceType,
-        sourceId: values.sourceId,
-        sourceLayer: values.sourceLayer,
-        hover: values.hover,
-        time: values.time,
-        click: values.click,
-        hoverStyle: values.hoverStyle,
-        clickStyle: values.clickStyle,
-        clickHeader: values.clickHeader,
-        hoverContent: values.hoverContent,
-      };
-
-      const layerData = layerVals;
+      const layerData = {...values, paint: JSON.stringify(paint)};
 
       try {
         await fetch("api/LayerData", {
