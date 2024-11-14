@@ -50,6 +50,7 @@ export async function POST(request: Request) { // create
                     zoom: m.zoom,
                     bearing: m.bearing,
                     styleId: m.styleId,
+                    zoomLabelId: m.zoomLabelId
                 })) || [],
             },
             mapfilteritems: {
@@ -163,6 +164,7 @@ export async function PUT(request: Request){ //modify
         zoom: g.zoom,
         bearing: g.bearing,
         styleId: g.styleId,
+        zoomLabelId: g.zoomLabelId
     }
 
     const gitem = {

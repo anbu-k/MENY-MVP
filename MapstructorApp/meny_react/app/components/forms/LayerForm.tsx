@@ -61,6 +61,10 @@ export default function LayerForm(props: LayerFormProps) {
       hover: false,
       click: false,
       time: false,
+      hoverStyle: '',
+      clickStyle: '',
+      clickHeader: '',
+      hoverContent: [{label: "", type: ""}],
       fillColor: "#e3ed58",
       fillOpacity: 0.5,
       fillOutlineColor: "#FF0000",
@@ -76,10 +80,6 @@ export default function LayerForm(props: LayerFormProps) {
       lineWidth: 5,
       lineBlur: 0,
       lineOpacity: 1.0,
-      hoverStyle: '',
-      clickStyle: '',
-      clickHeader: '',
-      hoverContent: [{label: "", type: ""}],
     },
 
     onSubmit: async (values) => {
@@ -105,40 +105,8 @@ export default function LayerForm(props: LayerFormProps) {
         paint["line-blur"] = values.lineBlur ?? 0;
         paint["line-opacity"] = values.lineOpacity ?? 1.0;
       }
-      
-      let layerVals = {
-        name: values.name,
-        sectionName: props.sectionName,
-        sourceUrl: values.sourceUrl,
-        type: values.type,
-        paint: values.paint,
-        sourceType: values.sourceType,
-        sourceId: values.sourceId,
-        sourceLayer: values.sourceLayer,
-        hover: values.hover,
-        time: values.time,
-        click: values.click,
-        hoverStyle: values.hoverStyle,
-        clickStyle: values.clickStyle,
-        clickHeader: values.clickHeader,
-        hoverContent: values.hoverContent,
-      }
 
-      // let layerVals = {
-      //   name: values.name,
-      //   sectionName: props.sectionName,
-      //   sourceUrl: values.sourceUrl,
-      //   type: values.type,
-      //   paint: JSON.stringify(paint), // JSON string
-      //   sourceType: values.sourceType,
-      //   sourceId: values.sourceId,
-      //   sourceLayer: values.sourceLayer,
-      //   hover: values.hover,
-      //   time: values.time,
-      //   click: values.click,
-      // };
-
-      const layerData = { ...values, paint: JSON.stringify(paint)};
+      const layerData = {...values, paint: JSON.stringify(paint)};
 
       try {
         await fetch("api/LayerData", {
@@ -800,9 +768,12 @@ export default function LayerForm(props: LayerFormProps) {
             </>
           )
         }
-
-        <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
-        <label htmlFor="click" style={labelStyling}>Click:</label>
+        <div
+        style={{ display: "flex", alignItems: "center", marginBottom: "10px" }}
+      >
+          <label htmlFor="click" style={labelStyling}>
+          Click:
+        </label>
           <input
             type="checkbox"
             id="click"
@@ -848,17 +819,20 @@ export default function LayerForm(props: LayerFormProps) {
             </>
           )
         }
-
-        <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
-          <label htmlFor="time" style={labelStyling}>Time:</label>
-            <input
-              type="checkbox"
-              id="time"
-              name="time"
-              onChange={formik.handleChange}
-              checked={formik.values.time}
-              style={checkboxStyling}
-            />
+        <div
+        style={{ display: "flex", alignItems: "center", marginBottom: "10px" }}
+      >
+          <label htmlFor="time" style={labelStyling}>
+          Time:
+        </label>
+          <input
+            type="checkbox"
+            id="time"
+            name="time"
+            onChange={formik.handleChange}
+            checked={formik.values.time}
+            style={checkboxStyling}
+          />
         </div>
 
         {/* <div style={{ marginBottom: '15px' }}>
@@ -872,11 +846,16 @@ export default function LayerForm(props: LayerFormProps) {
             style={boxStyling}
           />
         </div> */}
-
         <button
           style={buttonStyling}
-          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = buttonHoverStyling.backgroundColor!)}
-          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = buttonStyling.backgroundColor!)}
+          onMouseEnter={(e) =>
+          (e.currentTarget.style.backgroundColor =
+            buttonHoverStyling.backgroundColor!)
+        }
+          onMouseLeave={(e) =>
+          (e.currentTarget.style.backgroundColor =
+            buttonStyling.backgroundColor!)
+        }
           type="submit"
         >
           Submit

@@ -26,15 +26,17 @@ model MapFilterGroup {
 }
 
 model Map {
-  id        String @id @default(auto()) @map("_id") @db.ObjectId
-  mapId     String @unique
-  longitude Float
-  latitude  Float
-  mapName   String
-  zoom      Float
-  bearing   Float
-  styleId   String
-  groupId   String
+  id          String     @id @default(auto()) @map("_id") @db.ObjectId
+  mapId       String     @unique
+  longitude   Float
+  latitude    Float
+  mapName     String
+  zoom        Float
+  bearing     Float
+  styleId     String
+  groupId     String
+  zoomLabelId String?    @db.ObjectId
+  zoomLabel   ZoomLabel? @relation(fields: [zoomLabelId], references: [id])
 
   MapFilterGroup MapFilterGroup? @relation(fields: [groupId], references: [groupId], onDelete: Cascade)
 }
@@ -51,6 +53,22 @@ model MapFilterItem {
   groupId                    String
 
   mapfiltergroup MapFilterGroup? @relation(fields: [groupId], references: [groupId], onDelete: Cascade)
+}
+
+model ZoomLabel {
+  id                          String @id @default(auto()) @map("_id") @db.ObjectId
+  title                       String
+  minZoom                     Float?
+  zoom                        Float?
+  bearing                     Float?
+  centerLatitude              Float?
+  centerLongitude             Float?
+  topLeftBoundLatitude        Float?
+  topLeftBoundLongitude       Float?
+  bottomRightBoundLatitude    Float?
+  bottomRightBoundLongitude   Float?
+  zoomToBounds                Boolean
+  Map                         Map[]
 }
 
 model LayerSection {
@@ -72,8 +90,8 @@ model LayerGroup {
 }
 
 type hoverItem {
-  label        String
-  type         String
+  label String
+  type  String
 }
 
 model LayerData {
@@ -103,4 +121,3 @@ model LayerData {
   clickHeader   String?
   hoverContent  hoverItem[]
 }
-

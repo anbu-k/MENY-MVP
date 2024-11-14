@@ -109,7 +109,7 @@ const SectionLayerGroupComponent = (props: SectionLayerGroupsProps) => {
                     <NewSectionLayerGroupItem 
                     beforeOpen={props.beforeOpen} 
                     afterClose={props.afterClose} 
-                    groupName={props.group.label} 
+                    groupName={props.group.id} 
                     sectionName={props.sectionName}>
                     </NewSectionLayerGroupItem>
                 )

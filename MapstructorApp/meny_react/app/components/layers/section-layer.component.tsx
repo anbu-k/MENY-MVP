@@ -55,7 +55,7 @@ const SectionLayerComponent = (props: SectionLayerProps) => {
                     <NewSectionLayerGroup
                         beforeOpen={props.beforeOpen}
                         afterClose={props.afterClose}
-                        sectionLayerName={props.layer.label}
+                        sectionLayerId={props.layer.id}
                     ></NewSectionLayerGroup>
                 )
             }

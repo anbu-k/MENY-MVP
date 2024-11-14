@@ -285,15 +285,15 @@ label[for="current_buildings"] {
   /* Firefox */
   height: -moz-calc(100% - 171px);
   /* WebKit */
-  height: -webkit-calc(100% - 171px);
+  height: -webkit-calc(100% - 121px);
   /* Standard */
-  max-height: calc(100% - 171px);
+  max-height: calc(100% - 121px);
   /* Opera */
-  max-height: -o-calc(100% - 171px);
+  max-height: -o-calc(100% - 121px);
   /* Firefox */
-  max-height: -moz-calc(100% - 171px);
+  max-height: -moz-calc(100% - 121px);
   /* WebKit */
-  max-height: -webkit-calc(100% - 171px);
+  max-height: -webkit-calc(100% - 149px);
   overflow: auto;
   box-shadow: 0 0 10px 2px rgba(31, 51, 73, 0.1) !important;
   background-color: #fff !important;
