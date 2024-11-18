@@ -112,6 +112,7 @@ model LayerData {
   sourceUrl     String
   sourceId      String
   paint         String?
+  layout        String?
   sourceLayer   String
   hover         Boolean
   time          Boolean

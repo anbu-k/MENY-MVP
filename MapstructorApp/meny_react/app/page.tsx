@@ -71,7 +71,6 @@ const afterMapItem: MapItem = {
   groupId: "",
 };
 
-
 mapboxgl.accessToken =
   "pk.eyJ1IjoibWFwbnkiLCJhIjoiY2xtMG93amk4MnBrZTNnczUzY2VvYjg0ciJ9.MDMHYBlVbG14TJD120t6NQ";
 export default function Home() {
@@ -152,11 +151,15 @@ export default function Home() {
 
     // Parses the paint string into a JSON object
     const parsedPaint = layerConfig.paint ? JSON.parse(layerConfig.paint) : {};
+    const parsedLayout = layerConfig.layout
+      ? JSON.parse(layerConfig.layout)
+      : {};
 
     if (layerTypes.includes(layerConfig.type)) {
       let paint = {};
+      let layout = { ...parsedLayout };
 
-      // Set paint properties based on layer type
+      // Sets paint properties based on layer type
       if (layerConfig.type === "fill") {
         paint = {
           "fill-color": parsedPaint["fill-color"] ?? "#e3ed58",
@@ -173,6 +176,14 @@ export default function Home() {
           "text-color": parsedPaint["text-color"] ?? "#000080",
           "text-halo-color": parsedPaint["text-halo-color"] ?? "#ffffff",
           "text-halo-width": parsedPaint["text-halo-width"] ?? 2,
+        };
+        layout = {
+          ...layout,
+          "text-field": parsedLayout["text-field"] ?? "{name}", // Default text
+          "text-size": parsedLayout["text-size"] ?? 12,
+          "text-anchor": parsedLayout["text-anchor"] ?? "top",
+          "icon-image": parsedLayout["icon-image"] ?? "marker-icon",
+          "icon-size": parsedLayout["icon-size"] ?? 0.5,
         };
       } else if (layerConfig.type === "circle") {
         paint = {
@@ -200,6 +211,7 @@ export default function Home() {
         },
         layout: {
           visibility: "visible",
+          ...layout,
         },
         "source-layer": layerConfig.sourceLayer,
         paint,
